@@ -393,21 +393,9 @@ flutter:
       fonts:
         - asset: assets/fonts/fallback/NotoSansThai-Regular.ttf
 
-    - family: NotoSansKR
-      fonts:
-        - asset: assets/fonts/fallback/NotoSansKR-Regular.ttf
-
-    - family: NotoSansSC
-      fonts:
-        - asset: assets/fonts/fallback/NotoSansSC-Regular.ttf
-
     - family: NotoSansMath
       fonts:
         - asset: assets/fonts/fallback/NotoSansMath-Regular.ttf
-
-    - family: NotoSansEgyptianHieroglyphs
-      fonts:
-        - asset: assets/fonts/fallback/NotoSansEgyptianHieroglyphs-Regular.ttf
 
     - family: NotoEmoji
       fonts:

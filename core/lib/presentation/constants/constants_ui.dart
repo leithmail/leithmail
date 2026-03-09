@@ -12,10 +12,7 @@ class ConstantsUI {
     'NotoSansArabic', // Arabic script
     'NotoSansTamil', // Tamil script
     'NotoSansThai', // Thai script
-    'NotoSansKR', // Korean
-    'NotoSansSC', // Simplified Chinese (zh_Hans)
     'NotoSansMath', // Math symbols (∑, ∫, √, etc.)
-    'NotoSansEgyptianHieroglyphs', // Egyptian Hieroglyphs (𓀀)
     'NotoEmoji', // Monochrome emoji
     'NotoSansSymbols', // Miscellaneous symbols and arrows
     'NotoSansSymbols2', // Extended symbol support
