@@ -68,8 +68,8 @@ dependencies:
 
   html_editor_enhanced:
     git:
-      url: https://github.com/linagora/html-editor-enhanced.git
-      ref: main
+      url: https://github.com/leithmail/html-editor-enhanced.git
+      ref: 23181f06f2a6d243ec3dc060fe0494f340e178da
 
   jmap_dart_client:
     git:

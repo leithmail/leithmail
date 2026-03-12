@@ -1264,9 +1264,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: main
-      resolved-ref: "2e3d7a03403c6d1beedf6baae983615f593d9e59"
-      url: "https://github.com/linagora/html-editor-enhanced.git"
+      ref: "23181f06f2a6d243ec3dc060fe0494f340e178da"
+      resolved-ref: "23181f06f2a6d243ec3dc060fe0494f340e178da"
+      url: "https://github.com/leithmail/html-editor-enhanced.git"
     source: git
     version: "3.3.5"
   html_unescape:
