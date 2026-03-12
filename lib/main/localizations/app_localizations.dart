@@ -25,7 +25,7 @@ class AppLocalizations {
   }
 
   String get login_text_slogan {
-    return Intl.message('Twake Mail',
+    return Intl.message('Leithmail',
         name: 'login_text_slogan');
   }
 
@@ -882,7 +882,7 @@ class AppLocalizations {
 
   String get app_name {
     return Intl.message(
-        'Twake Mail',
+        'Leithmail',
         name: 'app_name');
   }
 
@@ -1051,7 +1051,7 @@ class AppLocalizations {
 
   String get page_name {
     return Intl.message(
-        'Twake Mail',
+        'Leithmail',
         name: 'page_name');
   }
 
@@ -1625,7 +1625,7 @@ class AppLocalizations {
 
   String get languageSubtitle {
     return Intl.message(
-        'Set the language you use on Twake Mail.',
+        'Set the language you use on Leithmail.',
         name: 'languageSubtitle');
   }
 
@@ -2679,7 +2679,7 @@ class AppLocalizations {
 
   String get appTitlePushNotification {
     return Intl.message(
-      'Twake Mail',
+      'Leithmail',
       name: 'appTitlePushNotification');
   }
 
@@ -3802,7 +3802,7 @@ class AppLocalizations {
 
   String get bannerProgressingRecoveryMessage {
     return Intl.message(
-      'The recovery is in progress. You can continue using Twake Mail',
+      'The recovery is in progress. You can continue using Leithmail',
       name: 'bannerProgressingRecoveryMessage',
     );
   }
@@ -4113,7 +4113,7 @@ class AppLocalizations {
 
   String get pleaseAllowNotifications {
     return Intl.message(
-      'Please allow notifications from Twake Mail in the device\'s Settings',
+      'Please allow notifications from Leithmail in the device\'s Settings',
       name: 'pleaseAllowNotifications',
     );
   }
@@ -4127,7 +4127,7 @@ class AppLocalizations {
 
   String get allowsTwakeMailToNotifyYouWhenANewMessageArrivesOnYourPhone {
     return Intl.message(
-      'Allows Twake Mail to notify you when a new message arrives on your phone',
+      'Allows Leithmail to notify you when a new message arrives on your phone',
       name: 'allowsTwakeMailToNotifyYouWhenANewMessageArrivesOnYourPhone',
     );
   }
@@ -4932,14 +4932,14 @@ class AppLocalizations {
 
   String get quotaBannerWarningSubtitleWithPremium {
     return Intl.message(
-      'To keep sending messages and enjoying all Twake Mail features, please consider cleaning up or upgrading your storage.',
+      'To keep sending messages and enjoying all Leithmail features, please consider cleaning up or upgrading your storage.',
       name: 'quotaBannerWarningSubtitleWithPremium',
     );
   }
 
   String get quotaBannerWarningSubtitleWithoutPremium {
     return Intl.message(
-      'To keep sending messages and enjoying all Twake Mail features, please consider cleaning up.',
+      'To keep sending messages and enjoying all Leithmail features, please consider cleaning up.',
       name: 'quotaBannerWarningSubtitleWithoutPremium',
     );
   }

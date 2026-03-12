@@ -10,7 +10,7 @@ const ansiGreen = '\x1B[32m';
 const ansiBlue = '\x1B[34m';
 const ansiBold = '\x1B[1m';
 
-const appLogName = '[TwakeMail]';
+const appLogName = '[Leithmail]';
 
 String _applyWebColor(Level level, String text) {
   switch (level) {

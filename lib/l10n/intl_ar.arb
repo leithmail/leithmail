@@ -709,7 +709,7 @@
     "placeholders_order": [],
     "placeholders": {}
   },
-  "login_text_slogan": "Twake Mail",
+  "login_text_slogan": "Leithmail",
   "@login_text_slogan": {
     "type": "text",
     "placeholders_order": [],
@@ -937,7 +937,7 @@
     "placeholders_order": [],
     "placeholders": {}
   },
-  "page_name": "Twake Mail",
+  "page_name": "Leithmail",
   "@page_name": {
     "type": "text",
     "placeholders_order": [],
@@ -1573,7 +1573,7 @@
     "placeholders_order": [],
     "placeholders": {}
   },
-  "app_name": "Twake Mail",
+  "app_name": "Leithmail",
   "@app_name": {
     "type": "text",
     "placeholders_order": [],
@@ -2273,7 +2273,7 @@
     "placeholders_order": [],
     "placeholders": {}
   },
-  "appTitlePushNotification": "Twake Mail",
+  "appTitlePushNotification": "Leithmail",
   "@appTitlePushNotification": {
     "type": "text",
     "placeholders_order": [],
@@ -2345,7 +2345,7 @@
     "placeholders_order": [],
     "placeholders": {}
   },
-  "textQuotasRunningOutOfStorageContent": "قريبًا لن تتمكن من إرسال بريد إلكتروني في Twake Mail. الرجاء تنظيف مساحة التخزين الخاصة بك أو ترقية مساحة التخزين لديك للحصول على الميزات الكاملة في بريد الفريق.",
+  "textQuotasRunningOutOfStorageContent": "قريبًا لن تتمكن من إرسال بريد إلكتروني في Leithmail. الرجاء تنظيف مساحة التخزين الخاصة بك أو ترقية مساحة التخزين لديك للحصول على الميزات الكاملة في بريد الفريق.",
   "@textQuotasRunningOutOfStorageContent": {
     "type": "text",
     "placeholders_order": [],
