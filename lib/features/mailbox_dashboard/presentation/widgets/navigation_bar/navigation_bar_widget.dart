@@ -52,16 +52,8 @@ class NavigationBarWidget extends StatelessWidget {
       color: Colors.white,
       padding: const EdgeInsetsDirectional.symmetric(horizontal: NavigationBarStyle.horizontalMargin),
       child: Row(children: [
-        SizedBox(
-          width: ResponsiveUtils.defaultSizeMenu - NavigationBarStyle.horizontalMargin,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ApplicationLogoWidthTextWidget(onTapAction: onTapApplicationLogoAction),
-              const Spacer(),
-            ],
-          ),
-        ),
+        ApplicationLogoWidthTextWidget(onTapAction: onTapApplicationLogoAction, iconSize: 52),
+        const SizedBox(width: 16),
         if (searchForm != null)
           Expanded(child: LayoutBuilder(builder: (context, constraint) {
             return Row(
