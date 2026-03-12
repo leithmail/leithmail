@@ -576,7 +576,6 @@ abstract class BaseController extends GetxController
 
   Future<void> clearDataAndGoToLoginPage() async {
     log('$runtimeType::clearDataAndGoToLoginPage:');
-    SentryManager.instance.clearUser();
     await clearAllData();
     removeAllPageAndGoToLogin();
   }

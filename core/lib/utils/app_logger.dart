@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:core/utils/build_utils.dart';
 import 'package:core/utils/platform_info.dart';
-import 'package:core/utils/sentry/sentry_manager.dart';
 import 'package:universal_html/html.dart' as html;
 
 /// ANSI escape colors (Web only)
@@ -61,9 +58,7 @@ void _internalLog(
       ? PlatformInfo.isWeb
       : BuildUtils.isDebugMode;
 
-  final shouldSentry = _shouldReportToSentry(level);
-
-  if (!shouldPrint && !shouldSentry) {
+  if (!shouldPrint) {
     return;
   }
 
@@ -77,23 +72,6 @@ void _internalLog(
     } else {
       // ignore: avoid_print
       print('$appLogName $formattedMessage');
-    }
-  }
-
-  if (shouldSentry) {
-    if (level == Level.trace) {
-      unawaited(
-        SentryManager.instance.captureMessage(rawMessage, extras: extras),
-      );
-    } else {
-      unawaited(
-        SentryManager.instance.captureException(
-          exception ?? rawMessage,
-          stackTrace: stackTrace,
-          message: rawMessage,
-          extras: extras,
-        ),
-      );
     }
   }
 }
@@ -135,12 +113,6 @@ void _printWebConsole(Level level, String value) {
       html.window.console.debug('$appLogName $value');
       break;
   }
-}
-
-bool _shouldReportToSentry(Level level) {
-  return level == Level.error ||
-      level == Level.critical ||
-      level == Level.trace;
 }
 
 void logError(

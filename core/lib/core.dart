@@ -61,9 +61,7 @@ export 'utils/preview_eml_file_utils.dart';
 export 'utils/logger/log_tracking.dart';
 export 'utils/html/html_utils.dart';
 export 'utils/web_link_generator.dart';
-export 'utils/sentry/sentry_manager.dart';
 export 'utils/config/env_loader.dart';
-export 'utils/sentry/sentry_dio_helper.dart';
 export 'utils/widget_utils.dart';
 
 // Views
