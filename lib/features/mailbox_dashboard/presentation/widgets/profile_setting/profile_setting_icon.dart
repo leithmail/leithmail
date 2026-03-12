@@ -3,10 +3,10 @@ import 'package:core/presentation/extensions/string_extension.dart';
 import 'package:core/presentation/resources/image_paths.dart';
 import 'package:core/presentation/utils/app_toast.dart';
 import 'package:core/presentation/views/button/tmail_button_widget.dart';
-import 'package:core/presentation/views/image/avatar_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_portal/flutter_portal.dart';
+import 'package:tmail_ui_user/features/base/widget/user_avatar_builder.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/profile_setting/profile_setting_action_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/profile_setting/profile_setting_menu_overlay.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
@@ -87,22 +87,12 @@ class _ProfileSettingIconState extends State<ProfileSettingIcon> {
                   },
                   margin: const EdgeInsetsDirectional.only(end: 16),
                 )
-              : (AvatarBuilder()
-                ..text(widget.ownEmailAddress.firstCharacterToUpperCase)
-                ..backgroundColor(Colors.white)
-                ..textColor(Colors.black)
-                ..context(context)
-                ..size(48)
-                ..addOnTapActionClick(_toggleOpenMenu)
-                ..addBoxShadows([
-                  const BoxShadow(
-                    color: AppColor.colorShadowBgContentEmail,
-                    spreadRadius: 1,
-                    blurRadius: 1,
-                    offset: Offset(0, 0.5),
-                  )
-                ]))
-              .build(),
+              : UserAvatarBuilder(
+                  key: const Key('user_avatar'),
+                  username: widget.ownEmailAddress.firstLetterToUpperCase,
+                  onTapAction: _toggleOpenMenu,
+                  size: 48,
+                ),
           ),
         );
       },
