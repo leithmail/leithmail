@@ -67,6 +67,7 @@ class HomeController extends ReloadableController {
 
   @override
   void onInit() {
+    super.onInit();
     if (PlatformInfo.isMobile) {
       _initFlutterDownloader();
       _registerReceivingFileSharing();
@@ -75,7 +76,6 @@ class HomeController extends ReloadableController {
     if (PlatformInfo.isIOS) {
       _registerNotificationClickOnIOS();
     }
-    super.onInit();
   }
 
   @override
@@ -105,7 +105,6 @@ class HomeController extends ReloadableController {
   static void downloadCallback(String id, int status, int progress) {}
 
   Future<void> _handleNavigateToScreen() async {
-    await Future.delayed(2.seconds);
     final arguments = Get.arguments;
     if (arguments is LoginNavigateArguments) {
       _handleLoginNavigateArguments(arguments);
