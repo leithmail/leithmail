@@ -20,16 +20,17 @@ Future<void> runTmail() async {
 Future<void> runTmailPreload() async {
   ThemeUtils.setSystemLightUIStyle();
 
-  await Future.wait([
-    MainBindings().dependencies(),
-    HiveCacheConfig.instance.setUp(),
-    EnvLoader.loadEnvFile(),
-    if (PlatformInfo.isWeb) AssetPreloader.preloadHtmlEditorAssets(),
-  ], eagerError: false);
+  await MainBindings().dependencies();
+  await HiveCacheConfig.instance.setUp();
+  await EnvLoader.loadEnvFile();
 
+  if (PlatformInfo.isWeb) {
+    await AssetPreloader.preloadHtmlEditorAssets();
+  }
+
+  await HiveCacheConfig.instance.initializeEncryptionKey();
   await Get.find<Executor>().warmUp(log: BuildUtils.isDebugMode);
   await CozyIntegration.integrateCozy();
-  await HiveCacheConfig.instance.initializeEncryptionKey();
 
   if (PlatformInfo.isWeb) {
     setPathUrlStrategy();
