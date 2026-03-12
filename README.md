@@ -13,7 +13,7 @@ Early development. Not yet usable.
 
 - Any JMAP server — tested against Stalwart, Apache James, Cyrus IMAP
 - Any OIDC identity provider — autodiscovery from email domain
-- No vendor dependencies — no Firebase, no proprietary services
+- No vendor locks — no Linagora, no Firebase, no proprietary services
 - Cross-platform — Android, iOS, web (desktop planned)
 - Multiple accounts
 - Shared mailboxes and delegated access (JMAP ACL)
