@@ -1,4 +1,5 @@
 import 'package:core/presentation/utils/theme_utils.dart';
+import 'package:core/utils/app_logger.dart';
 import 'package:core/utils/platform_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -27,7 +28,6 @@ class TMailApp extends StatefulWidget {
 }
 
 class _TMailAppState extends State<TMailApp> {
-
   DeepLinksManager? _deepLinksManager;
 
   @override
@@ -75,6 +75,10 @@ class _TMailAppState extends State<TMailApp> {
       initialRoute: AppRoutes.home,
       getPages: AppPages.pages,
       builder: FlutterSmartDialog.init(),
+      enableLog: true,
+      logWriterCallback: (text, {bool isError = false}) {
+        logInfo(text, webConsoleEnabled: true);
+      },
     );
   }
 
