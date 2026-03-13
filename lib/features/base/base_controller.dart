@@ -142,7 +142,7 @@ abstract class BaseController extends GetxController
   }
 
   void onError(dynamic error, StackTrace stackTrace) {
-    logWarning('$runtimeType::onError():Error: $error | StackTrace: $stackTrace');
+    logWarning('$runtimeType::onError():Error: $error');
     final isUrgentException = validateUrgentException(error);
     if (isUrgentException) {
       handleUrgentException(exception: error);

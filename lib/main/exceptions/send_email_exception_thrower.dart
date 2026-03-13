@@ -11,7 +11,7 @@ class SendEmailExceptionThrower extends RemoteExceptionThrower {
   @override
   FutureOr<void> throwException(error, stackTrace) async {
     logError(
-      'SendEmailExceptionThrower::throwException():error: $error | stackTrace: $stackTrace',
+      'SendEmailExceptionThrower::throwException():error: $error',
       exception: error,
       stackTrace: stackTrace,
     );

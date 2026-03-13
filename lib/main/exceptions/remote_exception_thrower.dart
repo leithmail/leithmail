@@ -18,7 +18,7 @@ class RemoteExceptionThrower extends ExceptionThrower {
   @override
   throwException(dynamic error, dynamic stackTrace) {
     logError(
-      'RemoteExceptionThrower::throwException():error: $error | stackTrace: $stackTrace',
+      'RemoteExceptionThrower::throwException():error: $error',
       exception: error,
       stackTrace: stackTrace,
     );

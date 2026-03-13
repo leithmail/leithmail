@@ -86,7 +86,6 @@ String _buildRawMessage(
   if (message?.isNotEmpty == true) parts.add(message!);
   if (exception != null) parts.add('exception: $exception');
   if (extras != null && extras.isNotEmpty) parts.add('extras: $extras');
-  if (stackTrace != null) parts.add('stackTrace: $stackTrace');
   return parts.join(' | ');
 }
 
