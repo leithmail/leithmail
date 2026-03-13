@@ -125,8 +125,20 @@ abstract class BaseController extends GetxController
   }
 
   void consumeState(Stream<Either<Failure, Success>> newStateStream) async {
-    newStateStream.listen(onData, onError: onError, onDone: onDone);
-  }
+    if (!BuildUtils.isDebugMode) {
+      newStateStream.listen(onData, onError: onError, onDone: onDone);
+      return;
+    }
+    newStateStream
+      .map((state) {
+        state.fold(
+          (failure) => logDebug('$runtimeType::failure(): ${failure.runtimeType}'),
+          (success) => logDebug('$runtimeType::success(): ${success.runtimeType}'),
+        );
+        return state;
+      })
+    .listen(onData, onError: onError, onDone: onDone);
+}
 
   void dispatchState(Either<Failure, Success> newState) {
     viewState.value = newState;
