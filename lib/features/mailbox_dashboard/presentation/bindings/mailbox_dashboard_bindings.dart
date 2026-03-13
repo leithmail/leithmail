@@ -2,7 +2,6 @@ import 'package:core/data/model/source_type/data_source_type.dart';
 import 'package:core/data/network/download/download_manager.dart';
 import 'package:core/presentation/resources/image_paths.dart';
 import 'package:core/presentation/utils/html_transformer/html_transform.dart';
-import 'package:core/utils/config/app_config_loader.dart';
 import 'package:core/utils/file_utils.dart';
 import 'package:core/utils/platform_info.dart';
 import 'package:core/utils/preview_eml_file_utils.dart';
@@ -72,28 +71,20 @@ import 'package:tmail_ui_user/features/mailbox/domain/repository/mailbox_reposit
 import 'package:tmail_ui_user/features/mailbox/domain/usecases/clear_mailbox_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox/domain/usecases/mark_as_mailbox_read_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox/presentation/mailbox_bindings.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource/app_grid_datasource.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource/search_datasource.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource/session_storage_composer_datasource.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource_impl/app_grid_datasource_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource_impl/hive_spam_report_datasource_impl.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource_impl/local_app_grid_datasource_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource_impl/local_spam_report_datasource_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource_impl/search_datasource_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/datasource_impl/session_storage_composer_datasoure_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/local/local_sort_order_manager.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/data/network/linagora_ecosystem_api.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/data/repository/app_grid_repository_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/repository/composer_cache_repository_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/repository/search_repository_impl.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/data/repository/spam_report_repository_impl.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/domain/repository/app_grid_repository.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/repository/composer_cache_repository.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/repository/search_repository.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/repository/spam_report_repository.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/get_all_recent_search_latest_interactor.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/get_app_dashboard_configuration_interactor.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/get_app_grid_linagra_ecosystem_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/get_composer_cache_on_web_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/get_spam_mailbox_cached_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/get_spam_report_state_interactor.dart';
@@ -110,7 +101,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/store_l
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/store_spam_report_state_interactor.dart';
 import 'package:tmail_ui_user/features/download/presentation/bindings/download_interactor_bindings.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/advanced_filter_controller.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/app_grid_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/download/presentation/controllers/download_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/mailbox_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/search_controller.dart';
@@ -128,7 +118,6 @@ import 'package:tmail_ui_user/features/offline_mode/manager/new_email_cache_work
 import 'package:tmail_ui_user/features/offline_mode/manager/opened_email_cache_manager.dart';
 import 'package:tmail_ui_user/features/offline_mode/manager/opened_email_cache_worker_queue.dart';
 import 'package:tmail_ui_user/features/offline_mode/manager/sending_email_cache_manager.dart';
-import 'package:tmail_ui_user/features/paywall/presentation/paywall_bindings.dart';
 import 'package:tmail_ui_user/features/quotas/presentation/quotas_bindings.dart';
 import 'package:tmail_ui_user/features/search/email/domain/usecases/refresh_changes_search_email_interactor.dart';
 import 'package:tmail_ui_user/features/search/email/presentation/search_email_bindings.dart';
@@ -182,10 +171,7 @@ class MailboxDashBoardBindings extends BaseBindings {
 
   @override
   void bindingsController() {
-    Get.put(AppGridDashboardController(
-      Get.find<GetAppDashboardConfigurationInteractor>(),
-      Get.find<GetAppGridLinagraEcosystemInteractor>(),
-    ));
+
     Get.put(DownloadController(
       Get.find<DownloadManager>(),
       Get.find<PrintUtils>(),
@@ -263,7 +249,6 @@ class MailboxDashBoardBindings extends BaseBindings {
     Get.lazyPut<ServerSettingsDataSource>(
       () => Get.find<RemoteServerSettingsDataSourceImpl>());
     Get.lazyPut<IdentityCreatorDataSource>(() => Get.find<LocalIdentityCreatorDataSourceImpl>());
-    Get.lazyPut<AppGridDatasource>(() => Get.find<AppGridDatasourceImpl>());
   }
 
   @override
@@ -339,14 +324,6 @@ class MailboxDashBoardBindings extends BaseBindings {
     Get.lazyPut(() => LocalIdentityCreatorDataSourceImpl(
       Get.find<CacheExceptionThrower>()
     ));
-    Get.lazyPut(() => AppGridDatasourceImpl(
-      Get.find<LinagoraEcosystemApi>(),
-      Get.find<RemoteExceptionThrower>(),
-    ));
-    Get.lazyPut(() => LocalAppGridDatasourceImpl(
-      Get.find<AppConfigLoader>(),
-      Get.find<CacheExceptionThrower>(),
-    ));
   }
 
   @override
@@ -380,8 +357,6 @@ class MailboxDashBoardBindings extends BaseBindings {
     Get.lazyPut(() => DeleteMultipleEmailsPermanentlyInteractor(Get.find<EmailRepository>()));
     Get.lazyPut(() => EmptyTrashFolderInteractor(Get.find<ThreadRepository>()));
     Get.lazyPut(() => EmptySpamFolderInteractor(Get.find<ThreadRepository>()));
-    Get.lazyPut(() => GetAppDashboardConfigurationInteractor(Get.find<AppGridRepository>()));
-    Get.lazyPut(() => GetAppGridLinagraEcosystemInteractor(Get.find<AppGridRepository>()));
     Get.lazyPut(() => GetEmailByIdInteractor(
       Get.find<ThreadRepository>(),
       Get.find<EmailRepository>()));
@@ -411,7 +386,6 @@ class MailboxDashBoardBindings extends BaseBindings {
     Get.lazyPut(() => GetIdentityCacheOnWebInteractor(
       Get.find<IdentityCreatorRepository>()
     ));
-    PaywallBindings().dependencies();
 
     DownloadInteractorBindings().dependencies();
 
@@ -445,7 +419,6 @@ class MailboxDashBoardBindings extends BaseBindings {
     Get.lazyPut<MailboxRepository>(() => Get.find<MailboxRepositoryImpl>());
     Get.lazyPut<ServerSettingsRepository>(() => Get.find<ServerSettingsRepositoryImpl>());
     Get.lazyPut<IdentityCreatorRepository>(() => Get.find<IdentityCreatorRepositoryImpl>());
-    Get.lazyPut<AppGridRepository>(() => Get.find<AppGridRepositoryImpl>());
   }
 
   @override
@@ -494,9 +467,5 @@ class MailboxDashBoardBindings extends BaseBindings {
     Get.lazyPut(() => IdentityCreatorRepositoryImpl(
       Get.find<IdentityCreatorDataSource>()
     ));
-    Get.lazyPut(() => AppGridRepositoryImpl({
-      DataSourceType.network: Get.find<AppGridDatasource>(),
-      DataSourceType.local: Get.find<LocalAppGridDatasourceImpl>()
-    },));
   }
 }

@@ -1,6 +1,4 @@
 import 'package:core/presentation/views/button/default_close_button_widget.dart';
-import 'package:core/presentation/views/button/tmail_button_widget.dart';
-import 'package:core/utils/platform_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -61,30 +59,11 @@ class QuotasBannerWidget extends StatelessWidget {
                             style: QuotasBannerStyles.titleTextStyle,
                           ),
                           const SizedBox(height: 8),
-                          if (!PlatformInfo.isWeb ||
-                              _quotasController.isManageMyStorageIsDisabled)
+                          
                             Text(
                               appLocalizations.quotaBannerWarningSubtitleWithoutPremium,
                               style: QuotasBannerStyles.subTitleTextStyle,
                             )
-                          else
-                            Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  '${appLocalizations.quotaBannerWarningSubtitleWithPremium} ',
-                                  style: QuotasBannerStyles.subTitleTextStyle,
-                                ),
-                                TMailButtonWidget.fromText(
-                                  text: appLocalizations.manageMyStorage,
-                                  backgroundColor: QuotasBannerStyles.backgroundColor,
-                                  textStyle: QuotasBannerStyles.manageStorageButtonTextStyle,
-                                  padding: EdgeInsets.zero,
-                                  onTapActionCallback:
-                                    _quotasController.handleManageMyStorage,
-                                ),
-                              ],
-                            ),
                         ],
                       ),
                     ),

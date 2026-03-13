@@ -17,7 +17,6 @@ import 'package:get/get.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:jmap_dart_client/jmap/account_id.dart';
 import 'package:jmap_dart_client/jmap/core/error/method/error_method_response.dart';
-import 'package:jmap_dart_client/jmap/core/error/set_error.dart';
 import 'package:jmap_dart_client/jmap/core/session/session.dart';
 import 'package:jmap_dart_client/jmap/identities/identity.dart';
 import 'package:jmap_dart_client/jmap/mail/email/email.dart';
@@ -105,7 +104,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/remove_
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/mailbox_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/open_and_close_composer_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/update_text_formatting_menu_state_extension.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/validate_premium_storage_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/draggable_app_state.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/state/get_all_identities_state.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_all_identities_interactor.dart';
@@ -1030,45 +1028,23 @@ class ComposerController extends BaseController
       exception: failure.exception,
     );
 
-    final isIncreaseMySpaceIsDisabled =
-        !mailboxDashBoardController.validatePremiumIsAvailable() ||
-            mailboxDashBoardController.validateUserHasIsAlreadyHighestSubscription();
-
-    final needIncreaseMySpace = !isIncreaseMySpaceIsDisabled &&
-        messageRecord.errorType == SetError.overQuota;
-
     await MessageDialogActionManager().showConfirmDialogAction(
       context,
       title: '',
       messageRecord.message,
-      needIncreaseMySpace
-        ? AppLocalizations.of(context).increaseYourSpace
-        : AppLocalizations.of(context).edit,
-      cancelTitle: needIncreaseMySpace
-        ? AppLocalizations.of(context).edit
-        : AppLocalizations.of(context).closeAnyway,
+      AppLocalizations.of(context).edit,
+      cancelTitle: AppLocalizations.of(context).closeAnyway,
       alignCenter: true,
       outsideDismissible: false,
       autoPerformPopBack: false,
       onConfirmAction: () {
         _sendButtonState = ButtonState.enabled;
         popBack();
-
-        if (needIncreaseMySpace) {
-          mailboxDashBoardController.paywallController?.navigateToPaywall();
-        } else {
-          _autoFocusFieldWhenLauncher();
-        }
+        _autoFocusFieldWhenLauncher();
       },
       onCancelAction: () {
         _sendButtonState = ButtonState.enabled;
-
-        if (needIncreaseMySpace) {
-          popBack();
-          _autoFocusFieldWhenLauncher();
-        } else {
-          _closeComposerAction(closeOverlays: true);
-        }
+        _closeComposerAction(closeOverlays: true);
       },
     ).whenComplete(() => _sendButtonState = ButtonState.enabled);
   }
@@ -1333,25 +1309,14 @@ class ComposerController extends BaseController
         await _showConfirmDialogWhenSaveMessageToDraftsFailure(
           context: context,
           failure: resultState,
-          onConfirmAction: (needIncreaseMySpace) {
+          onConfirmAction: () {
             _saveToDraftButtonState = ButtonState.enabled;
             popBack();
-
-            if (needIncreaseMySpace) {
-              mailboxDashBoardController.paywallController?.navigateToPaywall();
-            } else {
-              _autoFocusFieldWhenLauncher();
-            }
+            _autoFocusFieldWhenLauncher();
           },
-          onCancelAction: (needIncreaseMySpace) {
+          onCancelAction: () {
             _saveToDraftButtonState = ButtonState.enabled;
-
-            if (needIncreaseMySpace) {
-              popBack();
-              _autoFocusFieldWhenLauncher();
-            } else {
-              _closeComposerAction(closeOverlays: true);
-            }
+            _closeComposerAction(closeOverlays: true);
           },
         );
       } else {
@@ -2248,8 +2213,8 @@ class ComposerController extends BaseController
   Future<void> _showConfirmDialogWhenSaveMessageToDraftsFailure({
     required BuildContext context,
     required FeatureFailure failure,
-    Function(bool)? onConfirmAction,
-    Function(bool)? onCancelAction,
+    Function()? onConfirmAction,
+    Function()? onCancelAction,
   }) async {
     final messageRecord = getMessageFailure(
       appLocalizations: AppLocalizations.of(context),
@@ -2257,52 +2222,30 @@ class ComposerController extends BaseController
       isDraft: true,
     );
 
-    final isIncreaseMySpaceIsDisabled =
-        !mailboxDashBoardController.validatePremiumIsAvailable() ||
-            mailboxDashBoardController.validateUserHasIsAlreadyHighestSubscription();
-
-    final needIncreaseMySpace = !isIncreaseMySpaceIsDisabled &&
-        messageRecord.errorType == SetError.overQuota;
-
     await MessageDialogActionManager().showConfirmDialogAction(
       context,
       title: '',
       messageRecord.message,
-      needIncreaseMySpace
-        ? AppLocalizations.of(context).increaseYourSpace
-        : AppLocalizations.of(context).edit,
-      cancelTitle: needIncreaseMySpace
-        ? AppLocalizations.of(context).edit
-        : AppLocalizations.of(context).closeAnyway,
+      AppLocalizations.of(context).edit,
+      cancelTitle: AppLocalizations.of(context).closeAnyway,
       alignCenter: true,
       outsideDismissible: false,
       autoPerformPopBack: false,
       onConfirmAction: () {
         if (onConfirmAction != null) {
-          onConfirmAction(needIncreaseMySpace);
+          onConfirmAction();
         } else {
           _closeComposerButtonState = ButtonState.enabled;
           popBack();
-
-          if (needIncreaseMySpace) {
-            mailboxDashBoardController.paywallController?.navigateToPaywall();
-          } else {
-            _autoFocusFieldWhenLauncher();
-          }
+          _autoFocusFieldWhenLauncher();
         }
       },
       onCancelAction: () {
         if (onCancelAction != null) {
-          onCancelAction(needIncreaseMySpace);
+          onCancelAction();
         } else {
           _closeComposerButtonState = ButtonState.enabled;
-
-          if (needIncreaseMySpace) {
-            popBack();
-            _autoFocusFieldWhenLauncher();
-          } else {
-            _closeComposerAction(closeOverlays: true);
-          }
+          _closeComposerAction(closeOverlays: true);
         }
       },
     );

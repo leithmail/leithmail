@@ -88,8 +88,6 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
                       ownEmailAddress: accountDisplayName,
                       contactSupportCapability: contactSupportCapability,
                       searchForm: SearchInputFormWidget(),
-                      appGridController:
-                          controller.appGridDashboardController,
                       settingActionTypes: ProfileSettingActionType.values,
                       onTapApplicationLogoAction:
                           controller.redirectToInboxAction,

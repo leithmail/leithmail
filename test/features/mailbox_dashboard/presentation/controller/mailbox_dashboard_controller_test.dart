@@ -72,7 +72,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/save_re
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/store_email_sort_order_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/download_ui_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/advanced_filter_controller.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/app_grid_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/mailbox_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/search_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/spam_report_controller.dart';
@@ -147,7 +146,6 @@ const fallbackGenerators = {
   MockSpec<RemoveEmailDraftsInteractor>(),
   MockSpec<EmailReceiveManager>(),
   MockSpec<DownloadController>(fallbackGenerators: fallbackGenerators),
-  MockSpec<AppGridDashboardController>(fallbackGenerators: fallbackGenerators),
   MockSpec<SpamReportController>(fallbackGenerators: fallbackGenerators),
   MockSpec<LabelController>(fallbackGenerators: fallbackGenerators),
   MockSpec<NetworkConnectionController>(fallbackGenerators: fallbackGenerators),
@@ -241,7 +239,6 @@ void main() {
   final removeEmailDraftsInteractor = MockRemoveEmailDraftsInteractor();
   final emailReceiveManager = MockEmailReceiveManager();
   final downloadController = MockDownloadController();
-  final appGridDashboardController = MockAppGridDashboardController();
   final spamReportController = MockSpamReportController();
   final labelController = MockLabelController();
   final networkConnectionController = MockNetworkConnectionController();
@@ -323,7 +320,6 @@ void main() {
     Get.put<RemoveEmailDraftsInteractor>(removeEmailDraftsInteractor);
     Get.put<EmailReceiveManager>(emailReceiveManager);
     Get.put<DownloadController>(downloadController);
-    Get.put<AppGridDashboardController>(appGridDashboardController);
     Get.put<SpamReportController>(spamReportController);
     Get.put<LabelController>(labelController);
     Get.put<NetworkConnectionController>(networkConnectionController);

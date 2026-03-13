@@ -118,7 +118,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/save_te
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/store_email_sort_order_interactor.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/dashboard_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/download_ui_action.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/app_grid_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/search_controller.dart' as search;
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/spam_report_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/ai_scribe/setup_ai_needs_action_setting_extension.dart';
@@ -171,8 +170,6 @@ import 'package:tmail_ui_user/features/manage_account/presentation/model/account
 import 'package:tmail_ui_user/features/manage_account/presentation/model/manage_account_arguments.dart';
 import 'package:tmail_ui_user/features/network_connection/presentation/network_connection_controller.dart'
   if (dart.library.html) 'package:tmail_ui_user/features/network_connection/presentation/web_network_connection_controller.dart';
-import 'package:tmail_ui_user/features/paywall/presentation/paywall_controller.dart';
-import 'package:tmail_ui_user/features/paywall/presentation/saas_premium_mixin.dart';
 import 'package:tmail_ui_user/features/push_notification/presentation/controller/web_socket_controller.dart';
 import 'package:tmail_ui_user/features/push_notification/presentation/notification/local_notification_manager.dart';
 import 'package:tmail_ui_user/features/push_notification/presentation/services/fcm_service.dart';
@@ -226,7 +223,6 @@ import 'package:uuid/uuid.dart';
 class MailboxDashBoardController extends ReloadableController
     with ContactSupportMixin,
         OwnEmailAddressMixin,
-        SaaSPremiumMixin,
         AiScribeMixin,
         SearchLabelFilterModalMixin {
 
@@ -234,7 +230,6 @@ class MailboxDashBoardController extends ReloadableController
   final EmailReceiveManager _emailReceiveManager = Get.find<EmailReceiveManager>();
   final search.SearchController searchController = Get.find<search.SearchController>();
   final DownloadController downloadController = Get.find<DownloadController>();
-  final AppGridDashboardController appGridDashboardController = Get.find<AppGridDashboardController>();
   final SpamReportController spamReportController = Get.find<SpamReportController>();
   final NetworkConnectionController networkConnectionController = Get.find<NetworkConnectionController>();
   final LabelController labelController = Get.find<LabelController>();
@@ -335,7 +330,6 @@ class MailboxDashBoardController extends ReloadableController
   StreamSubscription<DeepLinkData?>? _deepLinkDataStreamSubscription;
   int minInputLengthAutocomplete = AppConfig.defaultMinInputLengthAutocomplete;
   EmailSortOrderType currentSortOrder = SearchEmailFilter.defaultSortOrder;
-  PaywallController? paywallController;
   final workerObxVariables = <Worker>[];
 
   final StreamController<Either<Failure, Success>> progressStateController =
@@ -411,7 +405,6 @@ class MailboxDashBoardController extends ReloadableController
       _registerPendingCurrentEmailIdInNotification();
     }
     _handleArguments();
-    _loadAppGrid();
     loadAIScribeConfig();
     super.onReady();
   }
@@ -902,10 +895,6 @@ class MailboxDashBoardController extends ReloadableController
       getAllSendingEmails();
       _storeSessionAction(session);
     }
-
-    paywallController = PaywallController(
-      ownEmailAddress: ownEmailAddress.value,
-    );
 
     if (isLabelCapabilitySupported) {
       labelController.checkLabelSettingState(session, currentAccountId);
@@ -3394,16 +3383,6 @@ class MailboxDashBoardController extends ReloadableController
 
   jmap.State? get currentEmailState => _currentEmailState;
 
-  void _loadAppGrid() {
-    if (PlatformInfo.isWeb && AppConfig.appGridDashboardAvailable) {
-      appGridDashboardController.loadAppDashboardConfiguration();
-    } else if (PlatformInfo.isMobile) {
-      appGridDashboardController.loadAppGridLinagraEcosystem(
-        dynamicUrlInterceptors.jmapUrl ?? '',
-      );
-    }
-  }
-
   bool get isEmailOpened =>
       dashboardRoute.value == DashboardRoutes.threadDetailed;
 
@@ -3447,8 +3426,6 @@ class MailboxDashBoardController extends ReloadableController
     _currentEmailState = null;
     _isFirstSessionLoad = false;
     twakeAppManager.setHasComposer(false);
-    paywallController?.onClose();
-    paywallController = null;
     _disposeWorkerObxVariables();
     super.onClose();
   }

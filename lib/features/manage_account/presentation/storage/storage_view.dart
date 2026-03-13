@@ -1,5 +1,4 @@
 import 'package:core/presentation/utils/theme_utils.dart';
-import 'package:core/utils/platform_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmail_ui_user/features/base/mixin/app_loader_mixin.dart';
@@ -8,7 +7,6 @@ import 'package:tmail_ui_user/features/manage_account/presentation/menu/settings
 import 'package:tmail_ui_user/features/manage_account/presentation/model/account_menu_item.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/storage/storage_controller.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/storage/widgets/storage_progress_bar_widget.dart';
-import 'package:tmail_ui_user/features/manage_account/presentation/storage/widgets/upgrade_storage_widget.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/widgets/setting_explanation_widget.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/widgets/setting_header_widget.dart';
 import 'package:tmail_ui_user/features/quotas/domain/extensions/quota_extensions.dart';
@@ -68,9 +66,6 @@ class StorageView extends GetWidget<StorageController> with AppLoaderMixin {
                     .value;
 
                 if (octetsQuota != null && octetsQuota.storageAvailable) {
-                  final isPremiumAvailable = PlatformInfo.isWeb &&
-                      !controller.isUpgradeStorageIsDisabled;
-                  final isQuotaExceeds90Percent = octetsQuota.allowedDisplayToQuotaBanner;
 
                   return SingleChildScrollView(
                     child: Padding(
@@ -87,15 +82,7 @@ class StorageView extends GetWidget<StorageController> with AppLoaderMixin {
                             quota: octetsQuota,
                             isMobile: isMobile,
                           ),
-                          if (isPremiumAvailable || isQuotaExceeds90Percent)
-                            UpgradeStorageWidget(
-                              imagePaths: controller.imagePaths,
-                              isMobile: isMobile,
-                              isPremiumAvailable: isPremiumAvailable,
-                              isQuotaExceeds90Percent: isQuotaExceeds90Percent,
-                              onUpgradeStorageAction:
-                                  controller.onUpgradeStorage,
-                            ),
+                          
                         ],
                       ),
                     ),

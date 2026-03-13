@@ -47,7 +47,6 @@ import 'package:tmail_ui_user/features/manage_account/presentation/notification/
 import 'package:tmail_ui_user/features/manage_account/presentation/preferences/bindings/preferences_bindings.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/storage/storage_bindings.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/vacation/vacation_controller_bindings.dart';
-import 'package:tmail_ui_user/features/paywall/presentation/paywall_controller.dart';
 import 'package:tmail_ui_user/features/quotas/domain/state/get_quotas_state.dart';
 import 'package:tmail_ui_user/features/quotas/domain/use_case/get_quotas_interactor.dart';
 import 'package:tmail_ui_user/main/error/capability_validator.dart';
@@ -63,7 +62,6 @@ class ManageAccountDashBoardController extends ReloadableController
 
   GetAllVacationInteractor? _getAllVacationInteractor;
   UpdateVacationInteractor? _updateVacationInteractor;
-  PaywallController? paywallController;
   GetQuotasInteractor? getQuotasInteractor;
 
   final accountId = Rxn<AccountId>();
@@ -165,9 +163,6 @@ class ManageAccountDashBoardController extends ReloadableController
     _bindingInteractorForMenuItemView(sessionCurrent, accountId.value);
     _getVacationResponse();
     injectAIScribeBindings(sessionCurrent, accountId.value);
-    paywallController = PaywallController(
-      ownEmailAddress: ownEmailAddress.value,
-    );
 
     if (quota != null) {
       octetsQuota.value = quota;
@@ -495,8 +490,6 @@ class ManageAccountDashBoardController extends ReloadableController
     if (LogTracking().isEnabled) {
       disposeTraceLogDependencies();
     }
-    paywallController?.onClose();
-    paywallController = null;
     previousUri = null;
     selectedMenu = null;
     super.onClose();

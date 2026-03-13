@@ -5,11 +5,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmail_ui_user/features/base/widget/application_version_widget.dart';
-import 'package:tmail_ui_user/features/base/widget/premium/increase_space_button_widget.dart';
 import 'package:tmail_ui_user/features/base/widget/scrollbar_list_view.dart';
 import 'package:tmail_ui_user/features/mailbox/presentation/base_mailbox_view.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/validate_premium_storage_extension.dart';
-import 'package:tmail_ui_user/features/quotas/domain/extensions/quota_extensions.dart';
 import 'package:tmail_ui_user/features/quotas/presentation/quotas_view.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
 
@@ -38,36 +35,6 @@ class MailboxView extends BaseMailboxView {
                 : _buildListMailbox(context),
             ),
             const QuotasView(),
-            Obx(() {
-              final isPremiumAvailable = controller
-                .mailboxDashBoardController
-                .validatePremiumIsAvailable();
-
-              final octetQuota = controller
-                  .mailboxDashBoardController
-                  .octetsQuota
-                  .value;
-
-              final isDesktop = controller.responsiveUtils.isDesktop(context);
-
-              if (isPremiumAvailable && octetQuota?.storageAvailable == true) {
-                return IncreaseSpaceButtonWidget(
-                  imagePaths: controller.imagePaths,
-                  margin: EdgeInsetsDirectional.only(
-                    start: isDesktop ? 26 : 24,
-                    bottom: 8,
-                    end: isDesktop ? 0 : 24,
-                  ),
-                  isDesktop: isDesktop,
-                  onTapAction: () => controller
-                      .mailboxDashBoardController
-                      .paywallController
-                      ?.navigateToPaywall(),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            }),
             Container(
               alignment: isDesktop
                 ? AlignmentDirectional.center
