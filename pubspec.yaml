@@ -51,9 +51,6 @@ dependencies:
   server_settings:
     path: server_settings
 
-  cozy:
-    path: cozy
-
   scribe:
     path: scribe
 

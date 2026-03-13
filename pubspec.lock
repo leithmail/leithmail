@@ -304,13 +304,6 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
-  cozy:
-    dependency: "direct main"
-    description:
-      path: cozy
-      relative: true
-    source: path
-    version: "0.1.0"
   cross_file:
     dependency: transitive
     description:

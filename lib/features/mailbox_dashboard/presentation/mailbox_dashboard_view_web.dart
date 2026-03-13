@@ -1,5 +1,4 @@
 import 'package:core/core.dart';
-import 'package:cozy/cozy_config_manager/cozy_config_manager.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_portal/flutter_portal.dart';
@@ -36,7 +35,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/co
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/download/download_task_item_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/mark_mailbox_as_read_loading_banner.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/navigation_bar/navigation_bar_widget.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/profile_setting/profile_setting_icon.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/recover_deleted_message_loading_banner_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/search_filters/filter_message_button.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/search_filters/search_filter_button.dart';
@@ -72,47 +70,38 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
               backgroundColor: AppColor.colorBgDesktop,
               body: Column(
                 children: [
-                  FutureBuilder(
-                    future: CozyConfigManager().isInsideCozy,
-                    builder: (context, snapshot) {
-                      if (snapshot.data == true) {
-                        return const SizedBox.shrink();
-                      }
+                  Obx(() {
+                    final accountId = controller.accountId.value;
+                    String accountDisplayName = controller.ownEmailAddress.value;
+                    final contactSupportCapability = accountId != null
+                      ? controller.sessionCurrent?.getContactSupportCapability(accountId)
+                      : null;
+                    if (accountDisplayName.trim().isEmpty) {
+                      accountDisplayName = controller
+                        .sessionCurrent
+                        ?.getOwnEmailAddressOrUsername() ?? '';
+                    }
 
-                      return Obx(() {
-                        final accountId = controller.accountId.value;
-                        String accountDisplayName = controller.ownEmailAddress.value;
-                        final contactSupportCapability = accountId != null
-                          ? controller.sessionCurrent?.getContactSupportCapability(accountId)
-                          : null;
-                        if (accountDisplayName.trim().isEmpty) {
-                          accountDisplayName = controller
-                            .sessionCurrent
-                            ?.getOwnEmailAddressOrUsername() ?? '';
-                        }
-
-                        return NavigationBarWidget(
-                          imagePaths: controller.imagePaths,
-                          accountId: accountId,
-                          ownEmailAddress: accountDisplayName,
-                          contactSupportCapability: contactSupportCapability,
-                          searchForm: SearchInputFormWidget(),
-                          appGridController:
-                              controller.appGridDashboardController,
-                          settingActionTypes: ProfileSettingActionType.values,
-                          onTapApplicationLogoAction:
-                              controller.redirectToInboxAction,
-                          onTapContactSupportAction: (contactSupport) =>
-                              controller.onGetHelpOrReportBug(contactSupport),
-                          onProfileSettingActionTypeClick: (actionType) =>
-                              controller.handleProfileSettingActionTypeClick(
-                            context: context,
-                            actionType: actionType,
-                          ),
-                        );
-                      });
-                    },
-                  ),
+                    return NavigationBarWidget(
+                      imagePaths: controller.imagePaths,
+                      accountId: accountId,
+                      ownEmailAddress: accountDisplayName,
+                      contactSupportCapability: contactSupportCapability,
+                      searchForm: SearchInputFormWidget(),
+                      appGridController:
+                          controller.appGridDashboardController,
+                      settingActionTypes: ProfileSettingActionType.values,
+                      onTapApplicationLogoAction:
+                          controller.redirectToInboxAction,
+                      onTapContactSupportAction: (contactSupport) =>
+                          controller.onGetHelpOrReportBug(contactSupport),
+                      onProfileSettingActionTypeClick: (actionType) =>
+                          controller.handleProfileSettingActionTypeClick(
+                        context: context,
+                        actionType: actionType,
+                      ),
+                    );
+                  }),
                   Expanded(
                     child: Row(
                       children: [
@@ -141,50 +130,6 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
                           child: Column(
                             children: [
                               const SizedBox(height: 16),
-                              FutureBuilder(
-                                future: CozyConfigManager().isInsideCozy,
-                                builder: (context, snapshot) {
-                                  if (snapshot.data != true) {
-                                    return const SizedBox.shrink();
-                                  }
-
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: MediaQuery.sizeOf(context).width * 0.4,
-                                          height: 44,
-                                          child: SearchInputFormWidget(
-                                            fontSize: 15,
-                                            contentPadding: const EdgeInsets.only(bottom: 4),
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        Obx(() {
-                                          String accountDisplayName =
-                                              controller.ownEmailAddress.value;
-                                          if (accountDisplayName.trim().isEmpty) {
-                                            accountDisplayName = controller
-                                              .sessionCurrent
-                                              ?.getOwnEmailAddressOrUsername() ?? '';
-                                          }
-                                          return ProfileSettingIcon(
-                                            ownEmailAddress: accountDisplayName,
-                                            settingActionTypes: ProfileSettingActionType.values,
-                                            onProfileSettingActionTypeClick: (actionType) =>
-                                              controller.handleProfileSettingActionTypeClick(
-                                                context: context,
-                                                actionType: actionType,
-                                              ),
-                                            isInsideCozy: true,
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              ),
                               Obx(() => RecoverDeletedMessageLoadingBannerWidget(
                                 isLoading: controller.isRecoveringDeletedMessage.value,
                                 horizontalLoadingWidget: horizontalLoadingWidget,

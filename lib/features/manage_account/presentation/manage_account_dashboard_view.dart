@@ -1,7 +1,6 @@
 import 'package:core/presentation/extensions/color_extension.dart';
 import 'package:core/presentation/utils/responsive_utils.dart';
 import 'package:core/presentation/views/responsive/responsive_widget.dart';
-import 'package:cozy/cozy_config_manager/cozy_config_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:get/get.dart';
@@ -45,37 +44,30 @@ class ManageAccountDashBoardView extends GetWidget<ManageAccountDashBoardControl
           child: ResponsiveWidget(
               responsiveUtils: controller.responsiveUtils,
               desktop: Column(children: [
-                FutureBuilder(
-                  future: CozyConfigManager().isInsideCozy,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == true) return const SizedBox.shrink();
+                Obx(() {
+                  final accountId = controller.accountId.value;
+                  String accountDisplayName = controller.ownEmailAddress.value;
 
-                    return Obx(() {
-                      final accountId = controller.accountId.value;
-                      String accountDisplayName = controller.ownEmailAddress.value;
+                  if (accountDisplayName.trim().isEmpty) {
+                    accountDisplayName = controller
+                      .sessionCurrent
+                      ?.getOwnEmailAddressOrUsername() ?? '';
+                  }
 
-                      if (accountDisplayName.trim().isEmpty) {
-                        accountDisplayName = controller
-                          .sessionCurrent
-                          ?.getOwnEmailAddressOrUsername() ?? '';
-                      }
-
-                      return NavigationBarWidget(
-                        imagePaths: controller.imagePaths,
-                        accountId: accountId,
-                        ownEmailAddress: accountDisplayName,
-                        onTapApplicationLogoAction: () =>
-                            controller.backToMailboxDashBoard(context: context),
-                        settingActionTypes: const [ProfileSettingActionType.signOut],
-                        onProfileSettingActionTypeClick: (actionType) =>
-                          controller.handleProfileSettingActionTypeClick(
-                            context: context,
-                            actionType: actionType,
-                          ),
-                      );
-                    });
-                  },
-                ),
+                  return NavigationBarWidget(
+                    imagePaths: controller.imagePaths,
+                    accountId: accountId,
+                    ownEmailAddress: accountDisplayName,
+                    onTapApplicationLogoAction: () =>
+                        controller.backToMailboxDashBoard(context: context),
+                    settingActionTypes: const [ProfileSettingActionType.signOut],
+                    onProfileSettingActionTypeClick: (actionType) =>
+                      controller.handleProfileSettingActionTypeClick(
+                        context: context,
+                        actionType: actionType,
+                      ),
+                  );
+                }),
                 Expanded(child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
