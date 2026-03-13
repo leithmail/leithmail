@@ -15,11 +15,6 @@ for mod in "${modules[@]}"; do
     )
 done
 
-# For Cozy
-cd cozy
-flutter pub get
-cd ../
-
 # For the parent module
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs &&
