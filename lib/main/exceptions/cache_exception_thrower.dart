@@ -6,7 +6,7 @@ class CacheExceptionThrower extends ExceptionThrower {
   @override
   throwException(dynamic error, dynamic stackTrace) {
     logError(
-      'CacheExceptionThrower::throwException():error: $error',
+      'CacheExceptionThrower::throwException():error',
       exception: error,
       stackTrace: stackTrace,
     );
