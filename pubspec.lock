@@ -1456,14 +1456,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  lottie:
-    dependency: transitive
-    description:
-      name: lottie
-      sha256: c5fa04a80a620066c15cf19cc44773e19e9b38e989ff23ea32e5903ef1015950
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.1"
   lottie_native:
     dependency: "direct main"
     description:
@@ -1527,14 +1519,6 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
-  multiple_localization:
-    dependency: transitive
-    description:
-      name: multiple_localization
-      sha256: "29c97a3fbf4d067ea5a63df1995465ea81ef28e2c817d9d0871983e50f4fd3f0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0"
   nm:
     dependency: transitive
     description:
@@ -2025,13 +2009,6 @@ packages:
       url: "https://github.com/linagora/dart-neats.git"
     source: git
     version: "3.0.1"
-  scribe:
-    dependency: "direct main"
-    description:
-      path: scribe
-      relative: true
-    source: path
-    version: "0.0.1"
   server_settings:
     dependency: "direct main"
     description:

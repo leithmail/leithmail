@@ -4861,24 +4861,6 @@
     "placeholders_order": [],
     "placeholders": {}
   },
-  "aiScribe": "AI Scribe",
-  "@aiScribe": {
-    "type": "text",
-    "placeholders_order": [],
-    "placeholders": {}
-  },
-  "aiScribeSettingExplanation": "Use AI to help write and improve your emails",
-  "@aiScribeSettingExplanation": {
-    "type": "text",
-    "placeholders_order": [],
-    "placeholders": {}
-  },
-  "aiScribeToggleDescription": "Enable AI Scribe",
-  "@aiScribeToggleDescription": {
-    "type": "text",
-    "placeholders_order": [],
-    "placeholders": {}
-  },
   "showMoreAttachmentButton": "Show +{count} more",
   "@showMoreAttachmentButton": {
     "type": "text",

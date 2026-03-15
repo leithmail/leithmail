@@ -31,7 +31,6 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/transformers.dart';
 import 'package:server_settings/server_settings/tmail_server_settings_extension.dart';
 import 'package:tmail_ui_user/features/base/action/ui_action.dart';
-import 'package:tmail_ui_user/features/base/mixin/ai_scribe_mixin.dart';
 import 'package:tmail_ui_user/features/base/mixin/contact_support_mixin.dart';
 import 'package:tmail_ui_user/features/base/mixin/message_dialog_action_manager.dart';
 import 'package:tmail_ui_user/features/base/mixin/own_email_address_mixin.dart';
@@ -120,8 +119,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/das
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/download_ui_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/search_controller.dart' as search;
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/spam_report_controller.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/ai_scribe/setup_ai_needs_action_setting_extension.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/ai_scribe/setup_cached_ai_scribe_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/cleanup_recent_search_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/delete_emails_in_mailbox_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/handle_action_type_for_email_selection.dart';
@@ -152,14 +149,11 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/sear
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/quick_search_filter.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/search_email_filter.dart';
 import 'package:tmail_ui_user/features/mailto/presentation/model/mailto_arguments.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/ai_scribe_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/state/create_new_rule_filter_state.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/state/get_ai_scribe_config_state.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/state/get_all_identities_state.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/state/get_all_vacation_state.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/state/update_vacation_state.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/create_new_email_rule_filter_interactor.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_ai_scribe_config_interactor.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_all_identities_interactor.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_all_vacation_interactor.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/save_language_interactor.dart';
@@ -223,7 +217,6 @@ import 'package:uuid/uuid.dart';
 class MailboxDashBoardController extends ReloadableController
     with ContactSupportMixin,
         OwnEmailAddressMixin,
-        AiScribeMixin,
         SearchLabelFilterModalMixin {
 
   final RemoveEmailDraftsInteractor _removeEmailDraftsInteractor = Get.find<RemoveEmailDraftsInteractor>();
@@ -279,7 +272,6 @@ class MailboxDashBoardController extends ReloadableController
   SaveLanguageInteractor? saveLanguageInteractor;
   GetTextFormattingMenuStateInteractor? getTextFormattingMenuStateInteractor;
   SaveTextFormattingMenuStateInteractor? saveTextFormattingMenuStateInteractor;
-  GetAIScribeConfigInteractor? getAIScribeConfigInteractor;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final selectedMailbox = Rxn<PresentationMailbox>();
@@ -312,7 +304,6 @@ class MailboxDashBoardController extends ReloadableController
   final isPopupMenuOpened = RxBool(false);
   final octetsQuota = Rxn<Quota>();
   final isTextFormattingMenuOpened = RxBool(false);
-  final cachedAIScribeConfig = AIScribeConfig.initial().obs;
 
   Map<Role, MailboxId> mapDefaultMailboxIdByRole = {};
   Map<MailboxId, PresentationMailbox> mapMailboxById = {};
@@ -405,7 +396,6 @@ class MailboxDashBoardController extends ReloadableController
       _registerPendingCurrentEmailIdInNotification();
     }
     _handleArguments();
-    loadAIScribeConfig();
     super.onReady();
   }
 
@@ -512,7 +502,6 @@ class MailboxDashBoardController extends ReloadableController
       );
     } else if (success is GetServerSettingSuccess) {
       isSenderImportantFlagEnabled.value = success.settingOption.isDisplaySenderPriority;
-      setupAINeedsActionSetting(options: success.settingOption);
       initializeAppLanguage(success);
     } else if (success is ClearMailboxSuccess) {
       clearMailboxSuccess(success);
@@ -532,8 +521,6 @@ class MailboxDashBoardController extends ReloadableController
       setUpDefaultEmailSortOrder(success.emailSortOrderType);
     } else if (success is GetTextFormattingMenuStateSuccess) {
       updateTextFormattingMenuState(success.isDisplayed);
-    } else if (success is GetAIScribeConfigSuccess) {
-      handleLoadAIScribeConfigSuccess(success.aiScribeConfig);
     } else {
       super.handleSuccessViewState(success);
     }
@@ -569,7 +556,6 @@ class MailboxDashBoardController extends ReloadableController
       _handleIdentityCache();
     } else if (failure is GetServerSettingFailure) {
       isSenderImportantFlagEnabled.value = true;
-      setupAINeedsActionSetting();
     } else if (failure is GetAllIdentitiesFailure) {
       _handleGetAllIdentitiesFailure();
     } else if (failure is ClearMailboxFailure) {
@@ -582,8 +568,6 @@ class MailboxDashBoardController extends ReloadableController
       backToHomeScreen();
     } else if (failure is GetTextFormattingMenuStateFailure) {
       updateTextFormattingMenuState(false);
-    } else if (failure is GetAIScribeConfigFailure) {
-      handleLoadAIScribeConfigFailure();
     } else {
       super.handleFailureViewState(failure);
     }
@@ -878,7 +862,6 @@ class MailboxDashBoardController extends ReloadableController
     injectRuleFilterBindings(session, currentAccountId);
     injectVacationBindings(session, currentAccountId);
     injectPreferencesBindings();
-    injectAIScribeBindings(session, currentAccountId);
     if (PlatformInfo.isMobile) {
       injectFCMBindings(session, currentAccountId);
     }
@@ -2072,7 +2055,6 @@ class MailboxDashBoardController extends ReloadableController
     notifyThreadDetailSettingUpdated();
     getServerSetting();
     spamReportController.getSpamReportStateAction();
-    loadAIScribeConfig();
     if (isLabelCapabilitySupported &&
         accountId.value != null &&
         sessionCurrent != null) {
@@ -2154,7 +2136,6 @@ class MailboxDashBoardController extends ReloadableController
     notifyThreadDetailSettingUpdated();
     getServerSetting();
     spamReportController.getSpamReportStateAction();
-    loadAIScribeConfig();
     if (isLabelCapabilitySupported &&
         accountId.value != null &&
         sessionCurrent != null) {

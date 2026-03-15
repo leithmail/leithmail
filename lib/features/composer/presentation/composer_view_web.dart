@@ -10,7 +10,6 @@ import 'package:tmail_ui_user/features/base/mixin/message_dialog_action_manager.
 import 'package:tmail_ui_user/features/base/widget/dialog_picker/color_dialog_picker.dart';
 import 'package:tmail_ui_user/features/base/widget/keyboard/keyboard_handler_wrapper.dart';
 import 'package:tmail_ui_user/features/composer/presentation/composer_controller.dart';
-import 'package:tmail_ui_user/features/composer/presentation/extensions/ai_scribe/handle_ai_scribe_in_composer_extension.dart';
 import 'package:tmail_ui_user/features/composer/presentation/extensions/composer_print_draft_extension.dart';
 import 'package:tmail_ui_user/features/composer/presentation/extensions/handle_edit_recipient_extension.dart';
 import 'package:tmail_ui_user/features/composer/presentation/extensions/handle_insert_link_composer_extension.dart';
@@ -25,7 +24,6 @@ import 'package:tmail_ui_user/features/composer/presentation/view/web/desktop_re
 import 'package:tmail_ui_user/features/composer/presentation/view/web/mobile_responsive_container_view.dart';
 import 'package:tmail_ui_user/features/composer/presentation/view/web/tablet_responsive_container_view.dart';
 import 'package:tmail_ui_user/features/composer/presentation/view/web/web_editor_view.dart';
-import 'package:tmail_ui_user/features/composer/presentation/widgets/ai_scribe/composer_ai_scribe_selection_overlay.dart';
 import 'package:tmail_ui_user/features/composer/presentation/widgets/insert_image_loading_bar_widget.dart';
 import 'package:tmail_ui_user/features/composer/presentation/widgets/list_recipients_collapsed_widget.dart';
 import 'package:tmail_ui_user/features/composer/presentation/widgets/mobile/from_composer_mobile_widget.dart';
@@ -270,7 +268,6 @@ class ComposerView extends GetWidget<ComposerController> {
                                         ),
                                       onInitialContentLoadComplete: controller.onInitialContentLoadCompleteWeb,
                                       onKeyDownEditorAction: controller.onKeyDownEditorAction,
-                                      onTextSelectionChanged: controller.textSelectionHandler,
                                     ));
                                   }
                                 ),
@@ -336,7 +333,6 @@ class ComposerView extends GetWidget<ComposerController> {
                               return const SizedBox.shrink();
                             }
                           }),
-                          ComposerAiScribeSelectionOverlay(controller: controller),
                         ],
                       ),
                     ),
@@ -514,7 +510,6 @@ class ComposerView extends GetWidget<ComposerController> {
                                                 ),
                                               onInitialContentLoadComplete: controller.onInitialContentLoadCompleteWeb,
                                               onKeyDownEditorAction: controller.onKeyDownEditorAction,
-                                              onTextSelectionChanged: controller.textSelectionHandler,
                                             );
                                           });
                                         }
@@ -562,9 +557,6 @@ class ComposerView extends GetWidget<ComposerController> {
                               toggleMarkAsImportantAction: () => controller.toggleMarkAsImportant(context),
                               saveAsTemplateAction: () => controller.handleClickSaveAsTemplateButton(context),
                               onOpenInsertLink: controller.openInsertLink,
-                              onOpenAiAssistantModal: controller.isAIScribeAvailable
-                                  ? controller.openAIAssistantModal
-                                  : null,
                             )),
                           ],
                         ),
@@ -611,7 +603,6 @@ class ComposerView extends GetWidget<ComposerController> {
                             return const SizedBox.shrink();
                           }
                         }),
-                        ComposerAiScribeSelectionOverlay(controller: controller),
                       ],
                     ),
                   ),
@@ -792,7 +783,6 @@ class ComposerView extends GetWidget<ComposerController> {
                                               ),
                                             onInitialContentLoadComplete: controller.onInitialContentLoadCompleteWeb,
                                             onKeyDownEditorAction: controller.onKeyDownEditorAction,
-                                            onTextSelectionChanged: controller.textSelectionHandler,
                                           ));
                                         }
                                       ),
@@ -839,9 +829,6 @@ class ComposerView extends GetWidget<ComposerController> {
                               toggleMarkAsImportantAction: () => controller.toggleMarkAsImportant(context),
                               saveAsTemplateAction: () => controller.handleClickSaveAsTemplateButton(context),
                               onOpenInsertLink: controller.openInsertLink,
-                              onOpenAiAssistantModal: controller.isAIScribeAvailable
-                                  ? controller.openAIAssistantModal
-                                  : null,
                             )),
                           ],
                         ),
@@ -887,7 +874,6 @@ class ComposerView extends GetWidget<ComposerController> {
                             return const SizedBox.shrink();
                           }
                         }),
-                        ComposerAiScribeSelectionOverlay(controller: controller),
                       ],
                     ),
                   )

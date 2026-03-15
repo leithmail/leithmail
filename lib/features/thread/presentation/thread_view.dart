@@ -23,7 +23,6 @@ import 'package:tmail_ui_user/features/mailbox/domain/state/mark_as_mailbox_read
 import 'package:tmail_ui_user/features/mailbox/domain/state/move_folder_content_state.dart';
 import 'package:tmail_ui_user/features/mailbox/presentation/model/presentation_label_mailbox.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/model/spam_report_state.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/handle_ai_needs_action_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/handle_open_context_menu_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/labels/handle_logic_label_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/open_and_close_composer_extension.dart';
@@ -521,7 +520,6 @@ class ThreadView extends GetWidget<ThreadController>
       final isSearchEmailRunning =
           controller.searchController.isSearchEmailRunning;
 
-      final isAINeedsActionEnabled = dashboardController.isAINeedsActionEnabled;
 
       return EmailTileBuilder(
         key: Key('email_tile_builder_${presentationEmail.id?.asString}'),
@@ -533,7 +531,6 @@ class ThreadView extends GetWidget<ThreadController>
         isSearchEmailRunning: isSearchEmailRunning,
         isDrag: true,
         isSenderImportantFlagEnabled: isSenderImportantFlagEnabled,
-        isAINeedsActionEnabled: isAINeedsActionEnabled,
       );
     });
   }
@@ -617,8 +614,6 @@ class ThreadView extends GetWidget<ThreadController>
       final isSearchEmailRunning =
           controller.searchController.isSearchEmailRunning;
 
-      final isAINeedsActionEnabled = dashboardController.isAINeedsActionEnabled;
-
       final isLabelAvailable = controller
           .mailboxDashBoardController.isLabelAvailable;
 
@@ -653,7 +648,6 @@ class ThreadView extends GetWidget<ThreadController>
           searchQuery: controller.searchQuery,
           mailboxContain: presentationEmail.mailboxContain,
           isSearchEmailRunning: isSearchEmailRunning,
-          isAINeedsActionEnabled: isAINeedsActionEnabled,
           labels: emailLabels,
           emailActionClick: _handleEmailActionClicked,
           onMoreActionClick: (email, position) =>

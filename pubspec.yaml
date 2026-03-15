@@ -51,9 +51,6 @@ dependencies:
   server_settings:
     path: server_settings
 
-  scribe:
-    path: scribe
-
   labels:
     path: labels
 

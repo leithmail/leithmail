@@ -1,6 +1,5 @@
 import 'package:core/presentation/state/failure.dart';
 import 'package:core/presentation/state/success.dart';
-import 'package:core/utils/platform_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,7 +7,6 @@ import 'package:server_settings/server_settings/tmail_server_settings.dart';
 import 'package:tmail_ui_user/features/base/base_controller.dart';
 import 'package:tmail_ui_user/features/home/data/exceptions/session_exceptions.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/loader_status.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/ai_scribe_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/label_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_setting.dart';
@@ -51,15 +49,6 @@ class PreferencesController extends BaseController {
     (success) => success is GettingServerSetting || success is UpdatingServerSetting);
 
   final accountDashboardController = Get.find<ManageAccountDashBoardController>();
-
-  bool get isAICapabilitySupported {
-    return accountDashboardController.isAICapabilitySupported;
-  }
-
-  bool get isAIScribeCapabilityAvailable {
-    return accountDashboardController.isAIScribeCapabilityAvailable &&
-        !PlatformInfo.isMobile;
-  }
 
   @override
   void onInit() {
@@ -162,9 +151,6 @@ class PreferencesController extends BaseController {
       case PreferencesOptionType.spamReport:
         config = SpamReportConfig(isEnabled: !isEnabled);
         break;
-      case PreferencesOptionType.aiScribe:
-        config = AIScribeConfig(isEnabled: !isEnabled);
-        break;
       case PreferencesOptionType.label:
         config = LabelConfig(isEnabled: !isEnabled);
         break;
@@ -191,11 +177,6 @@ class PreferencesController extends BaseController {
       case PreferencesOptionType.senderPriority:
         newSettingOption = settingOption.value?.copyWith(
           displaySenderPriority: !isEnabled,
-        );
-        break;
-      case PreferencesOptionType.aiNeedsAction:
-        newSettingOption = settingOption.value?.copyWith(
-          aiNeedsActionEnabled: !isEnabled,
         );
         break;
       default:

@@ -10,7 +10,6 @@ import 'package:model/email/presentation_email.dart';
 import 'package:model/extensions/presentation_mailbox_extension.dart';
 import 'package:model/mailbox/presentation_mailbox.dart';
 import 'package:model/mailbox/select_mode.dart';
-import 'package:tmail_ui_user/features/base/widget/labels/ai_action_tag_widget.dart';
 import 'package:tmail_ui_user/features/labels/presentation/widgets/label_list_widget.dart';
 import 'package:tmail_ui_user/features/thread/domain/model/search_query.dart';
 import 'package:tmail_ui_user/features/thread/presentation/mixin/base_email_item_tile.dart';
@@ -29,7 +28,6 @@ class EmailTileBuilder extends StatefulWidget {
   final bool isDrag;
   final bool isShowingEmailContent;
   final bool isSenderImportantFlagEnabled;
-  final bool isAINeedsActionEnabled;
   final bool autoWrapTagsByMaxWidth;
   final List<Label>? labels;
   final OnPressEmailActionClick? emailActionClick;
@@ -48,7 +46,6 @@ class EmailTileBuilder extends StatefulWidget {
     this.mailboxContain,
     this.padding,
     this.isDrag = false,
-    this.isAINeedsActionEnabled = false,
     this.emailActionClick,
     this.onMoreActionClick,
   });
@@ -188,7 +185,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
         isShowingEmailContent: widget.isShowingEmailContent,
         isDrag: widget.isDrag,
         isSenderImportantFlagEnabled: widget.isSenderImportantFlagEnabled,
-        shouldShowAIAction: _shouldShowAIAction,
         autoWrapTagsByMaxWidth: widget.autoWrapTagsByMaxWidth,
         labels: widget.labels,
         padding: widget.padding,
@@ -381,8 +377,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
         if (widget.presentationEmail.isMarkAsImportant &&
             widget.isSenderImportantFlagEnabled)
           buildMarkAsImportantIcon(context),
-        if (_shouldShowAIAction)
-          const AiActionTagWidget(margin: EdgeInsetsDirectional.only(end: 12)),
         Expanded(
           child: LayoutBuilder(
             builder: (_, constraints) {
@@ -520,10 +514,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
         children: [
           if (hasContent)
             Flexible(child: partialContent),
-          if (_shouldShowAIAction)
-            const AiActionTagWidget(
-              margin: EdgeInsetsDirectional.only(start: 8),
-            ),
         ],
       );
     }
@@ -531,10 +521,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
     if (!hasContent) {
       return Row(
         children: [
-          if (_shouldShowAIAction)
-            const AiActionTagWidget(
-              margin: EdgeInsetsDirectional.only(start: 8),
-            ),
           Flexible(
             child: LabelTagListWidget(
               tags: labels!,
@@ -550,10 +536,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
       return Row(
         children: [
           Flexible(child: partialContent),
-          if (_shouldShowAIAction)
-            const AiActionTagWidget(
-              margin: EdgeInsetsDirectional.only(start: 8),
-            ),
           const SizedBox(width: 12),
           LabelTagListWidget(
             tags: labels!,
@@ -569,10 +551,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
         return Row(
           children: [
             Expanded(child: partialContent),
-            if (_shouldShowAIAction)
-              const AiActionTagWidget(
-                margin: EdgeInsetsDirectional.only(start: 8),
-              ),
             const SizedBox(width: 12),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: constraints.maxWidth / 2),
@@ -612,9 +590,6 @@ class _EmailTileBuilderState extends State<EmailTileBuilder>  with BaseEmailItem
       );
     }
   }
-
-  bool get _shouldShowAIAction =>
-      widget.isAINeedsActionEnabled && widget.presentationEmail.hasNeedAction;
 
   @override
   void dispose() {

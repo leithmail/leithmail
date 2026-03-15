@@ -9,7 +9,6 @@ import 'package:model/email/presentation_email.dart';
 import 'package:model/extensions/presentation_mailbox_extension.dart';
 import 'package:model/mailbox/presentation_mailbox.dart';
 import 'package:model/mailbox/select_mode.dart';
-import 'package:tmail_ui_user/features/base/widget/labels/ai_action_tag_widget.dart';
 import 'package:tmail_ui_user/features/labels/presentation/widgets/label_list_widget.dart';
 import 'package:tmail_ui_user/features/thread/domain/model/search_query.dart';
 import 'package:tmail_ui_user/features/thread/presentation/mixin/base_email_item_tile.dart';
@@ -25,7 +24,6 @@ class WebTabletBodyEmailItemWidget extends StatefulWidget {
   final bool isShowDateTimeView;
   final bool isDrag;
   final bool isSenderImportantFlagEnabled;
-  final bool shouldShowAIAction;
   final bool autoWrapTagsByMaxWidth;
   final List<Label>? labels;
   final EdgeInsetsGeometry? padding;
@@ -51,7 +49,6 @@ class WebTabletBodyEmailItemWidget extends StatefulWidget {
     required this.emailActionClick,
     required this.onMoreActionClick,
     this.isShowDateTimeView = false,
-    this.shouldShowAIAction = false,
   });
 
   @override
@@ -397,10 +394,6 @@ class _WebTabletBodyEmailItemWidgetState
         children: [
           if (hasContent)
             Flexible(child: partialContent),
-          if (widget.shouldShowAIAction)
-            const AiActionTagWidget(
-              margin: EdgeInsetsDirectional.only(start: 8),
-            ),
         ],
       );
     }
@@ -408,10 +401,6 @@ class _WebTabletBodyEmailItemWidgetState
     if (!hasContent) {
       return Row(
         children: [
-          if (widget.shouldShowAIAction)
-            const AiActionTagWidget(
-              margin: EdgeInsetsDirectional.only(start: 8),
-            ),
           Flexible(
             child: LabelTagListWidget(
               tags: labels!,
@@ -427,10 +416,6 @@ class _WebTabletBodyEmailItemWidgetState
       return Row(
         children: [
           Flexible(child: partialContent),
-          if (widget.shouldShowAIAction)
-            const AiActionTagWidget(
-              margin: EdgeInsetsDirectional.only(start: 8),
-            ),
           const SizedBox(width: 12),
           LabelTagListWidget(
             tags: labels!,
@@ -446,10 +431,6 @@ class _WebTabletBodyEmailItemWidgetState
         return Row(
           children: [
             Expanded(child: partialContent),
-            if (widget.shouldShowAIAction)
-              const AiActionTagWidget(
-                margin: EdgeInsetsDirectional.only(start: 8),
-              ),
             const SizedBox(width: 12),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: constraints.maxWidth / 2),

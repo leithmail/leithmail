@@ -85,7 +85,6 @@ import 'package:tmail_ui_user/features/mailbox_creator/presentation/model/new_ma
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/state/remove_email_drafts_state.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/dashboard_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/mailbox_dashboard_controller.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/handle_ai_needs_action_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/handle_create_new_rule_filter.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/open_and_close_composer_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/dashboard_routes.dart';
@@ -254,9 +253,7 @@ class MailboxController extends BaseMailboxController
         toastManager: toastManager,
       );
     } else if (failure is CreateDefaultMailboxFailure) {
-      autoCreateVirtualFolder(
-        mailboxDashBoardController.isAINeedsActionEnabled,
-      );
+      autoCreateVirtualFolder();
     } else {
       super.handleFailureViewState(failure);
     }
@@ -268,9 +265,7 @@ class MailboxController extends BaseMailboxController
     viewState.value.fold(
       (failure) {
         if (failure is GetAllMailboxFailure) {
-          autoCreateVirtualFolder(
-            mailboxDashBoardController.isAINeedsActionEnabled,
-          );
+          autoCreateVirtualFolder();
           mailboxDashBoardController.updateRefreshAllMailboxState(Left(RefreshAllMailboxFailure()));
           showRetryToast(failure);
         }
@@ -616,9 +611,7 @@ class MailboxController extends BaseMailboxController
     if (currentContext != null) {
       syncAllMailboxWithDisplayName(currentContext!);
     }
-    autoCreateVirtualFolder(
-      mailboxDashBoardController.isAINeedsActionEnabled,
-    );
+    autoCreateVirtualFolder();
     _setMapMailbox();
     _setOutboxMailbox();
     _selectSelectedMailboxDefault();
@@ -703,9 +696,7 @@ class MailboxController extends BaseMailboxController
       .toList();
 
     if (listRoleMissing.isEmpty || accountId == null || session == null) {
-      autoCreateVirtualFolder(
-        mailboxDashBoardController.isAINeedsActionEnabled,
-      );
+      autoCreateVirtualFolder();
       return;
     }
 
@@ -723,9 +714,7 @@ class MailboxController extends BaseMailboxController
 
   Future<void> _handleCreateDefaultFolderIfMissingSuccess(CreateDefaultMailboxAllSuccess success) async {
     if (success.listMailbox.isEmpty) {
-      autoCreateVirtualFolder(
-        mailboxDashBoardController.isAINeedsActionEnabled,
-      );
+      autoCreateVirtualFolder();
       return;
     }
 
@@ -744,9 +733,7 @@ class MailboxController extends BaseMailboxController
     if (currentContext != null) {
       syncAllMailboxWithDisplayName(currentContext!);
     }
-    autoCreateVirtualFolder(
-      mailboxDashBoardController.isAINeedsActionEnabled,
-    );
+    autoCreateVirtualFolder();
     _setMapMailbox();
     _setOutboxMailbox();
   }

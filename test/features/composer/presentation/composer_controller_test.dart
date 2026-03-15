@@ -56,7 +56,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/domain/usecases/remove_
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/mailbox_dashboard_controller.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/draggable_app_state.dart';
 import 'package:tmail_ui_user/features/manage_account/data/local/language_cache_manager.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/ai_scribe_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_all_identities_interactor.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/log_out_oidc_interactor.dart';
 import 'package:tmail_ui_user/features/network_connection/presentation/network_connection_controller.dart';
@@ -154,14 +153,6 @@ class MockMailboxDashBoardController extends Mock implements MailboxDashBoardCon
 
   @override
   RxBool get isPopupMenuOpened => false.obs;
-
-  @override
-  Rx<AIScribeConfig> get cachedAIScribeConfig => AIScribeConfig.initial().obs;
-
-  @override
-  bool isAIScribeEndpointAvailable({Session? session, AccountId? accountId}) {
-    return false;
-  }
 
   @override
   LabelController get labelController => MockLabelController();

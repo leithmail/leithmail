@@ -7,6 +7,7 @@ modules=("core" "model" "contact" "forward" "rule_filter" "fcm" "email_recovery"
 codegen() {
     for mod in "${modules[@]}"; do
     (
+        echo "==> module $mod"
         cd "$mod"
         flutter pub get
         dart run build_runner build --delete-conflicting-outputs
@@ -23,6 +24,7 @@ codegen() {
 test() {
     for mod in "${modules[@]}"; do
     (
+        echo "==> module $mod"
         cd "$mod"
         flutter test
     )

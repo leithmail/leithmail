@@ -6,7 +6,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:tmail_ui_user/main/deep_links/deep_links_manager.dart';
-import 'package:scribe/scribe/ai/localizations/scribe_localizations.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations_delegate.dart';
 import 'package:tmail_ui_user/main/localizations/localization_service.dart';
@@ -47,7 +46,6 @@ class _TMailAppState extends State<TMailApp> {
       supportedLocales: LocalizationService.supportedLocales,
       localizationsDelegates: const [
         AppLocalizationsDelegate(),
-        ScribeLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

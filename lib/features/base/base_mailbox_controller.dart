@@ -675,10 +675,7 @@ abstract class BaseMailboxController extends BaseController
     }
   }
 
-  void autoCreateVirtualFolder(bool isAINeedsActionEnabled) {
+  void autoCreateVirtualFolder() {
     addFavoriteFolderToMailboxList();
-    if (isAINeedsActionEnabled) {
-      addActionRequiredFolder();
-    }
   }
 }

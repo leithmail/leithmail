@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:tmail_ui_user/features/manage_account/data/datasource/manage_account_datasource.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/ai_scribe_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_setting.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/repository/manage_account_repository.dart';
@@ -25,11 +24,6 @@ class ManageAccountRepositoryImpl extends ManageAccountRepository {
   @override
   Future<PreferencesSetting> getLocalSettings() {
     return dataSource.getLocalSettings();
-  }
-
-  @override
-  Future<AIScribeConfig> getAiScribeConfigLocalSettings() {
-    return dataSource.getAiScribeConfigLocalSettings();
   }
 
   @override

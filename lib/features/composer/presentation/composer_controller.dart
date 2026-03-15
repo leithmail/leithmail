@@ -26,12 +26,10 @@ import 'package:model/model.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:rich_text_composer/rich_text_composer.dart';
-import 'package:scribe/scribe.dart';
 import 'package:super_tag_editor/tag_editor.dart';
 import 'package:tmail_ui_user/features/base/base_controller.dart';
 import 'package:tmail_ui_user/features/base/before_reconnect_handler.dart';
 import 'package:tmail_ui_user/features/base/before_reconnect_manager.dart';
-import 'package:tmail_ui_user/features/base/mixin/ai_scribe_mixin.dart';
 import 'package:tmail_ui_user/features/base/mixin/auto_complete_result_mixin.dart';
 import 'package:tmail_ui_user/features/base/mixin/message_dialog_action_manager.dart';
 import 'package:tmail_ui_user/features/base/state/base_ui_state.dart';
@@ -132,8 +130,7 @@ class ComposerController extends BaseController
     with
         DragDropFileMixin,
         AutoCompleteResultMixin,
-        EditorViewMixin,
-        AiScribeMixin
+        EditorViewMixin
     implements BeforeReconnectHandler {
   final mailboxDashBoardController = Get.find<MailboxDashBoardController>();
   final networkConnectionController = Get.find<NetworkConnectionController>();
@@ -158,7 +155,6 @@ class ComposerController extends BaseController
   final isEmailChanged = Rx<bool>(false);
   final isMarkAsImportant = Rx<bool>(false);
   final isContentHeightExceeded = Rx<bool>(false);
-  final editorTextSelection = Rxn<TextSelectionModel>();
 
   final LocalFilePickerInteractor _localFilePickerInteractor;
   final LocalImagePickerInteractor _localImagePickerInteractor;

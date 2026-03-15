@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:tmail_ui_user/features/manage_account/data/datasource/manage_account_datasource.dart';
 import 'package:tmail_ui_user/features/manage_account/data/local/language_cache_manager.dart';
 import 'package:tmail_ui_user/features/manage_account/data/local/preferences_setting_manager.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/ai_scribe_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/label_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_setting.dart';
@@ -46,10 +45,6 @@ class ManageAccountDataSourceImpl extends ManageAccountDataSource {
         await _preferencesSettingManager.updateTextFormattingMenu(
           isDisplayed: preferencesConfig.isDisplayed,
         );
-      } else if (preferencesConfig is AIScribeConfig) {
-        await _preferencesSettingManager.updateAIScribe(
-          preferencesConfig.isEnabled,
-        );
       } else if (preferencesConfig is LabelConfig) {
         await _preferencesSettingManager.updateLabel(
           preferencesConfig.isEnabled,
@@ -67,13 +62,6 @@ class ManageAccountDataSourceImpl extends ManageAccountDataSource {
   Future<PreferencesSetting> getLocalSettings() {
     return Future.sync(() async {
       return await _preferencesSettingManager.loadPreferences();
-    }).catchError(_exceptionThrower.throwException);
-  }
-
-  @override
-  Future<AIScribeConfig> getAiScribeConfigLocalSettings() {
-    return Future.sync(() async {
-      return await _preferencesSettingManager.getAIScribeConfig();
     }).catchError(_exceptionThrower.throwException);
   }
 

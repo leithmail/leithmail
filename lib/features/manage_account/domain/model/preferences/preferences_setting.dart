@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/ai_scribe_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/label_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/preferences_config.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/model/preferences/spam_report_config.dart';
@@ -17,7 +16,6 @@ class PreferencesSetting with EquatableMixin {
       ThreadDetailConfig.initial(),
       SpamReportConfig.initial(),
       TextFormattingMenuConfig.initial(),
-      AIScribeConfig.initial(),
     ]);
   }
 
@@ -48,16 +46,6 @@ class PreferencesSetting with EquatableMixin {
       return formatConfig as TextFormattingMenuConfig;
     } else {
       return TextFormattingMenuConfig.initial();
-    }
-  }
-
-  AIScribeConfig get aiScribeConfig {
-    final aiConfig =
-        configs.firstWhereOrNull((config) => config is AIScribeConfig);
-    if (aiConfig != null) {
-      return aiConfig as AIScribeConfig;
-    } else {
-      return AIScribeConfig.initial();
     }
   }
 

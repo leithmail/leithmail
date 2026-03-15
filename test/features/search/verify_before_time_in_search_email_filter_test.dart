@@ -163,7 +163,7 @@ const fallbackGenerators = {
   MockSpec<RemoveAllComposerCacheOnWebInteractor>(),
   MockSpec<RemoveComposerCacheByIdOnWebInteractor>(),
   MockSpec<GetAllIdentitiesInteractor>(),
-  MockSpec<ComposerManager>(fallbackGenerators: fallbackGenerators),
+  MockSpec<ComposerManager>(fallbackGenerators: fallbackGenerators, unsupportedMembers: {#getComposerView}),
   MockSpec<CleanAndGetEmailsInMailboxInteractor>(),
   MockSpec<ClearMailboxInteractor>(),
   MockSpec<GetAuthenticationInfoInteractor>(),

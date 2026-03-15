@@ -204,7 +204,7 @@ const fallbackGenerators = {
   MockSpec<ToastManager>(),
   MockSpec<TwakeAppManager>(),
   MockSpec<GetIdentityCacheOnWebInteractor>(),
-  MockSpec<ComposerManager>(fallbackGenerators: fallbackGenerators),
+  MockSpec<ComposerManager>(fallbackGenerators: fallbackGenerators, unsupportedMembers: {#getComposerView}),
   MockSpec<CleanAndGetEmailsInMailboxInteractor>(),
   MockSpec<ClearMailboxInteractor>(),
   MockSpec<GetAuthenticationInfoInteractor>(),

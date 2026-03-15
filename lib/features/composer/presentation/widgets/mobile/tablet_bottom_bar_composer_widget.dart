@@ -1,7 +1,6 @@
 import 'package:core/presentation/resources/image_paths.dart';
 import 'package:core/presentation/views/button/tmail_button_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:scribe/scribe/ai/presentation/widgets/button/ai_assistant_button.dart';
 import 'package:tmail_ui_user/features/composer/presentation/styles/mobile/tablet_bottom_bar_composer_widget_style.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
 
@@ -15,7 +14,6 @@ class TabletBottomBarComposerWidget extends StatelessWidget {
   final VoidCallback sendMessageAction;
   final VoidCallback requestReadReceiptAction;
   final VoidCallback toggleMarkAsImportantAction;
-  final OnOpenAiAssistantModal? onOpenAiAssistantModal;
 
   const TabletBottomBarComposerWidget({
     super.key,
@@ -27,7 +25,6 @@ class TabletBottomBarComposerWidget extends StatelessWidget {
     required this.sendMessageAction,
     required this.requestReadReceiptAction,
     required this.toggleMarkAsImportantAction,
-    this.onOpenAiAssistantModal,
   });
 
   @override
@@ -74,14 +71,6 @@ class TabletBottomBarComposerWidget extends StatelessWidget {
               : AppLocalizations.of(context).turnOnRequestReadReceipt,
             onTapActionCallback: requestReadReceiptAction,
           ),
-          if (onOpenAiAssistantModal != null)
-            AiAssistantButton(
-              imagePaths: imagePaths,
-              margin: const EdgeInsetsDirectional.only(
-                start: TabletBottomBarComposerWidgetStyle.space,
-              ),
-              onOpenAiAssistantModal: onOpenAiAssistantModal!,
-            ),
           const SizedBox(width: TabletBottomBarComposerWidgetStyle.space),
           TMailButtonWidget.fromIcon(
             icon: imagePaths.icSaveToDraft,

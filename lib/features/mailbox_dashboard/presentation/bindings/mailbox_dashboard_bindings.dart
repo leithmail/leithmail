@@ -3,7 +3,6 @@ import 'package:core/data/network/download/download_manager.dart';
 import 'package:core/presentation/resources/image_paths.dart';
 import 'package:core/presentation/utils/html_transformer/html_transform.dart';
 import 'package:core/utils/file_utils.dart';
-import 'package:core/utils/platform_info.dart';
 import 'package:core/utils/preview_eml_file_utils.dart';
 import 'package:core/utils/print_utils.dart';
 import 'package:get/get.dart';
@@ -108,7 +107,6 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller
 import 'package:tmail_ui_user/features/manage_account/data/local/preferences_setting_manager.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/repository/identity_repository.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/repository/manage_account_repository.dart';
-import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_ai_scribe_config_interactor.dart';
 import 'package:tmail_ui_user/features/manage_account/domain/usecases/get_all_identities_interactor.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/bindings/setting_interactor_bindings.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/identities/identity_interactors_bindings.dart';
@@ -400,11 +398,6 @@ class MailboxDashBoardBindings extends BaseBindings {
         Get.find<ManageAccountRepository>(),
       ),
     );
-    if (!PlatformInfo.isMobile) {
-      Get.lazyPut(
-        () => GetAIScribeConfigInteractor(Get.find<ManageAccountRepository>()),
-      );
-    }
   }
 
   @override
