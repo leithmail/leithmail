@@ -1,4 +1,5 @@
 {
+  "@@locale": "eo",
   "prefix_https": "https://",
   "@prefix_https": {
     "type": "text",

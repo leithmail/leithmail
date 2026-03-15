@@ -1,4 +1,5 @@
 {
+  "@@locale": "de",
   "my_folders": "MEINE ORDNER",
   "@my_folders": {
     "type": "text",

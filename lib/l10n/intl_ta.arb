@@ -1,4 +1,5 @@
 {
+  "@@locale": "ta",
   "encryptedMailbox": "மறைகுறியாக்கப்பட்ட அஞ்சல் பெட்டி",
   "@encryptedMailbox": {
     "type": "text",

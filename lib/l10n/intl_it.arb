@@ -1,4 +1,5 @@
 {
+  "@@locale": "it",
   "initializing_data": "Inizializzazione dei dati...",
   "@initializing_data": {
     "type": "text",

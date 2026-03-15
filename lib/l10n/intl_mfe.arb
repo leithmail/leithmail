@@ -1,4 +1,5 @@
 {
+  "@@locale": "mfe",
   "prefix_https": "https://",
   "@prefix_https": {
     "type": "text",

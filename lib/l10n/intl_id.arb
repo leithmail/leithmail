@@ -1,4 +1,5 @@
 {
+  "@@locale": "id",
   "initializing_data": "Memuat data...",
   "@initializing_data": {
     "type": "text",

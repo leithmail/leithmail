@@ -1,4 +1,5 @@
 {
+  "@@locale": "fi",
   "downloading_file": "Ladataan {fileName}",
   "@downloading_file": {
     "type": "text",

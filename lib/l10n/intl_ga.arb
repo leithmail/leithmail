@@ -1,4 +1,5 @@
 {
+  "@@locale": "ga",
   "prefix_suggestion_search": "Cuardaigh le haghaidh",
   "@prefix_suggestion_search": {
     "type": "text",

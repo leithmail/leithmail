@@ -1,4 +1,5 @@
 {
+  "@@locale": "nb_NO",
   "unknown_error_login_message": "Ukjent feil. Prøv igjen.",
   "@unknown_error_login_message": {
     "type": "text",

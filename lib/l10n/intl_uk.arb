@@ -1,4 +1,5 @@
 {
+  "@@locale": "uk",
   "initializing_data": "Ініціалізація даних...",
   "@initializing_data": {
     "type": "text",

@@ -1,4 +1,5 @@
 {
+  "@@locale": "ar",
   "Bad credentials": "بيانات اعتماد غير صحيحة",
   "@Bad credentials": {
     "type": "text",
