@@ -26,6 +26,9 @@ class DashboardController extends BaseController {
     _state = DashboardStateLoading();
     try {
       final accounts = await _accountRepository.getAll();
+      if (accounts.isEmpty) {
+        Get.offAllNamed(AppRoutes.login);
+      }
       final activeAccountId = await _activeAccountRepository
           .getActiveAccountId();
       _state = DashboardStateLoaded(
