@@ -9,7 +9,8 @@
   <meta name="description" content="Server-agnostic JMAP email client">
 
   <!-- Mitigates XSS and clickjacking attacks; blocks third-party scripts and trackers -->
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; frame-src 'self';">
+  <meta http-equiv="Content-Security-Policy"
+    content="script-src 'self' 'wasm-unsafe-eval' 'sha256-MndvH2xoJITJx1vAmJTo0n71uGBofeMZfQTpl28Jz7s='; frame-src 'self';">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
