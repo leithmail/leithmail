@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:leithmail/core/services/storage_service.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/repositories/account_repository.dart';
@@ -7,7 +6,7 @@ class AccountRepositoryImpl implements AccountRepository {
   final StorageService _persistent;
   final StorageService _cache;
 
-  static const _keyPrefix = 'account:';
+  bool _cacheHydrated = false;
 
   AccountRepositoryImpl({
     required StorageService persistent,
@@ -17,33 +16,46 @@ class AccountRepositoryImpl implements AccountRepository {
 
   @override
   Future<List<Account>> getAll() async {
-    final all = await _persistent.readAll();
-    return all.entries
-        .where((e) => e.key.startsWith(_keyPrefix))
-        .map((e) => Account.fromJson(jsonDecode(e.value)))
+    if (_cacheHydrated) {
+      final cachedAccountsSerialized = await _cache.readAll();
+      return cachedAccountsSerialized.entries
+          .map((e) => Account.deserialize(e.value))
+          .toList();
+    }
+    final storedAccountsSerialized = await _persistent.readAll();
+    for (final entry in storedAccountsSerialized.entries) {
+      await _cache.write(entry.key, entry.value);
+    }
+    _cacheHydrated = true;
+    return storedAccountsSerialized.entries
+        .map((e) => Account.deserialize(e.value))
         .toList();
   }
 
   @override
   Future<Account?> getById(AccountId id) async {
-    final cached = await _cache.read('$_keyPrefix${id.value}');
-    if (cached != null) return Account.fromJson(jsonDecode(cached));
-    final raw = await _persistent.read('$_keyPrefix${id.value}');
-    if (raw == null) return null;
-    await _cache.write('$_keyPrefix${id.value}', raw);
-    return Account.fromJson(jsonDecode(raw));
+    final cachedAccountSerialized = await _cache.read(id.value);
+    if (cachedAccountSerialized != null) {
+      return Account.deserialize(cachedAccountSerialized);
+    }
+    final storedAccountSerialized = await _persistent.read(id.value);
+    if (storedAccountSerialized != null) {
+      await _cache.write(id.value, storedAccountSerialized);
+      return Account.deserialize(storedAccountSerialized);
+    }
+    return null;
   }
 
   @override
   Future<void> save(Account account) async {
-    final raw = jsonEncode(account.toJson());
-    await _cache.write('$_keyPrefix${account.id.value}', raw);
-    await _persistent.write('$_keyPrefix${account.id.value}', raw);
+    final accountSerialized = account.serialize();
+    await _cache.write(account.id.value, accountSerialized);
+    await _persistent.write(account.id.value, accountSerialized);
   }
 
   @override
   Future<void> delete(AccountId id) async {
-    await _cache.delete('$_keyPrefix${id.value}');
-    await _persistent.delete('$_keyPrefix${id.value}');
+    await _cache.delete(id.value);
+    await _persistent.delete(id.value);
   }
 }

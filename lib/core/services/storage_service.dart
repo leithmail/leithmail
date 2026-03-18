@@ -5,3 +5,8 @@ abstract class StorageService {
   Future<Map<String, String>> readAll();
   Future<void> deleteAll();
 }
+
+mixin StorageNamespacedKey {
+  String get namespace;
+  String namespacedKey(String key) => '$namespace:$key';
+}

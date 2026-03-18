@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/entities/email_address.dart';
@@ -35,6 +37,11 @@ class Account {
       _$AccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$AccountToJson(this);
+
+  factory Account.deserialize(String data) =>
+      Account.fromJson(jsonDecode(data));
+
+  String serialize() => jsonEncode(toJson());
 }
 
 Credentials _credentialsFromJson(Map<String, dynamic> map) =>
