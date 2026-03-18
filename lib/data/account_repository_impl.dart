@@ -1,17 +1,19 @@
 import 'dart:convert';
-import 'package:leithmail/core/services/storage.dart';
+import 'package:leithmail/core/services/storage_service.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/repositories/account_repository.dart';
 
 class AccountRepositoryImpl implements AccountRepository {
-  final Storage _persistent;
-  final Storage _cache;
+  final StorageService _persistent;
+  final StorageService _cache;
 
   static const _keyPrefix = 'account:';
 
-  AccountRepositoryImpl({required Storage persistent, required Storage cache})
-    : _persistent = persistent,
-      _cache = cache;
+  AccountRepositoryImpl({
+    required StorageService persistent,
+    required StorageService cache,
+  }) : _persistent = persistent,
+       _cache = cache;
 
   @override
   Future<List<Account>> getAll() async {

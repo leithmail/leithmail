@@ -1,6 +1,6 @@
-import 'package:leithmail/core/services/storage.dart';
+import 'package:leithmail/core/services/storage_service.dart';
 
-class StorageImplMemory implements Storage {
+class StorageServiceImplMemory implements StorageService {
   final Map<String, String> _store = {};
 
   @override

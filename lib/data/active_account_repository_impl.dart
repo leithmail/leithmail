@@ -1,16 +1,16 @@
-import 'package:leithmail/core/services/storage.dart';
+import 'package:leithmail/core/services/storage_service.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/repositories/active_account_repository.dart';
 
 class ActiveAccountRepositoryImpl implements ActiveAccountRepository {
-  final Storage _persistent;
-  final Storage _cache;
+  final StorageService _persistent;
+  final StorageService _cache;
 
   static const _key = 'active_account_id';
 
   ActiveAccountRepositoryImpl({
-    required Storage persistent,
-    required Storage cache,
+    required StorageService persistent,
+    required StorageService cache,
   }) : _persistent = persistent,
        _cache = cache;
 

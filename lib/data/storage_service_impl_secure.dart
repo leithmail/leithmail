@@ -1,10 +1,10 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:leithmail/core/services/storage.dart';
+import 'package:leithmail/core/services/storage_service.dart';
 
-class StorageImplSecure implements Storage {
+class StorageServiceImplSecure implements StorageService {
   final FlutterSecureStorage _storage;
 
-  const StorageImplSecure(this._storage);
+  const StorageServiceImplSecure(this._storage);
 
   @override
   Future<String?> read(String key) => _storage.read(key: key);

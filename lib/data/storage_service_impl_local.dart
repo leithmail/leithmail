@@ -1,10 +1,10 @@
-import 'package:leithmail/core/services/storage.dart';
+import 'package:leithmail/core/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class StorageImplLocal implements Storage {
+class StorageServiceImplLocal implements StorageService {
   final SharedPreferences _prefs;
 
-  const StorageImplLocal(this._prefs);
+  const StorageServiceImplLocal(this._prefs);
 
   @override
   Future<String?> read(String key) async => _prefs.getString(key);
