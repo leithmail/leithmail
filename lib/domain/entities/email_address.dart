@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'email_address.g.dart';
+
+@JsonSerializable()
 class EmailAddress {
   final String local;
   final String domain;
@@ -21,4 +26,9 @@ class EmailAddress {
 
   @override
   String toString() => '$local@$domain';
+
+  factory EmailAddress.fromJson(Map<String, dynamic> json) =>
+      _$EmailAddressFromJson(json);
+
+  Map<String, dynamic> toJson() => _$EmailAddressToJson(this);
 }

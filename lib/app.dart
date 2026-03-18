@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:leithmail/app_bindings.dart';
 import 'package:leithmail/app_routes.dart';
 import 'package:leithmail/presentation/dashboard/dashboard_bindings.dart';
 import 'package:leithmail/presentation/dashboard/dashboard_screen.dart';
@@ -15,9 +14,8 @@ class App extends StatelessWidget {
     return GetMaterialApp(
       title: 'Leithmail',
       debugShowCheckedModeBanner: false,
-      initialBinding: AppBindings(),
-      initialRoute: AppRoutes.login,
-      unknownRoute: _AppPages.login,
+      initialRoute: AppRoutes.dashboard,
+      unknownRoute: _AppPages.dashboard,
       getPages: _AppPages.all,
     );
   }

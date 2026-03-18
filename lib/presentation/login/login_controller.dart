@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:leithmail/app_routes.dart';
 import 'package:leithmail/domain/entities/account.dart';
-import 'package:leithmail/domain/entities/credentials_oidc.dart';
+import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/domain/entities/jmap_metadata.dart';
 import 'package:leithmail/domain/repositories/account_repository.dart';
