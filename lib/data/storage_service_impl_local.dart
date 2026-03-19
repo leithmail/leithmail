@@ -32,7 +32,7 @@ class StorageServiceImplLocal extends StorageService with StorageNamespacedKey {
         )
         .where((e) => e.value != null)
         .map((e) => MapEntry(e.key, e.value!));
-    return Map.fromEntries(entries);
+    return Map.unmodifiable(Map.fromEntries(entries));
   }
 
   @override

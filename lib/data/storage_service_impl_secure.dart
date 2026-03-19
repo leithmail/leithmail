@@ -23,19 +23,18 @@ class StorageServiceImplSecure extends StorageService
   @override
   Future<Map<String, String>> readAll() async {
     final all = await _storage.readAll();
-    return Map.fromEntries(
+    final namespaced = Map.fromEntries(
       all.entries
           .where((e) => e.key.startsWith('$namespace:'))
           .map((e) => MapEntry(e.key.substring('$namespace:'.length), e.value)),
     );
+    return Map.unmodifiable(namespaced);
   }
 
   @override
   Future<void> deleteAll() async {
     final all = await _storage.readAll();
-    final keys = all.keys
-        .where((k) => k.startsWith('$namespace:'))
-        .toList();
+    final keys = all.keys.where((k) => k.startsWith('$namespace:')).toList();
     for (final key in keys) {
       await _storage.delete(key: key);
     }
