@@ -21,7 +21,7 @@ Early development. Not yet usable.
 
 ## Based on
 
-Heavily based on [tmail-flutter](https://github.com/linagora/tmail-flutter) by Linagora.
+Parts of repository are based on [tmail-flutter](https://github.com/linagora/tmail-flutter) by Linagora.
 
 ## License
 
