@@ -8,12 +8,8 @@ import 'package:leithmail/core/usecase/usecase_result.dart';
 // ---------------------------------------------------------------------------
 
 /// Type for use cases that require no input.
-/// Pass [noInput] at the call site: `await myUseCase(noInput)`.
+/// Pass [NoInput] at the call site: `await myUsecase(NoInput)`.
 typedef NoInput = void;
-
-/// Sentinel value for use cases that take no input.
-// ignore: prefer_void_to_null
-const Null noInput = null;
 
 // ---------------------------------------------------------------------------
 // UsecaseBase
@@ -30,11 +26,11 @@ const Null noInput = null;
 ///
 /// Example with input:
 /// ```dart
-/// class FetchMailboxesUseCase extends UsecaseBase<Session, List<Mailbox>> {
-///   FetchMailboxesUseCase(this._repo);
+/// class FetchMailboxesUsecase extends UsecaseBase<Session, List<Mailbox>> {
+///   FetchMailboxesUsecase(this._repo);
 ///
 ///   @override
-///   String get name => 'FetchMailboxesUseCase';
+///   String get name => 'FetchMailboxesUsecase';
 ///
 ///   @override
 ///   Future<Either<AppFailure, List<Mailbox>>> execute(Session input) async {
@@ -56,16 +52,16 @@ const Null noInput = null;
 ///
 /// Example with no input:
 /// ```dart
-/// class GetActiveAccountUseCase extends UsecaseBase<NoInput, Account?> {
+/// class GetActiveAccountUsecase extends UsecaseBase<NoInput, Account?> {
 ///   @override
-///   String get name => 'GetActiveAccountUseCase';
+///   String get name => 'GetActiveAccountUsecase';
 ///
 ///   @override
 ///   Future<Either<AppFailure, Account?>> execute(NoInput _) async { ... }
 /// }
 ///
 /// // call site:
-/// final result = await getActiveAccount(noInput);
+/// final result = await getActiveAccount(NoInput);
 /// ```
 abstract class UsecaseBase<Input, Output> {
   const UsecaseBase();

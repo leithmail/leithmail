@@ -3,68 +3,44 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/domain/entities/jmap_metadata.dart';
-
-Account _makeAccount({
-  String email = 'test@example.com',
-  Credentials? credentials,
-  JmapMetadata? jmap,
-}) => Account(
-  emailAddress: EmailAddress.parse(email),
-  credentials:
-      credentials ??
-      CredentialsOidc(
-        accessToken: 'token',
-        refreshToken: 'refresh',
-        expiry: DateTime(2026),
-      ),
-  jmap:
-      jmap ??
-      JmapMetadata(
-        apiUrl: Uri.parse('https://jmap.example.com'),
-        downloadUrl: Uri.parse('https://jmap.example.com/download'),
-        uploadUrl: Uri.parse('https://jmap.example.com/upload'),
-        eventSourceUrl: Uri.parse('https://jmap.example.com/events'),
-      ),
-);
 
 void main() {
   group('id', () {
     test('id is derived from email address', () {
-      final account = _makeAccount(email: 'test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       expect(account.id, AccountId('test@example.com'));
     });
 
     test('accounts with same email have same id', () {
-      final a = _makeAccount(email: 'test@example.com');
-      final b = _makeAccount(email: 'test@example.com');
+      final a = Account.mock(email: 'test@example.com');
+      final b = Account.mock(email: 'test@example.com');
       expect(a.id, b.id);
     });
 
     test('accounts with different emails have different ids', () {
-      final a = _makeAccount(email: 'first@example.com');
-      final b = _makeAccount(email: 'second@example.com');
+      final a = Account.mock(email: 'first@example.com');
+      final b = Account.mock(email: 'second@example.com');
       expect(a.id, isNot(b.id));
     });
   });
 
   group('copyWith', () {
     test('copyWith returns new instance', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final copy = account.copyWith();
       expect(identical(account, copy), isFalse);
     });
 
     test('copyWith preserves unchanged fields', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final copy = account.copyWith();
       expect(copy.emailAddress, account.emailAddress);
       expect(copy.jmap.apiUrl, account.jmap.apiUrl);
     });
 
     test('copyWith replaces credentials', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final newCredentials = CredentialsOidc(
         accessToken: 'new_token',
         refreshToken: 'new_refresh',
@@ -76,7 +52,7 @@ void main() {
     });
 
     test('copyWith replaces jmap', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final newJmap = JmapMetadata(
         apiUrl: Uri.parse('https://new.example.com'),
         downloadUrl: Uri.parse('https://new.example.com/download'),
@@ -91,7 +67,7 @@ void main() {
 
   group('serialization', () {
     test('serialize and deserialize roundtrip', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final deserialized = Account.deserialize(account.serialize());
       expect(
         deserialized.emailAddress.toString(),
@@ -102,7 +78,7 @@ void main() {
     });
 
     test('credentials type is preserved', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final deserialized = Account.deserialize(account.serialize());
       final credentials = deserialized.credentials as CredentialsOidc;
       expect(credentials.accessToken, 'token');
@@ -111,7 +87,7 @@ void main() {
     });
 
     test('jmap urls are preserved', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final deserialized = Account.deserialize(account.serialize());
       expect(deserialized.jmap.apiUrl, account.jmap.apiUrl);
       expect(deserialized.jmap.downloadUrl, account.jmap.downloadUrl);
@@ -120,13 +96,13 @@ void main() {
     });
 
     test('toJson includes type discriminator for credentials', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final json = account.toJson();
       expect((json['credentials'] as Map<String, dynamic>)['type'], 'oidc');
     });
 
     test('fromJson with unknown credentials type throws', () {
-      final account = _makeAccount();
+      final account = Account.mock();
       final json = account.toJson();
       (json['credentials'] as Map<String, dynamic>)['type'] = 'unknown';
       expect(

@@ -17,6 +17,8 @@ class EmailAddress {
     return EmailAddress(local: parts[0], domain: parts[1]);
   }
 
+  String get value => toString();
+
   @override
   bool operator ==(Object other) =>
       other is EmailAddress && other.local == local && other.domain == domain;

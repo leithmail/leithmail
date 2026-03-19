@@ -42,6 +42,29 @@ class Account {
       Account.fromJson(jsonDecode(data));
 
   String serialize() => jsonEncode(toJson());
+
+  factory Account.mock({
+    String email = 'test@example.com',
+    Credentials? credentials,
+    JmapMetadata? jmap,
+  }) => Account(
+    emailAddress: EmailAddress.parse(email),
+    credentials:
+        credentials ??
+        CredentialsOidc(
+          accessToken: 'token',
+          refreshToken: 'refresh',
+          expiry: DateTime(2026),
+        ),
+    jmap:
+        jmap ??
+        JmapMetadata(
+          apiUrl: Uri.parse('https://jmap.example.com'),
+          downloadUrl: Uri.parse('https://jmap.example.com/download'),
+          uploadUrl: Uri.parse('https://jmap.example.com/upload'),
+          eventSourceUrl: Uri.parse('https://jmap.example.com/events'),
+        ),
+  );
 }
 
 Credentials _credentialsFromJson(Map<String, dynamic> map) =>

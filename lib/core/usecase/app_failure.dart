@@ -48,7 +48,7 @@ class ServerFailure extends AppFailure {
 }
 
 /// An unexpected exception that escaped the use case.
-/// Produced automatically by [UseCaseBase] — never construct manually.
+/// Produced automatically by [UsecaseBase] — never construct manually.
 class UnexpectedFailure extends AppFailure {
   const UnexpectedFailure(this.error, this.stackTrace);
   final Object error;

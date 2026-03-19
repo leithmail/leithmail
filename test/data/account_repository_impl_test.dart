@@ -3,23 +3,6 @@ import 'package:leithmail/data/account_repository_impl.dart';
 import 'package:leithmail/data/storage_service_impl_memory.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
-import 'package:leithmail/domain/entities/jmap_metadata.dart';
-
-Account _makeAccount(String email) => Account(
-  emailAddress: EmailAddress.parse(email),
-  credentials: CredentialsOidc(
-    accessToken: 'token',
-    refreshToken: 'refresh',
-    expiry: DateTime(2026),
-  ),
-  jmap: JmapMetadata(
-    apiUrl: Uri.parse('https://jmap.example.com'),
-    downloadUrl: Uri.parse('https://jmap.example.com/download'),
-    uploadUrl: Uri.parse('https://jmap.example.com/upload'),
-    eventSourceUrl: Uri.parse('https://jmap.example.com/events'),
-  ),
-);
 
 void main() {
   late AccountRepositoryImpl repository;
@@ -34,14 +17,14 @@ void main() {
 
   group('save', () {
     test('saves to both persistent and cache', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       expect(await persistent.read(account.id.value), isNotNull);
       expect(await cache.read(account.id.value), isNotNull);
     });
 
     test('saved account can be retrieved', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       final retrieved = await repository.getById(account.id);
       expect(
@@ -51,7 +34,7 @@ void main() {
     });
 
     test('save overwrites existing account', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
 
       final retrieved1 = await repository.getById(account.id);
@@ -74,7 +57,7 @@ void main() {
     });
 
     test('overwrite is reflected in getAll', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
 
       final updated = account.copyWith(
@@ -104,7 +87,7 @@ void main() {
     });
 
     test('returns account from cache if available', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       await persistent.deleteAll(); // wipe persistent
       final retrieved = await repository.getById(account.id);
@@ -112,7 +95,7 @@ void main() {
     });
 
     test('falls back to persistent if not in cache', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await persistent.write(account.id.value, account.serialize());
       final retrieved = await repository.getById(account.id);
       expect(
@@ -122,7 +105,7 @@ void main() {
     });
 
     test('caches account after reading from persistent', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await persistent.write(account.id.value, account.serialize());
       await repository.getById(
         account.id,
@@ -141,21 +124,21 @@ void main() {
     });
 
     test('returns all saved accounts', () async {
-      await repository.save(_makeAccount('first@example.com'));
-      await repository.save(_makeAccount('second@example.com'));
+      await repository.save(Account.mock(email: 'first@example.com'));
+      await repository.save(Account.mock(email: 'second@example.com'));
       final accounts = await repository.getAll();
       expect(accounts.length, 2);
     });
 
     test('reads from persistent on first call', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await persistent.write(account.id.value, account.serialize());
       final accounts = await repository.getAll();
       expect(accounts.length, 1);
     });
 
     test('reads from cache on subsequent calls', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       await repository.getAll(); // hydrates cache
       await persistent.deleteAll(); // wipe persistent
@@ -164,7 +147,7 @@ void main() {
     });
 
     test('cache is hydrated after first getAll', () async {
-      await repository.save(_makeAccount('test@example.com'));
+      await repository.save(Account.mock(email: 'test@example.com'));
       await repository.getAll(); // hydrates cache
       await persistent.deleteAll();
       expect(await repository.getAll(), isNotEmpty);
@@ -173,7 +156,7 @@ void main() {
 
   group('delete', () {
     test('removes from both persistent and cache', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       await repository.delete(account.id);
       expect(await persistent.read(account.id.value), isNull);
@@ -181,7 +164,7 @@ void main() {
     });
 
     test('returns null after delete', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       await repository.delete(account.id);
       expect(await repository.getById(account.id), isNull);
@@ -197,7 +180,7 @@ void main() {
 
   group('serialization roundtrip', () {
     test('account survives serialize/deserialize', () async {
-      final account = _makeAccount('test@example.com');
+      final account = Account.mock(email: 'test@example.com');
       await repository.save(account);
       final retrieved = await repository.getById(account.id);
       expect(

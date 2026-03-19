@@ -63,11 +63,11 @@ class MailboxController {
   final Signal<bool> isLoading = signal(false);
   late final Computed<bool> isEmpty = computed(() => mailboxes().isEmpty);
 
-  MailboxController(this._fetchMailboxesUseCase);
+  MailboxController(this._fetchMailboxesUsecase);
 
   Future<void> load() async {
     isLoading.value = true;
-    final result = await _fetchMailboxesUseCase.execute();
+    final result = await _fetchMailboxesUsecase.execute();
     result.fold(
       (failure) { /* handle */ },
       (list) => mailboxes.value = list,
@@ -95,7 +95,7 @@ Controllers receive their dependencies (use cases, repositories, services) via c
 // Composition root (e.g. in main.dart or app.dart)
 final storageService = StorageServiceImplLocal();
 final accountRepo = AccountRepositoryImpl(storageService);
-final loginController = LoginController(LoginUseCase(accountRepo));
+final loginController = LoginController(LoginUsecase(accountRepo));
 ```
 
 Pass controllers down via `InheritedWidget`, `InheritedNotifier`, or constructor — whichever is simplest for the screen. Do not use service locators or global singletons.
@@ -187,7 +187,7 @@ class FeatureController {
   final Signal<X> someState = signal(initialValue);
 
   // 2. Private dependencies
-  final SomeUseCase _useCase;
+  final SomeUsecase _useCase;
 
   // 3. Constructor injection
   FeatureController(this._useCase);
@@ -204,9 +204,9 @@ class FeatureController {
 One public method, `execute(...)`. Return `Either<Failure, T>` using `fpdart` or a simple `Result` type.
 
 ```dart
-class FetchMailboxesUseCase {
+class FetchMailboxesUsecase {
   final MailboxRepository _repository;
-  FetchMailboxesUseCase(this._repository);
+  FetchMailboxesUsecase(this._repository);
 
   Future<Either<Failure, List<Mailbox>>> execute(Session session) =>
       _repository.getMailboxes(session);
