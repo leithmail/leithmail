@@ -33,7 +33,10 @@ class StorageServiceImplSecure extends StorageService
   @override
   Future<void> deleteAll() async {
     final all = await _storage.readAll();
-    for (final key in all.keys.where((k) => k.startsWith('$namespace:'))) {
+    final keys = all.keys
+        .where((k) => k.startsWith('$namespace:'))
+        .toList();
+    for (final key in keys) {
       await _storage.delete(key: key);
     }
   }
