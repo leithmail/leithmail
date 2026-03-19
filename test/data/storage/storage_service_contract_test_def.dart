@@ -71,12 +71,39 @@ abstract class StorageServiceContractTestDef {
       });
     });
 
-    group('isolation', () {
-      test('two instances do not share state', () async {
-        final other = createStorage("namespace2");
+    group('namespace isolation', () {
+      late StorageService other;
+      setUp(() {
+        other = createStorage("namespace2");
+      });
+      test('write and read returns value', () async {
         await storage.write('key', 'value');
         expect(await other.read('key'), isNull);
         expect(await storage.read('key'), 'value');
+      });
+
+      test('delete removes key', () async {
+        await other.write('key', 'value');
+        await storage.write('key', 'value');
+        await storage.delete('key');
+        expect(await other.read('key'), 'value');
+        expect(await storage.read('key'), isNull);
+      });
+
+      test('deletes all keys', () async {
+        await other.write('key1', 'value1');
+        await storage.write('key1', 'value1');
+        await storage.write('key2', 'value2');
+        await storage.deleteAll();
+        expect(await storage.readAll(), isEmpty);
+        expect(await other.readAll(), {'key1': 'value1'});
+      });
+
+      test('returns all written keys', () async {
+        await storage.write('key1', 'value1');
+        await storage.write('key2', 'value2');
+        await other.write('key3', 'value3');
+        expect(await storage.readAll(), {'key1': 'value1', 'key2': 'value2'});
       });
     });
   }
