@@ -80,7 +80,7 @@ abstract class UsecaseBase<Input, Output> {
   /// Invokes the use case, logging start and outcome.
   /// Always returns [UsecaseResult] — never throws.
   Future<UsecaseResult<Output>> call(Input input) async {
-    Log.debug('[$name] started');
+    Log.info('[$name] started');
     try {
       final either = await execute(input);
       return either.fold(
@@ -89,7 +89,7 @@ abstract class UsecaseBase<Input, Output> {
           return Failure(failure);
         },
         (data) {
-          Log.debug('[$name] success');
+          Log.info('[$name] success');
           return Success(data);
         },
       );
