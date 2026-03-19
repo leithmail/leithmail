@@ -55,7 +55,7 @@ class LoginController extends BaseController {
       );
       await _accountRepository.save(account);
       await _activeAccountRepository.setActiveAccountId(account.id);
-      Get.offNamed(AppRoutes.dashboard);
+      Get.offAllNamed(AppRoutes.dashboard);
     } catch (e) {
       _state = LoginStateError(e.toString());
     }
