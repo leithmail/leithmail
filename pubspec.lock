@@ -272,14 +272,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  get:
+  fpdart:
     dependency: "direct main"
     description:
-      name: get
-      sha256: "5ed34a7925b85336e15d472cc4cfe7d9ebf4ab8e8b9f688585bf6b50f4c3d79a"
+      name: fpdart
+      sha256: f8e9d0989ba293946673e382c59ac513e30cb6746a9452df195f29e3357a73d4
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.3"
+    version: "1.2.0"
   glob:
     dependency: transitive
     description:
