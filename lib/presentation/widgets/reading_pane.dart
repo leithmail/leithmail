@@ -16,7 +16,7 @@ class ReadingPane extends StatelessWidget {
         return const _EmptyReadingPane();
       }
       return _EmailReader(email: email, controller: controller);
-    });
+    }, debugLabel: 'ReadingPane.root');
   }
 }
 

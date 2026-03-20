@@ -120,7 +120,7 @@ class AccountPanel extends StatelessWidget {
                   ),
                 ],
               );
-            }),
+            }, debugLabel: 'AccountPanel.AccountList'),
           ),
           const Divider(),
           // Account settings
@@ -156,7 +156,7 @@ class AccountPanel extends StatelessWidget {
                 );
               },
             );
-          }),
+          }, debugLabel: 'AccountPanel.AccountSettings'),
         ],
       ),
     );

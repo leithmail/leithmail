@@ -86,7 +86,7 @@ class AddAccountScreen extends ControllerWidget<AddAccountController> {
                       style: TextStyle(color: colorScheme.error, fontSize: 13),
                     ),
                   );
-                }),
+                }, debugLabel: 'AddAccountScreen.errorMessage'),
                 Watch((context) {
                   final isLoading = controller.isLoading.value;
                   return FilledButton(
@@ -99,7 +99,7 @@ class AddAccountScreen extends ControllerWidget<AddAccountController> {
                           )
                         : const Text('Add account'),
                   );
-                }),
+                }, debugLabel: 'AddAccountScreen.AddAccountButton'),
               ],
             ),
           ),

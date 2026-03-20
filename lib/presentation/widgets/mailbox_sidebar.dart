@@ -69,7 +69,7 @@ class MailboxSidebar extends StatelessWidget {
                   );
                 },
               );
-            }),
+            }, debugLabel: 'MailboxSidebar.MailboxList'),
           ),
         ],
       ),

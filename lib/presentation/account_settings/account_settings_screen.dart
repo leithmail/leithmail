@@ -144,7 +144,7 @@ class AccountSettingsScreen
                   ),
               ],
             );
-          }),
+          }, debugLabel: 'AccountSettingsScreen.RemoveAccount'),
           const Divider(),
         ],
       ),

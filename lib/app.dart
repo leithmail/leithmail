@@ -41,7 +41,7 @@ class App extends ControllerWidget<AppController> {
           onAccountAdded: controller.reload,
           onAccountRemoved: controller.reload,
         );
-      }),
+      }, debugLabel: 'App.root'),
     );
   }
 }

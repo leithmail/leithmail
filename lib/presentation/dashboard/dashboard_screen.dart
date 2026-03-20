@@ -186,7 +186,7 @@ class _DesktopAppBar extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               );
-            }),
+            }, debugLabel: 'DashboardScreen.SelectedMailboxTitle'),
             const SizedBox(width: 16),
             Expanded(
               child: Container(
@@ -229,7 +229,7 @@ class _DesktopAppBar extends StatelessWidget {
                 isOpen: controller.isAccountPanelOpen.value,
                 onTap: controller.toggleAccountPanel,
               );
-            }),
+            }, debugLabel: 'DashboardScreen.AccountChip'),
           ],
         ),
       ),
@@ -328,6 +328,7 @@ class _MobileLayout extends StatelessWidget {
                 controller.selectedMailbox.value?.name ?? '',
                 style: const TextStyle(fontSize: 15),
               ),
+              debugLabel: 'DashboardScreen.SelectedMailboxTitle',
             ),
             actions: [
               IconButton(
@@ -347,6 +348,7 @@ class _MobileLayout extends StatelessWidget {
               controller.selectedMailbox.value?.name ?? 'leithmail',
               style: const TextStyle(fontSize: 15),
             ),
+            debugLabel: 'DashboardScreen.SelectedMailboxTitle',
           ),
           actions: [
             IconButton(
@@ -396,6 +398,6 @@ class _MobileLayout extends StatelessWidget {
           child: const Icon(Icons.edit_outlined),
         ),
       );
-    });
+    }, debugLabel: 'DashboardScreen.MobileLayout');
   }
 }

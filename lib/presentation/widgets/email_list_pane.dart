@@ -44,7 +44,7 @@ class EmailListPane extends StatelessWidget {
           );
         },
       );
-    });
+    }, debugLabel: 'EmailListPane.root');
   }
 }
 
