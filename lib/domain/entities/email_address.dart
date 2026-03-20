@@ -10,7 +10,11 @@ class EmailAddress {
   const EmailAddress({required this.local, required this.domain});
 
   factory EmailAddress.parse(String raw) {
-    final parts = raw.split('@');
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) {
+      throw FormatException('Email address is empty');
+    }
+    final parts = trimmed.split('@');
     if (parts.length != 2 || parts[0].isEmpty || parts[1].isEmpty) {
       throw FormatException('Invalid email address: $raw');
     }
