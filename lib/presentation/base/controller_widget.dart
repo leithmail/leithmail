@@ -26,8 +26,8 @@ class _ControllerWidgetState<C extends ControllerBase>
   @override
   void dispose() {
     Log.info('[${widget.controller.name}] onDispose');
-    widget.controller.onDispose();
     super.dispose();
+    widget.controller.onDispose();
   }
 
   @override
