@@ -1,16 +1,26 @@
+import 'package:flutter/widgets.dart';
 import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/domain/usecases/account_usecases.dart';
+import 'package:leithmail/presentation/base/controller_base.dart';
 import 'package:signals/signals.dart';
 import 'package:leithmail/core/usecase/usecase_result.dart';
 import 'package:leithmail/domain/entities/account.dart';
 
-class AddAccountController {
+class AddAccountController extends ControllerBase {
   AddAccountController(this._addAccountUsecase);
 
   final AddAccountUsecase _addAccountUsecase;
 
-  final Signal<bool> isLoading = signal(false);
-  final Signal<String?> errorMessage = signal(null);
+  final Signal<bool> isLoading = signal(
+    false,
+    debugLabel: 'AddAccountController.isLoading',
+  );
+  final Signal<String?> errorMessage = signal(
+    null,
+    debugLabel: 'AddAccountController.errorMessage',
+  );
+
+  final emailInputController = TextEditingController();
 
   Future<bool> addAccount(String email) async {
     if (email.trim().isEmpty) {
@@ -43,7 +53,9 @@ class AddAccountController {
     }
   }
 
-  void dispose() {
+  @override
+  void onDispose() {
+    emailInputController.dispose();
     isLoading.dispose();
     errorMessage.dispose();
   }

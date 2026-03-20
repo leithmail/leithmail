@@ -1,40 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/add_account/add_account_controller.dart';
 
-class AddAccountScreen extends StatefulWidget {
+class AddAccountScreen extends ControllerWidget<AddAccountController> {
   const AddAccountScreen({
     super.key,
-    required this.controller,
+    required super.controller,
     required this.onSuccess,
     this.canGoBack = false,
   });
 
-  final AddAccountController controller;
-
   /// Called after an account is successfully added.
-  /// The caller (app.dart) is responsible for navigating to the dashboard.
   final VoidCallback onSuccess;
-
   final bool canGoBack;
 
-  @override
-  State<AddAccountScreen> createState() => _AddAccountScreenState();
-}
-
-class _AddAccountScreenState extends State<AddAccountScreen> {
-  final _emailController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final success = await widget.controller.addAccount(_emailController.text);
-    if (success && mounted) {
-      widget.onSuccess();
+  Future<void> _submit(BuildContext context) async {
+    if (controller.isLoading.value) {
+      return;
+    }
+    final success = await controller.addAccount(
+      controller.emailInputController.text,
+    );
+    if (success && context.mounted) {
+      onSuccess();
     }
   }
 
@@ -44,7 +33,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: widget.canGoBack
+      appBar: canGoBack
           ? AppBar(
               leading: const BackButton(),
               backgroundColor: Colors.transparent,
@@ -77,18 +66,18 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                 ),
                 const SizedBox(height: 40),
                 TextField(
-                  controller: _emailController,
+                  controller: controller.emailInputController,
                   keyboardType: TextInputType.emailAddress,
                   autofocus: true,
                   decoration: const InputDecoration(
                     hintText: 'you@example.com',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
-                  onSubmitted: (_) => _submit(),
+                  onSubmitted: (_) => _submit(context),
                 ),
                 const SizedBox(height: 12),
                 Watch((context) {
-                  final error = widget.controller.errorMessage.value;
+                  final error = controller.errorMessage.value;
                   if (error == null) return const SizedBox.shrink();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -99,9 +88,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                   );
                 }),
                 Watch((context) {
-                  final isLoading = widget.controller.isLoading.value;
+                  final isLoading = controller.isLoading.value;
                   return FilledButton(
-                    onPressed: isLoading ? null : _submit,
+                    onPressed: () => _submit(context),
                     child: isLoading
                         ? const SizedBox(
                             height: 18,

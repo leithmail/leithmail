@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:leithmail/presentation/base/controller_factory.dart';
 import 'package:leithmail/presentation/logging/signals_log_ovserver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:leithmail/app.dart';
@@ -62,25 +63,32 @@ void main() async {
     activeAccountRepository,
   );
 
-  final appController = AppController(
-    getActiveAccountUsecase: getActiveAccountUsecase,
-    getAllAccountsUsecase: getAllAccountsUsecase,
-    setActiveAccountUsecase: setActiveAccountUsecase,
-  );
-
   runApp(
     App(
-      appController: appController,
-      dashboardController: DashboardController(
-        getMailboxesUsecase: GetMailboxesUsecase(MailboxRepositoryImplMock()),
-        getEmailsUsecase: GetEmailsUsecase(EmailRepositoryImplMock()),
+      controller: AppController(
+        getActiveAccountUsecase: getActiveAccountUsecase,
         getAllAccountsUsecase: getAllAccountsUsecase,
         setActiveAccountUsecase: setActiveAccountUsecase,
-        onAccountSwitched: () => appController.boot(),
-      ),
-      addAccountController: AddAccountController(addAccountUsecase),
-      accountSettingsController: AccountSettingsController(
-        removeAccountUsecase,
+        addAccountControllerFactory: ControllerFactory(
+          () => AddAccountController(addAccountUsecase),
+        ),
+        dashboardControllerFactory: ControllerFactory(
+          () => DashboardController(
+            getMailboxesUsecase: GetMailboxesUsecase(
+              MailboxRepositoryImplMock(),
+            ),
+            getEmailsUsecase: GetEmailsUsecase(EmailRepositoryImplMock()),
+            getAllAccountsUsecase: getAllAccountsUsecase,
+            setActiveAccountUsecase: setActiveAccountUsecase,
+            onAccountSwitched: () async {},
+            addAccountControllerFactory: ControllerFactory(
+              () => AddAccountController(addAccountUsecase),
+            ),
+            accountSettingsControllerFactory: ControllerFactory(
+              () => AccountSettingsController(removeAccountUsecase),
+            ),
+          ),
+        ),
       ),
     ),
   );

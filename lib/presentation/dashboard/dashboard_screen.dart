@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/account_settings/account_settings_controller.dart';
@@ -14,38 +15,21 @@ const double _kEmailListWidth = 300;
 const double _kAccountPanelWidth = 240;
 const double _kMobileBreakpoint = 600;
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ControllerWidget<DashboardController> {
   const DashboardScreen({
     super.key,
-    required this.controller,
-    required this.addAccountController,
-    required this.accountSettingsController,
-    required this.activeAccount,
+    required super.controller,
     required this.onAccountAdded,
     required this.onAccountRemoved,
+    required this.activeAccount,
   });
-
-  final DashboardController controller;
-  final AddAccountController addAccountController;
-  final AccountSettingsController accountSettingsController;
-
-  /// Reactive signal so the screen always reflects the current active account
-  /// without needing a full rebuild from the parent.
-  final ReadonlySignal<Account?> activeAccount;
 
   final VoidCallback onAccountAdded;
   final VoidCallback onAccountRemoved;
 
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.init();
-  }
+  /// Reactive signal so the screen always reflects the current active account
+  /// without needing a full rebuild from the parent.
+  final ReadonlySignal<Account?> activeAccount;
 
   @override
   Widget build(BuildContext context) {
@@ -54,20 +38,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return isMobile
         ? _MobileLayout(
-            controller: widget.controller,
-            addAccountController: widget.addAccountController,
-            accountSettingsController: widget.accountSettingsController,
-            activeAccount: widget.activeAccount,
-            onAccountAdded: widget.onAccountAdded,
-            onAccountRemoved: widget.onAccountRemoved,
+            controller: controller,
+            addAccountController: controller.addAccountControllerFactory
+                .create(),
+            accountSettingsController: controller
+                .accountSettingsControllerFactory
+                .create(),
+            activeAccount: activeAccount,
+            onAccountAdded: onAccountAdded,
+            onAccountRemoved: onAccountRemoved,
           )
         : _DesktopLayout(
-            controller: widget.controller,
-            addAccountController: widget.addAccountController,
-            accountSettingsController: widget.accountSettingsController,
-            activeAccount: widget.activeAccount,
-            onAccountAdded: widget.onAccountAdded,
-            onAccountRemoved: widget.onAccountRemoved,
+            controller: controller,
+            addAccountController: controller.addAccountControllerFactory
+                .create(),
+            accountSettingsController: controller
+                .accountSettingsControllerFactory
+                .create(),
+            activeAccount: activeAccount,
+            onAccountAdded: onAccountAdded,
+            onAccountRemoved: onAccountRemoved,
           );
   }
 }
@@ -228,7 +218,7 @@ class _DesktopAppBar extends StatelessWidget {
             const SizedBox(width: 12),
             IconButton(
               icon: const Icon(Icons.refresh_outlined, size: 18),
-              onPressed: () => controller.init(),
+              onPressed: () => controller.reload(),
               tooltip: 'Refresh',
             ),
             const SizedBox(width: 4),

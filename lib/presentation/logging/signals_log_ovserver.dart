@@ -9,12 +9,16 @@ class SignalsLogObserver implements SignalsObserver {
 
   @override
   void onSignalCreated<T>(Signal<T> signal, T value) {
-    Log.debug('[signals] signal created ${_label(signal)} = $value');
+    Log.debug(
+      '[signals] signal created ${_label(signal)} = ${_preview(value)}',
+    );
   }
 
   @override
   void onSignalUpdated<T>(Signal<T> signal, T value) {
-    Log.debug('[signals] signal updated ${_label(signal)} → $value');
+    Log.debug(
+      '[signals] signal updated ${_label(signal)} → ${_preview(value)}',
+    );
   }
 
   @override
@@ -24,7 +28,9 @@ class SignalsLogObserver implements SignalsObserver {
 
   @override
   void onComputedUpdated<T>(Computed<T> signal, T value) {
-    Log.debug('[signals] computed updated ${_label(signal)} → $value');
+    Log.debug(
+      '[signals] computed updated ${_label(signal)} → ${_preview(value)}',
+    );
   }
 
   @override
@@ -40,5 +46,10 @@ class SignalsLogObserver implements SignalsObserver {
   @override
   void onEffectRemoved(Effect instance) {
     Log.debug('[signals] effect removed ${_effectLabel(instance)}');
+  }
+
+  String _preview(Object? value) {
+    final s = value.toString().replaceAll('\n', ' ');
+    return s.length > 60 ? '${s.substring(0, 60)}…' : s;
   }
 }
