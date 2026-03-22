@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:leithmail/presentation/views/account_settings/account_settings_controller_factory.dart';
-import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
-import 'package:leithmail/presentation/views/dashboard/dashboard_controller_factory.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
+import 'package:leithmail/presentation/views/app_controller.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 import 'package:leithmail/presentation/logging/signals_log_ovserver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:leithmail/app.dart';
+import 'package:leithmail/presentation/views/app.dart';
 import 'package:leithmail/core/logging/app_logger_console.dart';
 import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/data/account_repository_impl.dart';
@@ -17,7 +18,6 @@ import 'package:leithmail/data/storage_service_factory_impl.dart';
 import 'package:leithmail/domain/usecases/account_usecases.dart';
 import 'package:leithmail/domain/usecases/get_emails_usecase.dart';
 import 'package:leithmail/domain/usecases/get_mailboxes_usecase.dart';
-import 'package:leithmail/app_controller.dart';
 import 'package:signals/signals_flutter.dart';
 
 void main() async {
@@ -69,28 +69,33 @@ void main() async {
 
   // Controller factories
   final addAccountControllerFactory = AddAccountControllerFactory(
-    addAccountUsecase: addAccountUsecase,
+    bindings: (addAccountUsecase: addAccountUsecase),
   );
 
   final accountSettingsControllerFactory = AccountSettingsControllerFactory(
-    removeAccountUsecase: removeAccountUsecase,
+    bindings: (removeAccountUsecase: removeAccountUsecase),
   );
 
-  runApp(
-    App(
-      controller: AppController(
-        getActiveAccountUsecase: getActiveAccountUsecase,
-        getAllAccountsUsecase: getAllAccountsUsecase,
-        setActiveAccountUsecase: setActiveAccountUsecase,
-        addAccountControllerFactory: addAccountControllerFactory,
-        dashboardControllerFactory: DashboardControllerFactory(
-          getMailboxesUsecase: getMailboxesUsecase,
-          getEmailsUsecase: getEmailsUsecase,
-          addAccountControllerFactory: addAccountControllerFactory,
-          accountSettingsControllerFactory: accountSettingsControllerFactory,
-        ),
-        accountSettingsControllerFactory: accountSettingsControllerFactory,
-      ),
+  final dashboardControllerFactory = DashboardControllerFactory(
+    bindings: (
+      getMailboxesUsecase: getMailboxesUsecase,
+      getEmailsUsecase: getEmailsUsecase,
+      addAccountControllerFactory: addAccountControllerFactory,
+      accountSettingsControllerFactory: accountSettingsControllerFactory,
+      setActiveAccountUsecase: setActiveAccountUsecase,
     ),
   );
+
+  final appControllerFactory = AppControllerFactory(
+    bindings: (
+      dashboardControllerFactory: dashboardControllerFactory,
+      addAccountControllerFactory: addAccountControllerFactory,
+      accountSettingsControllerFactory: accountSettingsControllerFactory,
+      getActiveAccountUsecase: getActiveAccountUsecase,
+      getAllAccountsUsecase: getAllAccountsUsecase,
+      setActiveAccountUsecase: setActiveAccountUsecase,
+    ),
+  );
+
+  runApp(App(factory: appControllerFactory, inputs: null));
 }

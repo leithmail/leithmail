@@ -1,7 +1,6 @@
-import 'dart:ui';
-
-import 'package:leithmail/presentation/views/account_settings/account_settings_controller_factory.dart';
-import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
+import 'package:leithmail/domain/usecases/account_usecases.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
 import 'package:leithmail/presentation/models/account_summary.dart';
 import 'package:signals/signals.dart';
@@ -13,27 +12,38 @@ import 'package:leithmail/domain/entities/mock_mailbox.dart';
 import 'package:leithmail/domain/usecases/get_emails_usecase.dart';
 import 'package:leithmail/domain/usecases/get_mailboxes_usecase.dart';
 
-class DashboardController extends ControllerBase {
-  DashboardController({
-    required this.getMailboxesUsecase,
-    required this.getEmailsUsecase,
-    required this.onAccountSwitched,
-    required this.addAccountControllerFactory,
-    required this.accountSettingsControllerFactory,
-    required this.accountSummariesList,
-    required this.activeAccount,
-  });
+typedef DashboardControllerBindings = ({
+  GetMailboxesUsecase getMailboxesUsecase,
+  GetEmailsUsecase getEmailsUsecase,
+  SetActiveAccountUsecase setActiveAccountUsecase,
 
-  final GetMailboxesUsecase getMailboxesUsecase;
-  final GetEmailsUsecase getEmailsUsecase;
+  AddAccountControllerFactory addAccountControllerFactory,
+  AccountSettingsControllerFactory accountSettingsControllerFactory,
+});
 
-  final AddAccountControllerFactory addAccountControllerFactory;
-  final AccountSettingsControllerFactory accountSettingsControllerFactory;
+typedef DashboardControllerInputs = ({
+  ReadonlySignal<Account> activeAccount,
+  ReadonlySignal<List<AccountSummary>> accountSummariesList,
+  void Function() onAccountSwitched,
+});
 
-  final ReadonlySignal<List<AccountSummary>> accountSummariesList;
-  final ReadonlySignal<Account?> activeAccount;
+class DashboardControllerFactory
+    extends
+        ControllerFactoryBase<
+          DashboardController,
+          DashboardControllerBindings,
+          DashboardControllerInputs
+        > {
+  DashboardControllerFactory({required super.bindings});
 
-  final VoidCallback onAccountSwitched;
+  @override
+  create(inputs) => DashboardController(bindings: bindings, inputs: inputs);
+}
+
+class DashboardController
+    extends
+        ControllerBase<DashboardControllerBindings, DashboardControllerInputs> {
+  DashboardController({required super.bindings, required super.inputs});
 
   final Signal<List<MockMailbox>> mailboxes = signal(
     [],
@@ -42,10 +52,6 @@ class DashboardController extends ControllerBase {
   final Signal<List<MockEmail>> emails = signal(
     [],
     debugLabel: 'DashboardController.emails',
-  );
-  final Signal<List<Account>> accounts = signal(
-    [],
-    debugLabel: 'DashboardController.accounts',
   );
   final Signal<MockMailbox?> selectedMailbox = signal(
     null,
@@ -77,7 +83,7 @@ class DashboardController extends ControllerBase {
 
   Future<void> _loadMailboxes() async {
     isLoadingMailboxes.value = true;
-    final result = await getMailboxesUsecase(NoInput);
+    final result = await bindings.getMailboxesUsecase(NoInput);
     if (result case Success(:final data)) {
       mailboxes.value = data;
       if (data.isNotEmpty) await selectMailbox(data.first);
@@ -89,11 +95,16 @@ class DashboardController extends ControllerBase {
     selectedMailbox.value = mailbox;
     selectedEmail.value = null;
     isLoadingEmails.value = true;
-    final result = await getEmailsUsecase(mailbox.id);
+    final result = await bindings.getEmailsUsecase(mailbox.id);
     if (result case Success(:final data)) {
       emails.value = data;
     }
     isLoadingEmails.value = false;
+  }
+
+  Future<void> setActiveAccount(AccountId id) async {
+    await bindings.setActiveAccountUsecase(id);
+    inputs.onAccountSwitched();
   }
 
   void selectEmail(MockEmail email) {
@@ -116,13 +127,10 @@ class DashboardController extends ControllerBase {
   void onDispose() {
     mailboxes.dispose();
     emails.dispose();
-    accounts.dispose();
     selectedMailbox.dispose();
     selectedEmail.dispose();
     isAccountSelectorViewOpen.dispose();
     isLoadingMailboxes.dispose();
     isLoadingEmails.dispose();
-    accountSummariesList.dispose();
-    activeAccount.dispose();
   }
 }

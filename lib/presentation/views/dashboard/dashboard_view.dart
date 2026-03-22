@@ -13,11 +13,21 @@ const double _kEmailListWidth = 300;
 const double _kAccountSelectorViewWidth = 240;
 const double _kMobileBreakpoint = 600;
 
-class DashboardView extends ControllerWidget<DashboardController> {
-  const DashboardView({super.key, required super.controller});
+class DashboardView
+    extends
+        ControllerWidget<
+          DashboardController,
+          DashboardControllerBindings,
+          DashboardControllerInputs
+        > {
+  const DashboardView({
+    super.key,
+    required super.factory,
+    required super.inputs,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, DashboardController controller) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < _kMobileBreakpoint;
 
@@ -53,7 +63,7 @@ class _DesktopLayout extends StatelessWidget {
               children: [
                 _DesktopAppBar(
                   controller: controller,
-                  activeAccount: controller.activeAccount,
+                  activeAccount: controller.inputs.activeAccount,
                 ),
                 const Divider(),
                 Expanded(
@@ -250,7 +260,7 @@ class _MobileLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Watch((context) {
       final selectedEmail = controller.selectedEmail.value;
-      final account = controller.activeAccount.value;
+      final account = controller.inputs.activeAccount.value;
 
       if (selectedEmail != null) {
         return Scaffold(
@@ -304,8 +314,7 @@ class _MobileLayout extends StatelessWidget {
                   radius: 14,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   child: Text(
-                    account?.emailAddress.value.substring(0, 2).toUpperCase() ??
-                        '?',
+                    account.emailAddress.value.substring(0, 2).toUpperCase(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,

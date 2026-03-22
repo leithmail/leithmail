@@ -3,23 +3,39 @@ import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 
-class AddAccountView extends ControllerWidget<AddAccountController> {
-  const AddAccountView({super.key, required super.controller});
+class AddAccountView
+    extends
+        ControllerWidget<
+          AddAccountController,
+          AddAccountControllerBindings,
+          AddAccountControllerInputs
+        > {
+  const AddAccountView({
+    super.key,
+    required super.factory,
+    required super.inputs,
+  });
 
-  Future<void> _submit() async {
+  Future<void> _submit(
+    BuildContext context,
+    AddAccountController controller,
+  ) async {
     if (controller.isLoading.value) {
       return;
     }
     await controller.addAccount(controller.emailInputController.text);
+    if (context.mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, AddAccountController controller) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: controller.canGoBack
+      appBar: controller.inputs.canGoBack
           ? AppBar(
               leading: const BackButton(),
               backgroundColor: Colors.transparent,
@@ -59,7 +75,7 @@ class AddAccountView extends ControllerWidget<AddAccountController> {
                     hintText: 'you@example.com',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
-                  onSubmitted: (_) => _submit(),
+                  onSubmitted: (_) => _submit(context, controller),
                 ),
                 const SizedBox(height: 12),
                 Watch((context) {
@@ -76,7 +92,7 @@ class AddAccountView extends ControllerWidget<AddAccountController> {
                 Watch((context) {
                   final isLoading = controller.isLoading.value;
                   return FilledButton(
-                    onPressed: () => _submit(),
+                    onPressed: () => _submit(context, controller),
                     child: isLoading
                         ? const SizedBox(
                             height: 18,

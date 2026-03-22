@@ -2,34 +2,60 @@ import 'package:flutter/widgets.dart';
 import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
 
-abstract class ControllerWidget<C extends ControllerBase>
+abstract class ControllerWidget<
+  Controller extends ControllerBase<ControllerBindings, ControllerInputs>,
+  ControllerBindings,
+  ControllerInputs
+>
     extends StatefulWidget {
-  const ControllerWidget({super.key, required this.controller});
+  const ControllerWidget({
+    super.key,
+    required this.factory,
+    required this.inputs,
+  });
 
-  final C controller;
+  final ControllerFactoryBase<Controller, ControllerBindings, ControllerInputs>
+  factory;
+  final ControllerInputs inputs;
 
-  Widget build(BuildContext context);
+  Widget build(BuildContext context, Controller controller);
 
   @override
-  State<ControllerWidget<C>> createState() => _ControllerWidgetState<C>();
+  State<ControllerWidget<Controller, ControllerBindings, ControllerInputs>>
+  createState() =>
+      _ControllerWidgetState<
+        Controller,
+        ControllerBindings,
+        ControllerInputs
+      >();
 }
 
-class _ControllerWidgetState<C extends ControllerBase>
-    extends State<ControllerWidget<C>> {
+class _ControllerWidgetState<
+  Controller extends ControllerBase<ControllerBindings, ControllerInputs>,
+  ControllerBindings,
+  ControllerInputs
+>
+    extends
+        State<
+          ControllerWidget<Controller, ControllerBindings, ControllerInputs>
+        > {
+  late final Controller controller;
+
   @override
   void initState() {
-    Log.info('[${widget.controller.name}] onInit');
     super.initState();
-    widget.controller.onInit();
+    controller = widget.factory.create(widget.inputs);
+    Log.info('[${controller.name}] onInit');
+    controller.onInit();
   }
 
   @override
   void dispose() {
-    Log.info('[${widget.controller.name}] onDispose');
+    Log.info('[${controller.name}] onDispose');
+    controller.onDispose();
     super.dispose();
-    widget.controller.onDispose();
   }
 
   @override
-  Widget build(BuildContext context) => widget.build(context);
+  Widget build(BuildContext context) => widget.build(context, controller);
 }

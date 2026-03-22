@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
-import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
-import 'package:leithmail/presentation/views/dashboard/dashboard_controller_factory.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
-import 'package:leithmail/app_controller.dart';
+import 'package:leithmail/presentation/views/app_controller.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_view.dart';
 import 'package:leithmail/presentation/theme/app_theme.dart';
 
-class App extends ControllerWidget<AppController> {
-  const App({super.key, required super.controller});
+class App
+    extends
+        ControllerWidget<
+          AppController,
+          AppControllerBindings,
+          AppControllerInputs
+        > {
+  const App({super.key, required super.factory, required super.inputs});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, AppController controller) {
     return MaterialApp(
       title: 'Leithmail',
       theme: AppTheme.light,
@@ -29,24 +33,23 @@ class App extends ControllerWidget<AppController> {
           );
         }
 
-        if (!hasAccounts) {
+        if (!hasAccounts || controller.lastActiveAccount == null) {
           return AddAccountView(
-            controller: controller.addAccountControllerFactory(
-              AddAccountControllerFactoryInput(
-                onAccountAdded: controller.onAccountSwitched,
-                canGoBack: false,
-              ),
+            factory: controller.bindings.addAccountControllerFactory,
+            inputs: (
+              onAccountAdded: controller.onAccountSwitched,
+              canGoBack: false,
             ),
           );
         }
 
         return DashboardView(
-          controller: controller.dashboardControllerFactory(
-            DashboardControllerFactoryInput(
-              activeAccount: controller.activeAccount,
-              accountSummariesList: controller.accountSummariesList,
-              onAccountSwitched: controller.onAccountSwitched,
-            ),
+          key: Key(controller.lastActiveAccount!.value.id.value),
+          factory: controller.bindings.dashboardControllerFactory,
+          inputs: (
+            activeAccount: controller.lastActiveAccount!,
+            accountSummariesList: controller.accountSummariesList,
+            onAccountSwitched: controller.onAccountSwitched,
           ),
         );
       }, debugLabel: 'App.root'),

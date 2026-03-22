@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:leithmail/presentation/views/account_settings/account_settings_controller_factory.dart';
-import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
+import 'package:leithmail/presentation/models/account_summary.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
@@ -51,16 +49,16 @@ class AccountSelectorView extends StatelessWidget {
           // Account list
           Expanded(
             child: Watch((context) {
-              final accounts = controller.accounts.value;
-              final currentAccount = controller.activeAccount.value;
+              final accounts = controller.inputs.accountSummariesList.value;
+              final currentAccount = controller.inputs.activeAccount.value;
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [
                   ...accounts.map(
                     (account) => _AccountTile(
                       account: account,
-                      isActive: account.id == currentAccount?.id,
-                      onTap: controller.onAccountSwitched,
+                      isActive: account.id == currentAccount.id,
+                      onTap: () => controller.setActiveAccount(account.id),
                     ),
                   ),
                   const Divider(),
@@ -94,11 +92,12 @@ class AccountSelectorView extends StatelessWidget {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => AddAccountView(
-                            controller: controller.addAccountControllerFactory(
-                              AddAccountControllerFactoryInput(
-                                onAccountAdded: controller.onAccountSwitched,
-                                canGoBack: true,
-                              ),
+                            factory:
+                                controller.bindings.addAccountControllerFactory,
+                            inputs: (
+                              onAccountAdded:
+                                  controller.inputs.onAccountSwitched,
+                              canGoBack: true,
                             ),
                           ),
                         ),
@@ -112,8 +111,6 @@ class AccountSelectorView extends StatelessWidget {
           const Divider(),
           // Account settings
           Watch((context) {
-            final current = controller.activeAccount.value;
-            if (current == null) return const SizedBox.shrink();
             return ListTile(
               dense: true,
               leading: Icon(
@@ -132,11 +129,11 @@ class AccountSelectorView extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => AccountSettingsView(
-                      controller: controller.accountSettingsControllerFactory(
-                        AccountSettingsControllerFactoryInput(
-                          account: controller.activeAccount.value!,
-                          onAccountRemoved: controller.onAccountSwitched,
-                        ),
+                      factory:
+                          controller.bindings.accountSettingsControllerFactory,
+                      inputs: (
+                        account: controller.inputs.activeAccount.value,
+                        onAccountRemoved: controller.inputs.onAccountSwitched,
                       ),
                     ),
                   ),
@@ -157,7 +154,7 @@ class _AccountTile extends StatelessWidget {
     required this.onTap,
   });
 
-  final Account account;
+  final AccountSummary account;
   final bool isActive;
   final VoidCallback onTap;
 

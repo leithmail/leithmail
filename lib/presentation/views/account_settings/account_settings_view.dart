@@ -3,16 +3,29 @@ import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
 
-class AccountSettingsView extends ControllerWidget<AccountSettingsController> {
-  const AccountSettingsView({super.key, required super.controller});
+class AccountSettingsView
+    extends
+        ControllerWidget<
+          AccountSettingsController,
+          AccountSettingsControllerBindings,
+          AccountSettingsControllerInputs
+        > {
+  const AccountSettingsView({
+    super.key,
+    required super.factory,
+    required super.inputs,
+  });
 
-  Future<void> _handleRemove(BuildContext context) async {
+  Future<void> _handleRemove(
+    BuildContext context,
+    AccountSettingsController controller,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove account'),
         content: Text(
-          'Remove ${controller.account.emailAddress.value}? '
+          'Remove ${controller.inputs.account.emailAddress.value}? '
           'This will delete all local data for this account.',
         ),
         actions: [
@@ -33,14 +46,17 @@ class AccountSettingsView extends ControllerWidget<AccountSettingsController> {
 
     if (confirmed != true) return;
 
-    await controller.removeAccount();
+    final removeSuccess = await controller.removeAccount();
+    if (removeSuccess && context.mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, AccountSettingsController controller) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final initials = controller.account.emailAddress.value
+    final initials = controller.inputs.account.emailAddress.value
         .substring(0, 2)
         .toUpperCase();
 
@@ -79,14 +95,14 @@ class AccountSettingsView extends ControllerWidget<AccountSettingsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          controller.account.emailAddress.value,
+                          controller.inputs.account.emailAddress.value,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          controller.account.jmap.apiUrl.toString(),
+                          controller.inputs.account.jmap.apiUrl.toString(),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -121,7 +137,9 @@ class AccountSettingsView extends ControllerWidget<AccountSettingsController> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : null,
-                  onTap: isLoading ? null : () => _handleRemove(context),
+                  onTap: isLoading
+                      ? null
+                      : () => _handleRemove(context, controller),
                 ),
                 if (error != null)
                   Padding(

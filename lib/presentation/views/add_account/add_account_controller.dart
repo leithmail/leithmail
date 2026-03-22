@@ -6,17 +6,33 @@ import 'package:signals/signals.dart';
 import 'package:leithmail/core/usecase/usecase_result.dart';
 import 'package:leithmail/domain/entities/account.dart';
 
-class AddAccountController extends ControllerBase {
-  AddAccountController({
-    required this.addAccountUsecase,
-    required this.onAccountAdded,
-    required this.canGoBack,
-  });
+typedef AddAccountControllerBindings = ({AddAccountUsecase addAccountUsecase});
 
-  final AddAccountUsecase addAccountUsecase;
-  final VoidCallback onAccountAdded;
-  final bool canGoBack;
+typedef AddAccountControllerInputs = ({
+  void Function() onAccountAdded,
+  bool canGoBack,
+});
 
+class AddAccountControllerFactory
+    extends
+        ControllerFactoryBase<
+          AddAccountController,
+          AddAccountControllerBindings,
+          AddAccountControllerInputs
+        > {
+  AddAccountControllerFactory({required super.bindings});
+
+  @override
+  AddAccountController create(AddAccountControllerInputs inputs) =>
+      AddAccountController(bindings: bindings, inputs: inputs);
+}
+
+class AddAccountController
+    extends
+        ControllerBase<
+          AddAccountControllerBindings,
+          AddAccountControllerInputs
+        > {
   final Signal<bool> isLoading = signal(
     false,
     debugLabel: 'AddAccountController.isLoading',
@@ -27,6 +43,8 @@ class AddAccountController extends ControllerBase {
   );
 
   final emailInputController = TextEditingController();
+
+  AddAccountController({required super.bindings, required super.inputs});
 
   Future<bool> addAccount(String email) async {
     if (email.trim().isEmpty) {
@@ -46,13 +64,13 @@ class AddAccountController extends ControllerBase {
       isLoading.value = false;
       return false;
     }
-    final result = await addAccountUsecase(account);
+    final result = await bindings.addAccountUsecase(account);
 
     isLoading.value = false;
 
     switch (result) {
       case Success():
-        onAccountAdded();
+        inputs.onAccountAdded();
         return true;
       case Failure(:final failure):
         errorMessage.value = 'Failed to add account: $failure';
