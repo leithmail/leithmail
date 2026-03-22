@@ -2,34 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/account.dart';
-import 'package:leithmail/presentation/account_settings/account_settings_controller.dart';
-import 'package:leithmail/presentation/add_account/add_account_controller.dart';
-import 'package:leithmail/presentation/dashboard/dashboard_controller.dart';
-import 'package:leithmail/presentation/widgets/account_panel.dart';
-import 'package:leithmail/presentation/widgets/email_list_pane.dart';
-import 'package:leithmail/presentation/widgets/mailbox_sidebar.dart';
-import 'package:leithmail/presentation/widgets/reading_pane.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
+import 'package:leithmail/presentation/views/dashboard/parts/account_selector_view.dart';
+import 'package:leithmail/presentation/views/dashboard/parts/email_list_pane.dart';
+import 'package:leithmail/presentation/views/dashboard/parts/mailbox_sidebar.dart';
+import 'package:leithmail/presentation/views/dashboard/parts/reading_pane.dart';
 
 const double _kSidebarWidth = 210;
 const double _kEmailListWidth = 300;
-const double _kAccountPanelWidth = 240;
+const double _kAccountSelectorViewWidth = 240;
 const double _kMobileBreakpoint = 600;
 
-class DashboardScreen extends ControllerWidget<DashboardController> {
-  const DashboardScreen({
-    super.key,
-    required super.controller,
-    required this.onAccountAdded,
-    required this.onAccountRemoved,
-    required this.activeAccount,
-  });
-
-  final VoidCallback onAccountAdded;
-  final VoidCallback onAccountRemoved;
-
-  /// Reactive signal so the screen always reflects the current active account
-  /// without needing a full rebuild from the parent.
-  final ReadonlySignal<Account?> activeAccount;
+class DashboardView extends ControllerWidget<DashboardController> {
+  const DashboardView({super.key, required super.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -37,28 +22,8 @@ class DashboardScreen extends ControllerWidget<DashboardController> {
     final isMobile = width < _kMobileBreakpoint;
 
     return isMobile
-        ? _MobileLayout(
-            controller: controller,
-            addAccountController: controller.addAccountControllerFactory
-                .create(),
-            accountSettingsController: controller
-                .accountSettingsControllerFactory
-                .create(),
-            activeAccount: activeAccount,
-            onAccountAdded: onAccountAdded,
-            onAccountRemoved: onAccountRemoved,
-          )
-        : _DesktopLayout(
-            controller: controller,
-            addAccountController: controller.addAccountControllerFactory
-                .create(),
-            accountSettingsController: controller
-                .accountSettingsControllerFactory
-                .create(),
-            activeAccount: activeAccount,
-            onAccountAdded: onAccountAdded,
-            onAccountRemoved: onAccountRemoved,
-          );
+        ? _MobileLayout(controller: controller)
+        : _DesktopLayout(controller: controller);
   }
 }
 
@@ -67,21 +32,9 @@ class DashboardScreen extends ControllerWidget<DashboardController> {
 // ---------------------------------------------------------------------------
 
 class _DesktopLayout extends StatelessWidget {
-  const _DesktopLayout({
-    required this.controller,
-    required this.addAccountController,
-    required this.accountSettingsController,
-    required this.activeAccount,
-    required this.onAccountAdded,
-    required this.onAccountRemoved,
-  });
+  const _DesktopLayout({required this.controller});
 
   final DashboardController controller;
-  final AddAccountController addAccountController;
-  final AccountSettingsController accountSettingsController;
-  final ReadonlySignal<Account?> activeAccount;
-  final VoidCallback onAccountAdded;
-  final VoidCallback onAccountRemoved;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +53,7 @@ class _DesktopLayout extends StatelessWidget {
               children: [
                 _DesktopAppBar(
                   controller: controller,
-                  activeAccount: activeAccount,
+                  activeAccount: controller.activeAccount,
                 ),
                 const Divider(),
                 Expanded(
@@ -117,9 +70,8 @@ class _DesktopLayout extends StatelessWidget {
                       Expanded(
                         child: Builder(
                           builder: (context) {
-                            final isOpen = controller.isAccountPanelOpen.watch(
-                              context,
-                            );
+                            final isOpen = controller.isAccountSelectorViewOpen
+                                .watch(context);
                             return Row(
                               children: [
                                 Expanded(
@@ -131,16 +83,9 @@ class _DesktopLayout extends StatelessWidget {
                                     color: colorScheme.outlineVariant,
                                   ),
                                   SizedBox(
-                                    width: _kAccountPanelWidth,
-                                    child: AccountPanel(
+                                    width: _kAccountSelectorViewWidth,
+                                    child: AccountSelectorView(
                                       controller: controller,
-                                      addAccountController:
-                                          addAccountController,
-                                      accountSettingsController:
-                                          accountSettingsController,
-                                      activeAccount: activeAccount,
-                                      onAccountAdded: onAccountAdded,
-                                      onAccountRemoved: onAccountRemoved,
                                     ),
                                   ),
                                 ],
@@ -186,7 +131,7 @@ class _DesktopAppBar extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               );
-            }, debugLabel: 'DashboardScreen.SelectedMailboxTitle'),
+            }, debugLabel: 'DashboardView.SelectedMailboxTitle'),
             const SizedBox(width: 16),
             Expanded(
               child: Container(
@@ -226,10 +171,10 @@ class _DesktopAppBar extends StatelessWidget {
               final account = activeAccount.value;
               return _AccountChip(
                 activeAccount: account,
-                isOpen: controller.isAccountPanelOpen.value,
-                onTap: controller.toggleAccountPanel,
+                isOpen: controller.isAccountSelectorViewOpen.value,
+                onTap: controller.toggleAccountSelectorView,
               );
-            }, debugLabel: 'DashboardScreen.AccountChip'),
+            }, debugLabel: 'DashboardView.AccountChip'),
           ],
         ),
       ),
@@ -297,27 +242,15 @@ class _AccountChip extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _MobileLayout extends StatelessWidget {
-  const _MobileLayout({
-    required this.controller,
-    required this.addAccountController,
-    required this.accountSettingsController,
-    required this.activeAccount,
-    required this.onAccountAdded,
-    required this.onAccountRemoved,
-  });
+  const _MobileLayout({required this.controller});
 
   final DashboardController controller;
-  final AddAccountController addAccountController;
-  final AccountSettingsController accountSettingsController;
-  final ReadonlySignal<Account?> activeAccount;
-  final VoidCallback onAccountAdded;
-  final VoidCallback onAccountRemoved;
 
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
       final selectedEmail = controller.selectedEmail.value;
-      final account = activeAccount.value;
+      final account = controller.activeAccount.value;
 
       if (selectedEmail != null) {
         return Scaffold(
@@ -328,7 +261,7 @@ class _MobileLayout extends StatelessWidget {
                 controller.selectedMailbox.value?.name ?? '',
                 style: const TextStyle(fontSize: 15),
               ),
-              debugLabel: 'DashboardScreen.SelectedMailboxTitle',
+              debugLabel: 'DashboardView.SelectedMailboxTitle',
             ),
             actions: [
               IconButton(
@@ -348,7 +281,7 @@ class _MobileLayout extends StatelessWidget {
               controller.selectedMailbox.value?.name ?? 'leithmail',
               style: const TextStyle(fontSize: 15),
             ),
-            debugLabel: 'DashboardScreen.SelectedMailboxTitle',
+            debugLabel: 'DashboardView.SelectedMailboxTitle',
           ),
           actions: [
             IconButton(
@@ -363,14 +296,7 @@ class _MobileLayout extends StatelessWidget {
                     context: context,
                     builder: (_) => SizedBox(
                       height: 400,
-                      child: AccountPanel(
-                        controller: controller,
-                        addAccountController: addAccountController,
-                        accountSettingsController: accountSettingsController,
-                        activeAccount: activeAccount,
-                        onAccountAdded: onAccountAdded,
-                        onAccountRemoved: onAccountRemoved,
-                      ),
+                      child: AccountSelectorView(controller: controller),
                     ),
                   );
                 },
@@ -398,6 +324,6 @@ class _MobileLayout extends StatelessWidget {
           child: const Icon(Icons.edit_outlined),
         ),
       );
-    }, debugLabel: 'DashboardScreen.MobileLayout');
+    }, debugLabel: 'DashboardView.MobileLayout');
   }
 }

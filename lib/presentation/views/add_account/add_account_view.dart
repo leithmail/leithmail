@@ -1,30 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:leithmail/presentation/add_account/add_account_controller.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 
-class AddAccountScreen extends ControllerWidget<AddAccountController> {
-  const AddAccountScreen({
-    super.key,
-    required super.controller,
-    required this.onSuccess,
-    this.canGoBack = false,
-  });
+class AddAccountView extends ControllerWidget<AddAccountController> {
+  const AddAccountView({super.key, required super.controller});
 
-  /// Called after an account is successfully added.
-  final VoidCallback onSuccess;
-  final bool canGoBack;
-
-  Future<void> _submit(BuildContext context) async {
+  Future<void> _submit() async {
     if (controller.isLoading.value) {
       return;
     }
-    final success = await controller.addAccount(
-      controller.emailInputController.text,
-    );
-    if (success && context.mounted) {
-      onSuccess();
-    }
+    await controller.addAccount(controller.emailInputController.text);
   }
 
   @override
@@ -33,7 +19,7 @@ class AddAccountScreen extends ControllerWidget<AddAccountController> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: canGoBack
+      appBar: controller.canGoBack
           ? AppBar(
               leading: const BackButton(),
               backgroundColor: Colors.transparent,
@@ -73,7 +59,7 @@ class AddAccountScreen extends ControllerWidget<AddAccountController> {
                     hintText: 'you@example.com',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
-                  onSubmitted: (_) => _submit(context),
+                  onSubmitted: (_) => _submit(),
                 ),
                 const SizedBox(height: 12),
                 Watch((context) {
@@ -86,11 +72,11 @@ class AddAccountScreen extends ControllerWidget<AddAccountController> {
                       style: TextStyle(color: colorScheme.error, fontSize: 13),
                     ),
                   );
-                }, debugLabel: 'AddAccountScreen.errorMessage'),
+                }, debugLabel: 'AddAccountView.errorMessage'),
                 Watch((context) {
                   final isLoading = controller.isLoading.value;
                   return FilledButton(
-                    onPressed: () => _submit(context),
+                    onPressed: () => _submit(),
                     child: isLoading
                         ? const SizedBox(
                             height: 18,
@@ -99,7 +85,7 @@ class AddAccountScreen extends ControllerWidget<AddAccountController> {
                           )
                         : const Text('Add account'),
                   );
-                }, debugLabel: 'AddAccountScreen.AddAccountButton'),
+                }, debugLabel: 'AddAccountView.AddAccountButton'),
               ],
             ),
           ),

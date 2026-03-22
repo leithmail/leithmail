@@ -1,29 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_controller_factory.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/account.dart';
-import 'package:leithmail/presentation/account_settings/account_settings_controller.dart';
-import 'package:leithmail/presentation/account_settings/account_settings_screen.dart';
-import 'package:leithmail/presentation/add_account/add_account_controller.dart';
-import 'package:leithmail/presentation/add_account/add_account_screen.dart';
-import 'package:leithmail/presentation/dashboard/dashboard_controller.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
-class AccountPanel extends StatelessWidget {
-  const AccountPanel({
-    super.key,
-    required this.controller,
-    required this.addAccountController,
-    required this.accountSettingsController,
-    required this.activeAccount,
-    required this.onAccountAdded,
-    required this.onAccountRemoved,
-  });
+class AccountSelectorView extends StatelessWidget {
+  const AccountSelectorView({super.key, required this.controller});
 
   final DashboardController controller;
-  final AddAccountController addAccountController;
-  final AccountSettingsController accountSettingsController;
-  final ReadonlySignal<Account?> activeAccount;
-  final VoidCallback onAccountAdded;
-  final VoidCallback onAccountRemoved;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +41,7 @@ class AccountPanel extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close, size: 18),
-                  onPressed: controller.closeAccountPanel,
+                  onPressed: controller.closeAccountSelectorView,
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -65,7 +52,7 @@ class AccountPanel extends StatelessWidget {
           Expanded(
             child: Watch((context) {
               final accounts = controller.accounts.value;
-              final currentAccount = activeAccount.value;
+              final currentAccount = controller.activeAccount.value;
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [
@@ -73,7 +60,7 @@ class AccountPanel extends StatelessWidget {
                     (account) => _AccountTile(
                       account: account,
                       isActive: account.id == currentAccount?.id,
-                      onTap: () => controller.switchAccount(account.id),
+                      onTap: controller.onAccountSwitched,
                     ),
                   ),
                   const Divider(),
@@ -103,16 +90,16 @@ class AccountPanel extends StatelessWidget {
                       ),
                     ),
                     onTap: () {
-                      controller.closeAccountPanel();
+                      controller.closeAccountSelectorView();
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => AddAccountScreen(
-                            controller: addAccountController,
-                            canGoBack: true,
-                            onSuccess: () {
-                              Navigator.of(context).pop();
-                              onAccountAdded();
-                            },
+                          builder: (_) => AddAccountView(
+                            controller: controller.addAccountControllerFactory(
+                              AddAccountControllerFactoryInput(
+                                onAccountAdded: controller.onAccountSwitched,
+                                canGoBack: true,
+                              ),
+                            ),
                           ),
                         ),
                       );
@@ -120,12 +107,12 @@ class AccountPanel extends StatelessWidget {
                   ),
                 ],
               );
-            }, debugLabel: 'AccountPanel.AccountList'),
+            }, debugLabel: 'AccountSelectorView.AccountList'),
           ),
           const Divider(),
           // Account settings
           Watch((context) {
-            final current = activeAccount.value;
+            final current = controller.activeAccount.value;
             if (current == null) return const SizedBox.shrink();
             return ListTile(
               dense: true,
@@ -144,19 +131,19 @@ class AccountPanel extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => AccountSettingsScreen(
-                      account: current,
-                      controller: accountSettingsController,
-                      onRemove: () {
-                        Navigator.of(context).pop();
-                        onAccountRemoved();
-                      },
+                    builder: (_) => AccountSettingsView(
+                      controller: controller.accountSettingsControllerFactory(
+                        AccountSettingsControllerFactoryInput(
+                          account: controller.activeAccount.value!,
+                          onAccountRemoved: controller.onAccountSwitched,
+                        ),
+                      ),
                     ),
                   ),
                 );
               },
             );
-          }, debugLabel: 'AccountPanel.AccountSettings'),
+          }, debugLabel: 'AccountSelectorView.AccountSettings'),
         ],
       ),
     );

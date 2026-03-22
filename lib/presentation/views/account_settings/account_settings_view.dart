@@ -1,20 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:leithmail/domain/entities/account.dart';
-import 'package:leithmail/presentation/account_settings/account_settings_controller.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
 
-class AccountSettingsScreen
-    extends ControllerWidget<AccountSettingsController> {
-  const AccountSettingsScreen({
-    super.key,
-    required this.account,
-    required super.controller,
-    required this.onRemove,
-  });
-
-  final Account account;
-  final VoidCallback onRemove;
+class AccountSettingsView extends ControllerWidget<AccountSettingsController> {
+  const AccountSettingsView({super.key, required super.controller});
 
   Future<void> _handleRemove(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -22,7 +12,7 @@ class AccountSettingsScreen
       builder: (context) => AlertDialog(
         title: const Text('Remove account'),
         content: Text(
-          'Remove ${account.emailAddress.value}? '
+          'Remove ${controller.account.emailAddress.value}? '
           'This will delete all local data for this account.',
         ),
         actions: [
@@ -43,17 +33,16 @@ class AccountSettingsScreen
 
     if (confirmed != true) return;
 
-    final success = await controller.removeAccount(account.id);
-    if (success && context.mounted) {
-      onRemove();
-    }
+    await controller.removeAccount();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final initials = account.emailAddress.value.substring(0, 2).toUpperCase();
+    final initials = controller.account.emailAddress.value
+        .substring(0, 2)
+        .toUpperCase();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Account settings')),
@@ -90,14 +79,14 @@ class AccountSettingsScreen
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          account.emailAddress.value,
+                          controller.account.emailAddress.value,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          account.jmap.apiUrl.toString(),
+                          controller.account.jmap.apiUrl.toString(),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -144,7 +133,7 @@ class AccountSettingsScreen
                   ),
               ],
             );
-          }, debugLabel: 'AccountSettingsScreen.RemoveAccount'),
+          }, debugLabel: 'AccountSettingsView.RemoveAccount'),
           const Divider(),
         ],
       ),

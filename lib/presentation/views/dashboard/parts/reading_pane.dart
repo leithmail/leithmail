@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/mock_email.dart';
-import 'package:leithmail/presentation/dashboard/dashboard_controller.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
 class ReadingPane extends StatelessWidget {
   const ReadingPane({super.key, required this.controller});

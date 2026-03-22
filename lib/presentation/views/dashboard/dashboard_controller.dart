@@ -1,14 +1,15 @@
-import 'package:leithmail/presentation/account_settings/account_settings_controller.dart';
-import 'package:leithmail/presentation/add_account/add_account_controller.dart';
+import 'dart:ui';
+
+import 'package:leithmail/presentation/views/account_settings/account_settings_controller_factory.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
-import 'package:leithmail/presentation/base/controller_factory.dart';
+import 'package:leithmail/presentation/models/account_summary.dart';
 import 'package:signals/signals.dart';
 import 'package:leithmail/core/usecase/usecase_base.dart';
 import 'package:leithmail/core/usecase/usecase_result.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/mock_email.dart';
 import 'package:leithmail/domain/entities/mock_mailbox.dart';
-import 'package:leithmail/domain/usecases/account_usecases.dart';
 import 'package:leithmail/domain/usecases/get_emails_usecase.dart';
 import 'package:leithmail/domain/usecases/get_mailboxes_usecase.dart';
 
@@ -16,25 +17,23 @@ class DashboardController extends ControllerBase {
   DashboardController({
     required this.getMailboxesUsecase,
     required this.getEmailsUsecase,
-    required this.getAllAccountsUsecase,
-    required this.setActiveAccountUsecase,
     required this.onAccountSwitched,
     required this.addAccountControllerFactory,
     required this.accountSettingsControllerFactory,
+    required this.accountSummariesList,
+    required this.activeAccount,
   });
 
   final GetMailboxesUsecase getMailboxesUsecase;
   final GetEmailsUsecase getEmailsUsecase;
-  final GetAllAccountsUsecase getAllAccountsUsecase;
-  final SetActiveAccountUsecase setActiveAccountUsecase;
 
-  final ControllerFactory<AddAccountController> addAccountControllerFactory;
-  final ControllerFactory<AccountSettingsController>
-  accountSettingsControllerFactory;
+  final AddAccountControllerFactory addAccountControllerFactory;
+  final AccountSettingsControllerFactory accountSettingsControllerFactory;
 
-  /// Called after switching accounts so AppController can update
-  /// its activeAccount signal and any other app-level state.
-  final Future<void> Function() onAccountSwitched;
+  final ReadonlySignal<List<AccountSummary>> accountSummariesList;
+  final ReadonlySignal<Account?> activeAccount;
+
+  final VoidCallback onAccountSwitched;
 
   final Signal<List<MockMailbox>> mailboxes = signal(
     [],
@@ -56,9 +55,9 @@ class DashboardController extends ControllerBase {
     null,
     debugLabel: 'DashboardController.selectedEmail',
   );
-  final Signal<bool> isAccountPanelOpen = signal(
+  final Signal<bool> isAccountSelectorViewOpen = signal(
     false,
-    debugLabel: 'DashboardController.isAccountPanelOpen',
+    debugLabel: 'DashboardController.isAccountSelectorViewOpen',
   );
   final Signal<bool> isLoadingMailboxes = signal(
     false,
@@ -73,7 +72,7 @@ class DashboardController extends ControllerBase {
   Future<void> onInit() => reload();
 
   Future<void> reload() async {
-    await Future.wait([_loadMailboxes(), _loadAccounts()]);
+    await _loadMailboxes();
   }
 
   Future<void> _loadMailboxes() async {
@@ -84,13 +83,6 @@ class DashboardController extends ControllerBase {
       if (data.isNotEmpty) await selectMailbox(data.first);
     }
     isLoadingMailboxes.value = false;
-  }
-
-  Future<void> _loadAccounts() async {
-    final result = await getAllAccountsUsecase(NoInput);
-    if (result case Success(:final data)) {
-      accounts.value = data;
-    }
   }
 
   Future<void> selectMailbox(MockMailbox mailbox) async {
@@ -112,19 +104,12 @@ class DashboardController extends ControllerBase {
     selectedEmail.value = null;
   }
 
-  Future<void> switchAccount(AccountId id) async {
-    await setActiveAccountUsecase(id);
-    closeAccountPanel();
-    await onAccountSwitched();
-    await reload();
+  void toggleAccountSelectorView() {
+    isAccountSelectorViewOpen.value = !isAccountSelectorViewOpen.value;
   }
 
-  void toggleAccountPanel() {
-    isAccountPanelOpen.value = !isAccountPanelOpen.value;
-  }
-
-  void closeAccountPanel() {
-    isAccountPanelOpen.value = false;
+  void closeAccountSelectorView() {
+    isAccountSelectorViewOpen.value = false;
   }
 
   @override
@@ -134,8 +119,10 @@ class DashboardController extends ControllerBase {
     accounts.dispose();
     selectedMailbox.dispose();
     selectedEmail.dispose();
-    isAccountPanelOpen.dispose();
+    isAccountSelectorViewOpen.dispose();
     isLoadingMailboxes.dispose();
     isLoadingEmails.dispose();
+    accountSummariesList.dispose();
+    activeAccount.dispose();
   }
 }

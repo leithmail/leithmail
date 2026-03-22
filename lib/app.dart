@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller_factory.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:leithmail/presentation/add_account/add_account_screen.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
 import 'package:leithmail/app_controller.dart';
-import 'package:leithmail/presentation/dashboard/dashboard_screen.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_view.dart';
 import 'package:leithmail/presentation/theme/app_theme.dart';
 
 class App extends ControllerWidget<AppController> {
@@ -28,18 +30,24 @@ class App extends ControllerWidget<AppController> {
         }
 
         if (!hasAccounts) {
-          return AddAccountScreen(
-            controller: controller.addAccountControllerFactory.create(),
-            canGoBack: false,
-            onSuccess: controller.reload,
+          return AddAccountView(
+            controller: controller.addAccountControllerFactory(
+              AddAccountControllerFactoryInput(
+                onAccountAdded: controller.onAccountSwitched,
+                canGoBack: false,
+              ),
+            ),
           );
         }
 
-        return DashboardScreen(
-          controller: controller.dashboardControllerFactory.create(),
-          activeAccount: controller.activeAccount,
-          onAccountAdded: controller.reload,
-          onAccountRemoved: controller.reload,
+        return DashboardView(
+          controller: controller.dashboardControllerFactory(
+            DashboardControllerFactoryInput(
+              activeAccount: controller.activeAccount,
+              accountSummariesList: controller.accountSummariesList,
+              onAccountSwitched: controller.onAccountSwitched,
+            ),
+          ),
         );
       }, debugLabel: 'App.root'),
     );

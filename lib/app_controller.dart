@@ -1,8 +1,8 @@
-import 'package:leithmail/presentation/account_settings/account_settings_controller.dart';
-import 'package:leithmail/presentation/add_account/add_account_controller.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_controller_factory.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller_factory.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
-import 'package:leithmail/presentation/base/controller_factory.dart';
-import 'package:leithmail/presentation/dashboard/dashboard_controller.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller_factory.dart';
+import 'package:leithmail/presentation/models/account_summary.dart';
 import 'package:signals/signals.dart';
 import 'package:leithmail/core/usecase/usecase_base.dart';
 import 'package:leithmail/core/usecase/usecase_result.dart';
@@ -16,10 +16,12 @@ class AppController extends ControllerBase {
     required this.setActiveAccountUsecase,
     required this.dashboardControllerFactory,
     required this.addAccountControllerFactory,
+    required this.accountSettingsControllerFactory,
   });
 
-  final ControllerFactory<DashboardController> dashboardControllerFactory;
-  final ControllerFactory<AddAccountController> addAccountControllerFactory;
+  final DashboardControllerFactory dashboardControllerFactory;
+  final AddAccountControllerFactory addAccountControllerFactory;
+  final AccountSettingsControllerFactory accountSettingsControllerFactory;
 
   final GetActiveAccountUsecase getActiveAccountUsecase;
   final GetAllAccountsUsecase getAllAccountsUsecase;
@@ -38,6 +40,23 @@ class AppController extends ControllerBase {
     debugLabel: 'AppController.activeAccount',
   );
 
+  final Signal<List<Account>> accountsList = signal(
+    [],
+    debugLabel: 'AppController.accountsList',
+  );
+  late final Computed<List<AccountSummary>> accountSummariesList = computed(
+    () => accountsList.value
+        .map(
+          (a) => AccountSummary(
+            id: a.id,
+            emailAddress: a.emailAddress,
+            unreadCount: 0,
+          ),
+        )
+        .toList(),
+    debugLabel: 'AppController.accountSummariesList',
+  );
+
   @override
   Future<void> onInit() => reload();
 
@@ -54,7 +73,6 @@ class AppController extends ControllerBase {
         isLoading.value = false;
         return;
       case Success(data: final accounts):
-        hasAccounts.value = true;
         final activeResult = await getActiveAccountUsecase(NoInput);
         if (activeResult case Success(data: final activeAcc)) {
           if (activeAcc != null) {
@@ -64,21 +82,23 @@ class AppController extends ControllerBase {
             activeAccount.value = accounts.first;
           }
         }
+        accountsList.value = accounts;
+        hasAccounts.value = true;
         isLoading.value = false;
     }
   }
 
-  /// Called after a new account is successfully added,
-  /// so the app re-evaluates which screen to show.
-  Future<void> onAccountAdded() async => reload();
-
-  /// Called after the active account is removed.
-  Future<void> onAccountRemoved() async => reload();
+  /// Called after new active actound is selected.
+  void onAccountSwitched() {
+    reload();
+  }
 
   @override
   void onDispose() {
     isLoading.dispose();
     hasAccounts.dispose();
     activeAccount.dispose();
+    accountSummariesList.dispose();
+    accountsList.dispose();
   }
 }

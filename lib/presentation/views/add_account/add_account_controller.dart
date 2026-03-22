@@ -7,9 +7,15 @@ import 'package:leithmail/core/usecase/usecase_result.dart';
 import 'package:leithmail/domain/entities/account.dart';
 
 class AddAccountController extends ControllerBase {
-  AddAccountController(this._addAccountUsecase);
+  AddAccountController({
+    required this.addAccountUsecase,
+    required this.onAccountAdded,
+    required this.canGoBack,
+  });
 
-  final AddAccountUsecase _addAccountUsecase;
+  final AddAccountUsecase addAccountUsecase;
+  final VoidCallback onAccountAdded;
+  final bool canGoBack;
 
   final Signal<bool> isLoading = signal(
     false,
@@ -40,12 +46,13 @@ class AddAccountController extends ControllerBase {
       isLoading.value = false;
       return false;
     }
-    final result = await _addAccountUsecase(account);
+    final result = await addAccountUsecase(account);
 
     isLoading.value = false;
 
     switch (result) {
       case Success():
+        onAccountAdded();
         return true;
       case Failure(:final failure):
         errorMessage.value = 'Failed to add account: $failure';
