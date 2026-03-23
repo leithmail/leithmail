@@ -89,6 +89,7 @@ class AppController
     final activeAccountResult = await bindings.getActiveAccountUsecase(NoInput);
     switch (activeAccountResult) {
       case Success(data: final activeAccount):
+        Log.info('[AppController] activeAccount: ${activeAccount?.id.value}');
         if (activeAccount != null) {
           _initAndSetLastActiveAccountSignal(activeAccount);
         }
@@ -104,7 +105,7 @@ class AppController
   }
 
   Future<void> reloadAccounts() async {
-    Log.info('AppController.reloadAccounts');
+    Log.info('[AppController] reloadAccounts');
     isLoading.value = true;
 
     await Future.delayed(const Duration(seconds: 2));
@@ -112,14 +113,12 @@ class AppController
     final accountsResult = await bindings.getAllAccountsUsecase(NoInput);
     switch (accountsResult) {
       case Failure():
-        isLoading.value = false;
-        return;
-      case Success(:final data) when data.isEmpty:
+        // TODO: Handle accounts loading failure.
         isLoading.value = false;
         return;
       case Success(data: final accounts):
         _accountsList.value = accounts;
-        updateLastActiveAccountSignal();
+        await updateLastActiveAccountSignal();
         isLoading.value = false;
     }
   }
