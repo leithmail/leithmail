@@ -3,8 +3,8 @@ import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/mock_email.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
-class ReadingPane extends StatelessWidget {
-  const ReadingPane({super.key, required this.controller});
+class EmailReadingPane extends StatelessWidget {
+  const EmailReadingPane({super.key, required this.controller});
 
   final DashboardController controller;
 
@@ -13,15 +13,15 @@ class ReadingPane extends StatelessWidget {
     return Watch((context) {
       final email = controller.selectedEmail.value;
       if (email == null) {
-        return const _EmptyReadingPane();
+        return const _EmptyEmailReadingPane();
       }
       return _EmailReader(email: email, controller: controller);
-    }, debugLabel: 'ReadingPane.root');
+    }, debugLabel: 'EmailReadingPane.root');
   }
 }
 
-class _EmptyReadingPane extends StatelessWidget {
-  const _EmptyReadingPane();
+class _EmptyEmailReadingPane extends StatelessWidget {
+  const _EmptyEmailReadingPane();
 
   @override
   Widget build(BuildContext context) {

@@ -60,9 +60,9 @@ class DashboardController
     null,
     debugLabel: 'DashboardController.selectedEmail',
   );
-  final Signal<bool> isAccountSelectorViewOpen = signal(
+  final Signal<bool> isAccountSelectorPaneOpen = signal(
     false,
-    debugLabel: 'DashboardController.isAccountSelectorViewOpen',
+    debugLabel: 'DashboardController.isAccountSelectorPaneOpen',
   );
   final Signal<bool> isLoadingMailboxes = signal(
     false,
@@ -91,9 +91,9 @@ class DashboardController
   }
 
   Future<void> selectMailbox(MockMailbox mailbox) async {
+    isLoadingEmails.value = true;
     selectedMailbox.value = mailbox;
     selectedEmail.value = null;
-    isLoadingEmails.value = true;
     final result = await bindings.getEmailsUsecase(mailbox.id);
     if (result case Success(:final data)) {
       emails.value = data;
@@ -103,8 +103,6 @@ class DashboardController
 
   Future<void> setActiveAccount(AccountId id) async {
     await bindings.setActiveAccountUsecase(id);
-    closeAccountSelectorView();
-    inputs.onAccountSwitched();
   }
 
   void selectEmail(MockEmail email) {
@@ -115,12 +113,12 @@ class DashboardController
     selectedEmail.value = null;
   }
 
-  void toggleAccountSelectorView() {
-    isAccountSelectorViewOpen.value = !isAccountSelectorViewOpen.value;
+  void toggleAccountSelectorPane() {
+    isAccountSelectorPaneOpen.value = !isAccountSelectorPaneOpen.value;
   }
 
-  void closeAccountSelectorView() {
-    isAccountSelectorViewOpen.value = false;
+  void closeAccountSelectorPane() {
+    isAccountSelectorPaneOpen.value = false;
   }
 
   @override
@@ -129,7 +127,7 @@ class DashboardController
     emails.dispose();
     selectedMailbox.dispose();
     selectedEmail.dispose();
-    isAccountSelectorViewOpen.dispose();
+    isAccountSelectorPaneOpen.dispose();
     isLoadingMailboxes.dispose();
     isLoadingEmails.dispose();
   }

@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/models/account_summary.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
+import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
-class AccountSelectorView extends StatelessWidget {
-  const AccountSelectorView({
+class AccountSelectorPane extends StatelessWidget {
+  const AccountSelectorPane({
     super.key,
     required this.onClose,
-    required this.onSelectAccount,
-    required this.onOpenAccountSettings,
-    required this.onAddAccount,
-    required this.accountSummariesList,
-    required this.currentAccountId,
+    required this.controller,
   });
 
-  final List<AccountSummary> accountSummariesList;
-  final AccountId currentAccountId;
   final void Function() onClose;
-  final void Function(AccountId accountId) onSelectAccount;
-  final void Function() onOpenAccountSettings;
-  final void Function() onAddAccount;
+  final DashboardController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +56,12 @@ class AccountSelectorView extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                ...accountSummariesList.map(
+                ...controller.inputs.accountSummariesList.value.map(
                   (account) => _AccountTile(
                     account: account,
-                    isActive: account.id == currentAccountId,
-                    onTap: () => onSelectAccount(account.id),
+                    isActive:
+                        account.id == controller.inputs.activeAccount.value.id,
+                    onTap: () => _onSelectAccount(account.id),
                   ),
                 ),
                 const Divider(),
@@ -94,7 +90,7 @@ class AccountSelectorView extends StatelessWidget {
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  onTap: onAddAccount,
+                  onTap: () => _onAddAccount(context),
                 ),
               ],
             ),
@@ -116,9 +112,53 @@ class AccountSelectorView extends StatelessWidget {
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            onTap: onOpenAccountSettings,
+            onTap: () => _onOpenAccountSettings(context),
           ),
         ],
+      ),
+    );
+  }
+
+  void _onAddAccount(BuildContext context) {
+    final navigator = Navigator.of(context);
+    navigator.push(
+      MaterialPageRoute(
+        builder: (_) => AddAccountView(
+          factory: controller.bindings.addAccountControllerFactory,
+          inputs: (
+            onAccountAdded: () {
+              onClose();
+              navigator.popUntil((route) => route.isFirst);
+              controller.inputs.onAccountSwitched();
+            },
+            canGoBack: true,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onSelectAccount(AccountId id) async {
+    await controller.setActiveAccount(id);
+    onClose();
+    controller.inputs.onAccountSwitched();
+  }
+
+  void _onOpenAccountSettings(BuildContext context) {
+    final navigator = Navigator.of(context);
+    navigator.push(
+      MaterialPageRoute(
+        builder: (_) => AccountSettingsView(
+          factory: controller.bindings.accountSettingsControllerFactory,
+          inputs: (
+            account: controller.inputs.activeAccount.value,
+            onAccountRemoved: () {
+              onClose();
+              navigator.popUntil((route) => route.isFirst);
+              controller.inputs.onAccountSwitched();
+            },
+          ),
+        ),
       ),
     );
   }

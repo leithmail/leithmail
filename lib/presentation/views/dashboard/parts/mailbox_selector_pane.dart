@@ -3,8 +3,8 @@ import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/mock_mailbox.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
-class MailboxSidebar extends StatelessWidget {
-  const MailboxSidebar({super.key, required this.controller});
+class MailboxSelectorPane extends StatelessWidget {
+  const MailboxSelectorPane({super.key, required this.controller});
 
   final DashboardController controller;
 
@@ -68,7 +68,7 @@ class MailboxSidebar extends StatelessWidget {
                   );
                 },
               );
-            }, debugLabel: 'MailboxSidebar.MailboxList'),
+            }, debugLabel: 'MailboxSelectorPane.MailboxList'),
           ),
         ],
       ),
