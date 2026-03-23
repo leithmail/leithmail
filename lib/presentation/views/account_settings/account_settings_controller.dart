@@ -44,7 +44,7 @@ class AccountSettingsController
     debugLabel: 'AccountSettingsController.errorMessage',
   );
 
-  Future<bool> removeAccount() async {
+  Future<void> removeAccount() async {
     isLoading.value = true;
     errorMessage.value = null;
 
@@ -55,10 +55,10 @@ class AccountSettingsController
     switch (result) {
       case Success():
         inputs.onAccountRemoved();
-        return true;
+        return;
       case Failure(:final failure):
         errorMessage.value = 'Failed to remove account: $failure';
-        return false;
+        return;
     }
   }
 

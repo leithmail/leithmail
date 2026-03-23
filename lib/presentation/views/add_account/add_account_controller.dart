@@ -46,10 +46,10 @@ class AddAccountController
 
   AddAccountController({required super.bindings, required super.inputs});
 
-  Future<bool> addAccount(String email) async {
+  Future<void> addAccount(String email) async {
     if (email.trim().isEmpty) {
       errorMessage.value = 'Please enter an email address.';
-      return false;
+      return;
     }
 
     isLoading.value = true;
@@ -62,7 +62,7 @@ class AddAccountController
       Log.warning('[AddAccountController] invalid email address', e);
       errorMessage.value = 'Invalid email address.';
       isLoading.value = false;
-      return false;
+      return;
     }
     final result = await bindings.addAccountUsecase(account);
 
@@ -71,10 +71,10 @@ class AddAccountController
     switch (result) {
       case Success():
         inputs.onAccountAdded();
-        return true;
+        return;
       case Failure(:final failure):
         errorMessage.value = 'Failed to add account: $failure';
-        return false;
+        return;
     }
   }
 

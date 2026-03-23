@@ -114,20 +114,25 @@ class _DesktopLayout extends StatelessWidget {
                                         controller.closeAccountSelectorView();
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
-                                            builder: (_) => AccountSettingsView(
-                                              factory: controller
-                                                  .bindings
-                                                  .accountSettingsControllerFactory,
-                                              inputs: (
-                                                account: controller
-                                                    .inputs
-                                                    .activeAccount
-                                                    .value,
-                                                onAccountRemoved: controller
-                                                    .inputs
-                                                    .onAccountSwitched,
-                                              ),
-                                            ),
+                                            builder: (context) =>
+                                                AccountSettingsView(
+                                                  factory: controller
+                                                      .bindings
+                                                      .accountSettingsControllerFactory,
+                                                  inputs: (
+                                                    account: controller
+                                                        .inputs
+                                                        .activeAccount
+                                                        .value,
+                                                    onAccountRemoved: () {
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop();
+                                                      controller.inputs
+                                                          .onAccountSwitched();
+                                                    },
+                                                  ),
+                                                ),
                                           ),
                                         );
                                       },
@@ -135,14 +140,16 @@ class _DesktopLayout extends StatelessWidget {
                                         controller.closeAccountSelectorView();
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
-                                            builder: (_) => AddAccountView(
+                                            builder: (context) => AddAccountView(
                                               factory: controller
                                                   .bindings
                                                   .addAccountControllerFactory,
                                               inputs: (
-                                                onAccountAdded: controller
-                                                    .inputs
-                                                    .onAccountSwitched,
+                                                onAccountAdded: () {
+                                                  Navigator.of(context).pop();
+                                                  controller.inputs
+                                                      .onAccountSwitched();
+                                                },
                                                 canGoBack: true,
                                               ),
                                             ),
@@ -361,7 +368,10 @@ class _MobileLayout extends StatelessWidget {
                           controller.bindings.accountSettingsControllerFactory,
                       inputs: (
                         account: controller.inputs.activeAccount.value,
-                        onAccountRemoved: controller.inputs.onAccountSwitched,
+                        onAccountRemoved: () {
+                          Navigator.of(context).pop();
+                          controller.inputs.onAccountSwitched();
+                        },
                       ),
                     ),
                   ),
@@ -374,7 +384,10 @@ class _MobileLayout extends StatelessWidget {
                     builder: (_) => AddAccountView(
                       factory: controller.bindings.addAccountControllerFactory,
                       inputs: (
-                        onAccountAdded: controller.inputs.onAccountSwitched,
+                        onAccountAdded: () {
+                          Navigator.of(context).pop();
+                          controller.inputs.onAccountSwitched();
+                        },
                         canGoBack: true,
                       ),
                     ),

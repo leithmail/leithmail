@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
@@ -16,16 +17,16 @@ class AccountSettingsView
     required super.inputs,
   });
 
-  Future<void> _handleRemove(
+  Future<bool> _confirmAccountRemovalDialog(
     BuildContext context,
-    AccountSettingsController controller,
+    EmailAddress email,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove account'),
         content: Text(
-          'Remove ${controller.inputs.account.emailAddress.value}? '
+          'Remove ${email.value}? '
           'This will delete all local data for this account.',
         ),
         actions: [
@@ -44,12 +45,10 @@ class AccountSettingsView
       ),
     );
 
-    if (confirmed != true) return;
-
-    final removeSuccess = await controller.removeAccount();
-    if (removeSuccess && context.mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+    if (confirmed != true) {
+      return false;
     }
+    return true;
   }
 
   @override
@@ -139,7 +138,15 @@ class AccountSettingsView
                       : null,
                   onTap: isLoading
                       ? null
-                      : () => _handleRemove(context, controller),
+                      : () async {
+                          final confirm = await _confirmAccountRemovalDialog(
+                            context,
+                            controller.inputs.account.emailAddress,
+                          );
+                          if (confirm) {
+                            await controller.removeAccount();
+                          }
+                        },
                 ),
                 if (error != null)
                   Padding(

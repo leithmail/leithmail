@@ -16,19 +16,14 @@ class AddAccountView
     required super.inputs,
   });
 
-  Future<void> _submit(
+  Future<void> _addAccount(
     BuildContext context,
     AddAccountController controller,
   ) async {
     if (controller.isLoading.value) {
       return;
     }
-    final bool wasAdded = await controller.addAccount(
-      controller.emailInputController.text,
-    );
-    if (wasAdded && context.mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
+    await controller.addAccount(controller.emailInputController.text);
   }
 
   @override
@@ -77,7 +72,7 @@ class AddAccountView
                     hintText: 'you@example.com',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
-                  onSubmitted: (_) => _submit(context, controller),
+                  onSubmitted: (_) => _addAccount(context, controller),
                 ),
                 const SizedBox(height: 12),
                 Watch((context) {
@@ -94,7 +89,7 @@ class AddAccountView
                 Watch((context) {
                   final isLoading = controller.isLoading.value;
                   return FilledButton(
-                    onPressed: () => _submit(context, controller),
+                    onPressed: () => _addAccount(context, controller),
                     child: isLoading
                         ? const SizedBox(
                             height: 18,
