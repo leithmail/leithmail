@@ -16,7 +16,6 @@ typedef DashboardControllerBindings = ({
   GetMailboxesUsecase getMailboxesUsecase,
   GetEmailsUsecase getEmailsUsecase,
   SetActiveAccountUsecase setActiveAccountUsecase,
-
   AddAccountControllerFactory addAccountControllerFactory,
   AccountSettingsControllerFactory accountSettingsControllerFactory,
 });
@@ -104,6 +103,7 @@ class DashboardController
 
   Future<void> setActiveAccount(AccountId id) async {
     await bindings.setActiveAccountUsecase(id);
+    closeAccountSelectorView();
     inputs.onAccountSwitched();
   }
 

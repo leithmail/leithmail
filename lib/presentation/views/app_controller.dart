@@ -107,6 +107,8 @@ class AppController
     Log.info('AppController.reloadAccounts');
     isLoading.value = true;
 
+    await Future.delayed(const Duration(seconds: 2));
+
     final accountsResult = await bindings.getAllAccountsUsecase(NoInput);
     switch (accountsResult) {
       case Failure():

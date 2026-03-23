@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/models/account_summary.dart';
-import 'package:signals/signals_flutter.dart';
-import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
-import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
-import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
 class AccountSelectorView extends StatelessWidget {
-  const AccountSelectorView({super.key, required this.controller});
+  const AccountSelectorView({
+    super.key,
+    required this.onClose,
+    required this.onSelectAccount,
+    required this.onOpenAccountSettings,
+    required this.onAddAccount,
+    required this.accountSummariesList,
+    required this.currentAccountId,
+  });
 
-  final DashboardController controller;
+  final List<AccountSummary> accountSummariesList;
+  final AccountId currentAccountId;
+  final void Function() onClose;
+  final void Function(AccountId accountId) onSelectAccount;
+  final void Function() onOpenAccountSettings;
+  final void Function() onAddAccount;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +49,7 @@ class AccountSelectorView extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close, size: 18),
-                  onPressed: controller.closeAccountSelectorView,
+                  onPressed: onClose,
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -48,99 +58,66 @@ class AccountSelectorView extends StatelessWidget {
           const Divider(),
           // Account list
           Expanded(
-            child: Watch((context) {
-              final accounts = controller.inputs.accountSummariesList.value;
-              final currentAccount = controller.inputs.activeAccount.value;
-              return ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  ...accounts.map(
-                    (account) => _AccountTile(
-                      account: account,
-                      isActive: account.id == currentAccount.id,
-                      onTap: () => controller.setActiveAccount(account.id),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ...accountSummariesList.map(
+                  (account) => _AccountTile(
+                    account: account,
+                    isActive: account.id == currentAccountId,
+                    onTap: () => onSelectAccount(account.id),
+                  ),
+                ),
+                const Divider(),
+                ListTile(
+                  dense: true,
+                  leading: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colorScheme.outlineVariant,
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: 16,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const Divider(),
-                  ListTile(
-                    dense: true,
-                    leading: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colorScheme.outlineVariant,
-                          width: 0.5,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.add,
-                        size: 16,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                  title: Text(
+                    'Add account',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurfaceVariant,
                     ),
-                    title: Text(
-                      'Add account',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    onTap: () {
-                      controller.closeAccountSelectorView();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => AddAccountView(
-                            factory:
-                                controller.bindings.addAccountControllerFactory,
-                            inputs: (
-                              onAccountAdded:
-                                  controller.inputs.onAccountSwitched,
-                              canGoBack: true,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
                   ),
-                ],
-              );
-            }, debugLabel: 'AccountSelectorView.AccountList'),
+                  onTap: onAddAccount,
+                ),
+              ],
+            ),
           ),
           const Divider(),
+
           // Account settings
-          Watch((context) {
-            return ListTile(
-              dense: true,
-              leading: Icon(
-                Icons.settings_outlined,
-                size: 16,
+          ListTile(
+            dense: true,
+            leading: Icon(
+              Icons.settings_outlined,
+              size: 16,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              'Account settings',
+              style: TextStyle(
+                fontSize: 13,
                 color: colorScheme.onSurfaceVariant,
               ),
-              title: Text(
-                'Account settings',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => AccountSettingsView(
-                      factory:
-                          controller.bindings.accountSettingsControllerFactory,
-                      inputs: (
-                        account: controller.inputs.activeAccount.value,
-                        onAccountRemoved: controller.inputs.onAccountSwitched,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          }, debugLabel: 'AccountSelectorView.AccountSettings'),
+            ),
+            onTap: onOpenAccountSettings,
+          ),
         ],
       ),
     );

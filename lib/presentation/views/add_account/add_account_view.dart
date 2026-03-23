@@ -23,8 +23,10 @@ class AddAccountView
     if (controller.isLoading.value) {
       return;
     }
-    await controller.addAccount(controller.emailInputController.text);
-    if (context.mounted) {
+    final bool wasAdded = await controller.addAccount(
+      controller.emailInputController.text,
+    );
+    if (wasAdded && context.mounted) {
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }

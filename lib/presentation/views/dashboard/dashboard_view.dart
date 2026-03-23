@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
+import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
@@ -78,31 +80,84 @@ class _DesktopLayout extends StatelessWidget {
                         color: colorScheme.outlineVariant,
                       ),
                       Expanded(
-                        child: Builder(
-                          builder: (context) {
-                            final isOpen = controller.isAccountSelectorViewOpen
-                                .watch(context);
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: ReadingPane(controller: controller),
+                        child: Watch((context) {
+                          final isOpen =
+                              controller.isAccountSelectorViewOpen.value;
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: ReadingPane(controller: controller),
+                              ),
+                              if (isOpen) ...[
+                                VerticalDivider(
+                                  width: 0.5,
+                                  color: colorScheme.outlineVariant,
                                 ),
-                                if (isOpen) ...[
-                                  VerticalDivider(
-                                    width: 0.5,
-                                    color: colorScheme.outlineVariant,
-                                  ),
-                                  SizedBox(
-                                    width: _kAccountSelectorViewWidth,
-                                    child: AccountSelectorView(
-                                      controller: controller,
+                                SizedBox(
+                                  width: _kAccountSelectorViewWidth,
+                                  child: Watch(
+                                    (context) => AccountSelectorView(
+                                      accountSummariesList: controller
+                                          .inputs
+                                          .accountSummariesList
+                                          .value,
+                                      currentAccountId: controller
+                                          .inputs
+                                          .activeAccount
+                                          .value
+                                          .id,
+                                      onClose:
+                                          controller.closeAccountSelectorView,
+                                      onSelectAccount:
+                                          controller.setActiveAccount,
+                                      onOpenAccountSettings: () {
+                                        controller.closeAccountSelectorView();
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => AccountSettingsView(
+                                              factory: controller
+                                                  .bindings
+                                                  .accountSettingsControllerFactory,
+                                              inputs: (
+                                                account: controller
+                                                    .inputs
+                                                    .activeAccount
+                                                    .value,
+                                                onAccountRemoved: controller
+                                                    .inputs
+                                                    .onAccountSwitched,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      onAddAccount: () {
+                                        controller.closeAccountSelectorView();
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => AddAccountView(
+                                              factory: controller
+                                                  .bindings
+                                                  .addAccountControllerFactory,
+                                              inputs: (
+                                                onAccountAdded: controller
+                                                    .inputs
+                                                    .onAccountSwitched,
+                                                canGoBack: true,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
+                                    debugLabel:
+                                        'DashboardView.AccountSelectorView',
                                   ),
-                                ],
+                                ),
                               ],
-                            );
-                          },
-                        ),
+                            ],
+                          );
+                        }, debugLabel: 'DashboardView.AccountSelectorPane'),
                       ),
                     ],
                   ),
@@ -285,6 +340,50 @@ class _MobileLayout extends StatelessWidget {
       }
 
       return Scaffold(
+        drawer: Drawer(child: MailboxSidebar(controller: controller)),
+        endDrawer: Drawer(
+          child: Builder(
+            builder: (scaffoldContext) => AccountSelectorView(
+              accountSummariesList:
+                  controller.inputs.accountSummariesList.value,
+              currentAccountId: controller.inputs.activeAccount.value.id,
+              onClose: () => Scaffold.of(scaffoldContext).closeEndDrawer(),
+              onSelectAccount: (id) {
+                Scaffold.of(scaffoldContext).closeEndDrawer();
+                controller.setActiveAccount(id);
+              },
+              onOpenAccountSettings: () {
+                Scaffold.of(scaffoldContext).closeEndDrawer();
+                Navigator.of(scaffoldContext).push(
+                  MaterialPageRoute(
+                    builder: (_) => AccountSettingsView(
+                      factory:
+                          controller.bindings.accountSettingsControllerFactory,
+                      inputs: (
+                        account: controller.inputs.activeAccount.value,
+                        onAccountRemoved: controller.inputs.onAccountSwitched,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              onAddAccount: () {
+                Scaffold.of(scaffoldContext).closeEndDrawer();
+                Navigator.of(scaffoldContext).push(
+                  MaterialPageRoute(
+                    builder: (_) => AddAccountView(
+                      factory: controller.bindings.addAccountControllerFactory,
+                      inputs: (
+                        onAccountAdded: controller.inputs.onAccountSwitched,
+                        canGoBack: true,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
         appBar: AppBar(
           title: Watch(
             (ctx) => Text(
@@ -300,25 +399,19 @@ class _MobileLayout extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (_) => SizedBox(
-                      height: 400,
-                      child: AccountSelectorView(controller: controller),
-                    ),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 14,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: Text(
-                    account.emailAddress.value.substring(0, 2).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onPrimary,
+              child: Builder(
+                builder: (scaffoldContext) => GestureDetector(
+                  onTap: () => Scaffold.of(scaffoldContext).openEndDrawer(),
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: Text(
+                      account.emailAddress.value.substring(0, 2).toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -326,7 +419,6 @@ class _MobileLayout extends StatelessWidget {
             ),
           ],
         ),
-        drawer: Drawer(child: MailboxSidebar(controller: controller)),
         body: EmailListPane(controller: controller),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
