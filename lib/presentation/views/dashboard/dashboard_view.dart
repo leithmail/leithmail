@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
+import 'package:leithmail/presentation/views/dashboard/parts/account_chip.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
@@ -95,70 +96,14 @@ class _DesktopLayout extends StatelessWidget {
                                 ),
                                 SizedBox(
                                   width: _kAccountSelectorViewWidth,
-                                  child: Watch(
-                                    (context) => AccountSelectorView(
-                                      accountSummariesList: controller
-                                          .inputs
-                                          .accountSummariesList
-                                          .value,
-                                      currentAccountId: controller
-                                          .inputs
-                                          .activeAccount
-                                          .value
-                                          .id,
-                                      onClose:
-                                          controller.closeAccountSelectorView,
-                                      onSelectAccount:
-                                          controller.setActiveAccount,
-                                      onOpenAccountSettings: () {
-                                        controller.closeAccountSelectorView();
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                AccountSettingsView(
-                                                  factory: controller
-                                                      .bindings
-                                                      .accountSettingsControllerFactory,
-                                                  inputs: (
-                                                    account: controller
-                                                        .inputs
-                                                        .activeAccount
-                                                        .value,
-                                                    onAccountRemoved: () {
-                                                      Navigator.of(
-                                                        context,
-                                                      ).pop();
-                                                      controller.inputs
-                                                          .onAccountSwitched();
-                                                    },
-                                                  ),
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                      onAddAccount: () {
-                                        controller.closeAccountSelectorView();
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => AddAccountView(
-                                              factory: controller
-                                                  .bindings
-                                                  .addAccountControllerFactory,
-                                              inputs: (
-                                                onAccountAdded: () {
-                                                  Navigator.of(context).pop();
-                                                  controller.inputs
-                                                      .onAccountSwitched();
-                                                },
-                                                canGoBack: true,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    debugLabel:
-                                        'DashboardView.AccountSelectorView',
+                                  child: Builder(
+                                    builder: (scaffoldContext) =>
+                                        _buildAccountSelectorView(
+                                          context: context,
+                                          controller: controller,
+                                          onClose: controller
+                                              .closeAccountSelectorView,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -182,12 +127,11 @@ class _DesktopAppBar extends StatelessWidget {
   const _DesktopAppBar({required this.controller, required this.activeAccount});
 
   final DashboardController controller;
-  final ReadonlySignal<Account?> activeAccount;
+  final ReadonlySignal<Account> activeAccount;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return SizedBox(
       height: 52,
@@ -205,34 +149,8 @@ class _DesktopAppBar extends StatelessWidget {
               );
             }, debugLabel: 'DashboardView.SelectedMailboxTitle'),
             const SizedBox(width: 16),
-            Expanded(
-              child: Container(
-                height: 36,
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Icon(
-                      Icons.search,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Search mail...',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
+            const Spacer(),
+            const SizedBox(width: 16),
             IconButton(
               icon: const Icon(Icons.refresh_outlined, size: 18),
               onPressed: () => controller.reload(),
@@ -241,67 +159,12 @@ class _DesktopAppBar extends StatelessWidget {
             const SizedBox(width: 4),
             Watch((context) {
               final account = activeAccount.value;
-              return _AccountChip(
-                activeAccount: account,
+              return AccountChip(
+                email: account.emailAddress,
                 isOpen: controller.isAccountSelectorViewOpen.value,
                 onTap: controller.toggleAccountSelectorView,
               );
             }, debugLabel: 'DashboardView.AccountChip'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AccountChip extends StatelessWidget {
-  const _AccountChip({
-    required this.activeAccount,
-    required this.isOpen,
-    required this.onTap,
-  });
-
-  final Account? activeAccount;
-  final bool isOpen;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final email = activeAccount?.emailAddress.value ?? '';
-    final initials = email.isNotEmpty
-        ? email.substring(0, 2).toUpperCase()
-        : '?';
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 4, 10, 4),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isOpen ? colorScheme.primary : colorScheme.outlineVariant,
-            width: isOpen ? 1.5 : 0.5,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 12,
-              backgroundColor: colorScheme.primary,
-              child: Text(
-                initials,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(email, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),
@@ -350,50 +213,10 @@ class _MobileLayout extends StatelessWidget {
         drawer: Drawer(child: MailboxSidebar(controller: controller)),
         endDrawer: Drawer(
           child: Builder(
-            builder: (scaffoldContext) => AccountSelectorView(
-              accountSummariesList:
-                  controller.inputs.accountSummariesList.value,
-              currentAccountId: controller.inputs.activeAccount.value.id,
+            builder: (scaffoldContext) => _buildAccountSelectorView(
+              context: context,
+              controller: controller,
               onClose: () => Scaffold.of(scaffoldContext).closeEndDrawer(),
-              onSelectAccount: (id) {
-                Scaffold.of(scaffoldContext).closeEndDrawer();
-                controller.setActiveAccount(id);
-              },
-              onOpenAccountSettings: () {
-                Scaffold.of(scaffoldContext).closeEndDrawer();
-                Navigator.of(scaffoldContext).push(
-                  MaterialPageRoute(
-                    builder: (_) => AccountSettingsView(
-                      factory:
-                          controller.bindings.accountSettingsControllerFactory,
-                      inputs: (
-                        account: controller.inputs.activeAccount.value,
-                        onAccountRemoved: () {
-                          Navigator.of(context).pop();
-                          controller.inputs.onAccountSwitched();
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              },
-              onAddAccount: () {
-                Scaffold.of(scaffoldContext).closeEndDrawer();
-                Navigator.of(scaffoldContext).push(
-                  MaterialPageRoute(
-                    builder: (_) => AddAccountView(
-                      factory: controller.bindings.addAccountControllerFactory,
-                      inputs: (
-                        onAccountAdded: () {
-                          Navigator.of(context).pop();
-                          controller.inputs.onAccountSwitched();
-                        },
-                        canGoBack: true,
-                      ),
-                    ),
-                  ),
-                );
-              },
             ),
           ),
         ),
@@ -406,10 +229,6 @@ class _MobileLayout extends StatelessWidget {
             debugLabel: 'DashboardView.SelectedMailboxTitle',
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.search_outlined, size: 18),
-              onPressed: () {},
-            ),
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Builder(
@@ -440,4 +259,54 @@ class _MobileLayout extends StatelessWidget {
       );
     }, debugLabel: 'DashboardView.MobileLayout');
   }
+}
+
+AccountSelectorView _buildAccountSelectorView({
+  required BuildContext context,
+  required DashboardController controller,
+  required void Function() onClose,
+}) {
+  return AccountSelectorView(
+    accountSummariesList: controller.inputs.accountSummariesList.value,
+    currentAccountId: controller.inputs.activeAccount.value.id,
+    onClose: () => onClose(),
+    onSelectAccount: (id) {
+      onClose();
+      controller.setActiveAccount(id);
+    },
+    onOpenAccountSettings: () {
+      onClose();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AccountSettingsView(
+            factory: controller.bindings.accountSettingsControllerFactory,
+            inputs: (
+              account: controller.inputs.activeAccount.value,
+              onAccountRemoved: () {
+                Navigator.of(context).pop();
+                controller.inputs.onAccountSwitched();
+              },
+            ),
+          ),
+        ),
+      );
+    },
+    onAddAccount: () {
+      onClose();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AddAccountView(
+            factory: controller.bindings.addAccountControllerFactory,
+            inputs: (
+              onAccountAdded: () {
+                Navigator.of(context).pop();
+                controller.inputs.onAccountSwitched();
+              },
+              canGoBack: true,
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

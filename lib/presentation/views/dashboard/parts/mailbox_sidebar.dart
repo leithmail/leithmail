@@ -29,7 +29,6 @@ class MailboxSidebar extends StatelessWidget {
               ),
             ),
           ),
-          const Divider(),
           // Compose
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
