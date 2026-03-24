@@ -13,64 +13,64 @@ class MailboxSelectorPane extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
+    return Material(
       color: colorScheme.surfaceContainerLow,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Logo
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
-            child: Text(
-              'leithmail',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: colorScheme.primary,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Compose Button
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: FilledButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.mail_outline, size: 20),
+                label: const Text('Compose'),
+                style: FilledButton.styleFrom(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 16,
+                  ),
+                  textStyle: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-          ),
-          // Compose
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-            child: FilledButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.edit_outlined, size: 16),
-              label: const Text('Compose'),
-              style: FilledButton.styleFrom(alignment: Alignment.centerLeft),
-            ),
-          ),
-          // Mailboxes section label
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(
-              'Mailboxes',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                letterSpacing: 0.8,
+            // Mailboxes section label
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 8),
+              child: Text(
+                'Mailboxes',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-          ),
-          // Mailbox list
-          Expanded(
-            child: Watch((context) {
-              final mailboxes = controller.mailboxes.value;
-              final selected = controller.selectedMailbox.value;
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                itemCount: mailboxes.length,
-                itemBuilder: (context, index) {
-                  final mailbox = mailboxes[index];
-                  final isSelected = selected?.id == mailbox.id;
-                  return _MailboxTile(
-                    mailbox: mailbox,
-                    isSelected: isSelected,
-                    onTap: () => controller.selectMailbox(mailbox),
-                  );
-                },
-              );
-            }, debugLabel: 'MailboxSelectorPane.MailboxList'),
-          ),
-        ],
+            // Mailbox list
+            Expanded(
+              child: Watch((context) {
+                final mailboxes = controller.mailboxes.value;
+                final selected = controller.selectedMailbox.value;
+                return ListView.separated(
+                  separatorBuilder: (_, _) => const SizedBox(height: 2),
+                  itemCount: mailboxes.length,
+                  itemBuilder: (context, index) {
+                    final mailbox = mailboxes[index];
+                    final isSelected = selected?.id == mailbox.id;
+                    return _MailboxTile(
+                      mailbox: mailbox,
+                      isSelected: isSelected,
+                      onTap: () => controller.selectMailbox(mailbox),
+                    );
+                  },
+                );
+              }, debugLabel: 'MailboxSelectorPane.MailboxList'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -90,27 +90,18 @@ class _MailboxTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return ListTile(
+      selectedTileColor: colorScheme.secondaryContainer,
+      selectedColor: colorScheme.onSecondaryContainer,
       dense: true,
       selected: isSelected,
-      selectedTileColor: colorScheme.primaryContainer.withValues(alpha: 0.4),
-      leading: Icon(
-        mailbox.icon,
-        size: 18,
-        color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-      ),
-      title: Text(
-        mailbox.name,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-          color: isSelected ? colorScheme.primary : colorScheme.onSurface,
-        ),
-      ),
+      leading: Icon(mailbox.icon, size: 16),
+      title: Text(mailbox.name),
       trailing: mailbox.unreadCount > 0
           ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected
                     ? colorScheme.primary
@@ -119,9 +110,8 @@ class _MailboxTile extends StatelessWidget {
               ),
               child: Text(
                 '${mailbox.unreadCount}',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                   color: isSelected
                       ? colorScheme.onPrimary
                       : colorScheme.onSurfaceVariant,

@@ -8,7 +8,7 @@ import 'package:leithmail/presentation/views/dashboard/parts/email_list_pane.dar
 import 'package:leithmail/presentation/views/dashboard/parts/mailbox_selector_pane.dart';
 import 'package:leithmail/presentation/views/dashboard/parts/email_reading_pane.dart';
 
-const double _kSidebarWidth = 210;
+const double _kSidebarWidth = 300;
 const double _kEmailListWidth = 300;
 const double _kAccountSelectorPaneWidth = 240;
 const double _kMobileBreakpoint = 600;
@@ -120,24 +120,12 @@ class _DesktopAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return SizedBox(
       height: 52,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            Watch((context) {
-              final mailbox = controller.selectedMailbox.value;
-              return Text(
-                mailbox?.name ?? '',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              );
-            }, debugLabel: 'DashboardView.SelectedMailboxTitle'),
-            const SizedBox(width: 16),
             const Spacer(),
             const SizedBox(width: 16),
             IconButton(

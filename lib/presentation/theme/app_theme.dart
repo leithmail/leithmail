@@ -5,7 +5,7 @@ class AppTheme {
   AppTheme._();
 
   static const _shape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(6)),
+    borderRadius: BorderRadius.all(Radius.circular(8)),
   );
 
   static ThemeData _overrides(ThemeData base) => base.copyWith(
@@ -27,6 +27,13 @@ class AppTheme {
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    ),
+    drawerTheme: const DrawerThemeData(
+      shape: RoundedRectangleBorder(),
+      endShape: RoundedRectangleBorder(),
+    ),
+    listTileTheme: ListTileThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
   );
 
