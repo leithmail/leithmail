@@ -15,14 +15,36 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="leithmail">
+  <meta name="apple-mobile-web-app-title" content="Leithmail">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png" />
 
+  <!-- Browser chrome color (mobile address bar) -->
+  <meta name="theme-color" content="#216487" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#92cef5" media="(prefers-color-scheme: dark)">
+
   <title>Leithmail</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      margin: 0;
+    }
+
+    @media (prefers-color-scheme: light) {
+      body {
+        background-color: #f6fafe;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #101417;
+      }
+    }
+  </style>
 </head>
 
 <body>

@@ -19,8 +19,8 @@ class App
   Widget build(BuildContext context, AppController controller) {
     return MaterialApp(
       title: 'Leithmail',
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: AppTheme.light(Theme.of(context).textTheme),
+      darkTheme: AppTheme.dark(Theme.of(context).textTheme),
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
       home: Watch((context) {
