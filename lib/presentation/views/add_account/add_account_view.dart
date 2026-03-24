@@ -48,7 +48,7 @@ class AddAccountView
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'leithmail',
+                  'Leithmail',
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: colorScheme.primary,
@@ -90,6 +90,16 @@ class AddAccountView
                   final isLoading = controller.isLoading.value;
                   return FilledButton(
                     onPressed: () => _addAccount(context, controller),
+                    style: FilledButton.styleFrom(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 16,
+                      ),
+                      textStyle: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     child: isLoading
                         ? const SizedBox(
                             height: 18,

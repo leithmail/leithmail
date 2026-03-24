@@ -20,101 +20,82 @@ class AccountSelectorPane extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        border: Border(
-          left: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
-            child: Row(
-              children: [
-                Text(
-                  'Accounts',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+    return Material(
+      color: colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Accounts section label
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Accounts',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: onClose,
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
-          ),
-          const Divider(),
-          // Account list
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ...controller.inputs.accountSummariesList.value.map(
-                  (account) => _AccountTile(
-                    account: account,
-                    isActive:
-                        account.id == controller.inputs.activeAccount.value.id,
-                    onTap: () => _onSelectAccount(account.id),
-                  ),
-                ),
-                const Divider(),
-                ListTile(
-                  dense: true,
-                  leading: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: colorScheme.outlineVariant,
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  title: Text(
-                    'Add account',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  onTap: () => _onAddAccount(context),
-                ),
-              ],
-            ),
-          ),
-          const Divider(),
-
-          // Account settings
-          ListTile(
-            dense: true,
-            leading: Icon(
-              Icons.settings_outlined,
-              size: 16,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            title: Text(
-              'Account settings',
-              style: TextStyle(
-                fontSize: 13,
-                color: colorScheme.onSurfaceVariant,
               ),
             ),
-            onTap: () => _onOpenAccountSettings(context),
-          ),
-        ],
+            // Account list
+            Expanded(
+              child: ListView(
+                children: [
+                  ...controller.inputs.accountSummariesList.value.expand(
+                    (account) => [
+                      _AccountTile(
+                        account: account,
+                        isActive:
+                            account.id ==
+                            controller.inputs.activeAccount.value.id,
+                        onTap: () => _onSelectAccount(account.id),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
+                  ListTile(
+                    dense: true,
+                    leading: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colorScheme.outlineVariant,
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    title: Text(
+                      'Add account',
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                    onTap: () => _onAddAccount(context),
+                  ),
+                ],
+              ),
+            ),
+            // Account settings
+            ListTile(
+              dense: true,
+              leading: Icon(
+                Icons.settings_outlined,
+                size: 16,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              title: Text(
+                'Account settings',
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
+              ),
+              onTap: () => _onOpenAccountSettings(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -208,12 +189,6 @@ class _AccountTile extends StatelessWidget {
         ),
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: isActive
-          ? Text(
-              'active',
-              style: TextStyle(fontSize: 11, color: colorScheme.primary),
-            )
-          : null,
       trailing: isActive
           ? Icon(Icons.check, size: 16, color: colorScheme.primary)
           : null,

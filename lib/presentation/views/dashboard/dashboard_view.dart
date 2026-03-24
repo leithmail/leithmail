@@ -9,9 +9,8 @@ import 'package:leithmail/presentation/views/dashboard/parts/mailbox_selector_pa
 import 'package:leithmail/presentation/views/dashboard/parts/email_reading_pane.dart';
 
 const double _kSidebarWidth = 300;
-const double _kEmailListWidth = 300;
-const double _kAccountSelectorPaneWidth = 240;
-const double _kMobileBreakpoint = 600;
+const double _kAccountSelectorPaneWidth = 300;
+const double _kMobileBreakpoint = 1000;
 
 class DashboardView
     extends
@@ -57,50 +56,99 @@ class _DesktopLayout extends StatelessWidget {
             width: _kSidebarWidth,
             child: MailboxSelectorPane(controller: controller),
           ),
-          VerticalDivider(width: 0.5, color: colorScheme.outlineVariant),
           Expanded(
             child: Column(
               children: [
-                _DesktopAppBar(controller: controller),
-                const Divider(),
+                Material(
+                  color: colorScheme.surface,
+                  child: SizedBox(
+                    height: 72,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        children: [
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 500),
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(Icons.search_outlined),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          const SizedBox(width: 8),
+                          Watch((context) {
+                            final account =
+                                controller.inputs.activeAccount.value;
+                            return _AccountChip(
+                              email: account.emailAddress,
+                              isOpen:
+                                  controller.isAccountSelectorPaneOpen.value,
+                              onTap: controller.toggleAccountSelectorPane,
+                            );
+                          }, debugLabel: 'DashboardView._AccountChip'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: Row(
                     children: [
-                      SizedBox(
-                        width: _kEmailListWidth,
-                        child: EmailListPane(controller: controller),
-                      ),
-                      VerticalDivider(
-                        width: 0.5,
-                        color: colorScheme.outlineVariant,
-                      ),
                       Expanded(
-                        child: Watch((context) {
-                          final isOpen =
-                              controller.isAccountSelectorPaneOpen.value;
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: EmailReadingPane(controller: controller),
-                              ),
-                              if (isOpen) ...[
-                                VerticalDivider(
-                                  width: 0.5,
-                                  color: colorScheme.outlineVariant,
-                                ),
-                                SizedBox(
-                                  width: _kAccountSelectorPaneWidth,
-                                  child: AccountSelectorPane(
-                                    controller: controller,
-                                    onClose: () =>
-                                        controller.closeAccountSelectorPane(),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          );
-                        }, debugLabel: 'DashboardView.AccountSelectorPane'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(8),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            color: colorScheme.surfaceContainerLow,
+                            child: Watch((context) {
+                              final isEmailSelected =
+                                  controller.selectedEmail.value != null;
+                              return isEmailSelected
+                                  ? EmailReadingPane(controller: controller)
+                                  : EmailListPane(controller: controller);
+                            }, debugLabel: 'DashboardView.CentralPane'),
+                          ),
+                        ),
                       ),
+                      Watch((context) {
+                        final isAccountSelectorOpen =
+                            controller.isAccountSelectorPaneOpen.value;
+                        return isAccountSelectorOpen
+                            ? SizedBox(
+                                width: _kAccountSelectorPaneWidth,
+                                child: AccountSelectorPane(
+                                  controller: controller,
+                                  onClose: () =>
+                                      controller.closeAccountSelectorPane(),
+                                ),
+                              )
+                            : SizedBox.shrink();
+                      }, debugLabel: 'DashboardView.AccountSelectorPane'),
                     ],
                   ),
                 ),
@@ -108,42 +156,6 @@ class _DesktopLayout extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _DesktopAppBar extends StatelessWidget {
-  const _DesktopAppBar({required this.controller});
-
-  final DashboardController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 52,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            const Spacer(),
-            const SizedBox(width: 16),
-            IconButton(
-              icon: const Icon(Icons.refresh_outlined, size: 18),
-              onPressed: () => controller.reload(),
-              tooltip: 'Refresh',
-            ),
-            const SizedBox(width: 4),
-            Watch((context) {
-              final account = controller.inputs.activeAccount.value;
-              return _AccountChip(
-                email: account.emailAddress,
-                isOpen: controller.isAccountSelectorPaneOpen.value,
-                onTap: controller.toggleAccountSelectorPane,
-              );
-            }, debugLabel: 'DashboardView._AccountChip'),
-          ],
-        ),
       ),
     );
   }
@@ -255,33 +267,26 @@ class _AccountChip extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(28),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 4, 10, 4),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isOpen ? colorScheme.primary : colorScheme.outlineVariant,
-            width: isOpen ? 1.5 : 0.5,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text(email.value),
+            const SizedBox(width: 16),
             CircleAvatar(
-              radius: 12,
+              radius: 20,
               backgroundColor: colorScheme.primary,
               child: Text(
                 initials,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: colorScheme.onPrimary,
                 ),
               ),
             ),
-            const SizedBox(width: 6),
-            Text(email.value, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),

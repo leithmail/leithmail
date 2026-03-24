@@ -14,27 +14,27 @@ class MailboxSelectorPane extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Material(
-      color: colorScheme.surfaceContainerLow,
+      color: colorScheme.surface,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Compose Button
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: FilledButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.mail_outline, size: 20),
-                label: const Text('Compose'),
-                style: FilledButton.styleFrom(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
-                  ),
-                  textStyle: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: SizedBox(
+                height: 40,
+                child: FilledButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.mail_outline, size: 20),
+                  label: const Text('Compose'),
+                  style: FilledButton.styleFrom(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    textStyle: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -55,7 +55,7 @@ class MailboxSelectorPane extends StatelessWidget {
                 final mailboxes = controller.mailboxes.value;
                 final selected = controller.selectedMailbox.value;
                 return ListView.separated(
-                  separatorBuilder: (_, _) => const SizedBox(height: 2),
+                  separatorBuilder: (_, _) => const SizedBox(height: 4),
                   itemCount: mailboxes.length,
                   itemBuilder: (context, index) {
                     final mailbox = mailboxes[index];

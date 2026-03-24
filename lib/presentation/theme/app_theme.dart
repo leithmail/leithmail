@@ -25,8 +25,10 @@ class AppTheme {
       style: TextButton.styleFrom(shape: _shape),
     ),
     inputDecorationTheme: const InputDecorationTheme(
-      border: OutlineInputBorder(),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     ),
     drawerTheme: const DrawerThemeData(
       shape: RoundedRectangleBorder(),
