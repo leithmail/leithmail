@@ -10,9 +10,6 @@ class GetEmailsUsecase extends UsecaseBase<String, List<MockEmail>> {
   final EmailRepository _repository;
 
   @override
-  String get name => 'GetEmailsUsecase';
-
-  @override
   Future<Either<AppFailure, List<MockEmail>>> execute(String mailboxId) async {
     try {
       final emails = await _repository.getEmails(mailboxId);

@@ -12,9 +12,6 @@ class GetActiveAccountUsecase extends UsecaseBase<NoInput, Account?> {
   final ActiveAccountRepository _activeRepo;
 
   @override
-  String get name => 'GetActiveAccountUsecase';
-
-  @override
   Future<Either<AppFailure, Account?>> execute(NoInput _) async {
     try {
       final id = await _activeRepo.getActiveAccountId();
@@ -27,15 +24,10 @@ class GetActiveAccountUsecase extends UsecaseBase<NoInput, Account?> {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 class GetAllAccountsUsecase extends UsecaseBase<NoInput, List<Account>> {
   GetAllAccountsUsecase(this._accountRepo);
 
   final AccountRepository _accountRepo;
-
-  @override
-  String get name => 'GetAllAccountsUsecase';
 
   @override
   Future<Either<AppFailure, List<Account>>> execute(NoInput _) async {
@@ -48,15 +40,10 @@ class GetAllAccountsUsecase extends UsecaseBase<NoInput, List<Account>> {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 class SetActiveAccountUsecase extends UsecaseBase<AccountId, void> {
   SetActiveAccountUsecase(this._activeRepo);
 
   final ActiveAccountRepository _activeRepo;
-
-  @override
-  String get name => 'SetActiveAccountUsecase';
 
   @override
   Future<Either<AppFailure, void>> execute(AccountId id) async {
@@ -69,16 +56,11 @@ class SetActiveAccountUsecase extends UsecaseBase<AccountId, void> {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 class AddAccountUsecase extends UsecaseBase<Account, void> {
   AddAccountUsecase(this._accountRepo, this._activeRepo);
 
   final AccountRepository _accountRepo;
   final ActiveAccountRepository _activeRepo;
-
-  @override
-  String get name => 'AddAccountUsecase';
 
   @override
   Future<Either<AppFailure, void>> execute(Account account) async {
@@ -92,16 +74,11 @@ class AddAccountUsecase extends UsecaseBase<Account, void> {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 class RemoveAccountUsecase extends UsecaseBase<AccountId, void> {
   RemoveAccountUsecase(this._accountRepo, this._activeRepo);
 
   final AccountRepository _accountRepo;
   final ActiveAccountRepository _activeRepo;
-
-  @override
-  String get name => 'RemoveAccountUsecase';
 
   @override
   Future<Either<AppFailure, void>> execute(AccountId id) async {

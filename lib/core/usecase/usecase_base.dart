@@ -67,7 +67,7 @@ abstract class UsecaseBase<Input, Output> {
   const UsecaseBase();
 
   /// Human-readable name used in log messages.
-  String get name;
+  String get name => runtimeType.toString();
 
   /// The core logic. Implement this in subclasses.
   ///
