@@ -45,6 +45,8 @@ void main() {
           accessToken: 'new_token',
           refreshToken: 'new_refresh',
           expiry: DateTime(2027),
+          clientId: 'leithmail_mock',
+          tokenEndpoint: Uri(),
         ),
       );
       await repository.save(updated);
@@ -65,6 +67,8 @@ void main() {
           accessToken: 'new_token',
           refreshToken: 'new_refresh',
           expiry: DateTime(2027),
+          clientId: 'leithmail_mock',
+          tokenEndpoint: Uri(),
         ),
       );
       await repository.save(updated);

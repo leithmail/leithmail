@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:http/http.dart' as http;
+import 'package:leithmail/data/oidc_repository_impl.dart';
+import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 import 'package:leithmail/presentation/views/app_controller.dart';
@@ -36,6 +39,7 @@ void main() async {
   );
 
   // Repositories
+  final httpClient = http.Client();
   final accountRepository = AccountRepositoryImpl(
     persistent: storageFactory.secure('account'),
     cache: storageFactory.memory('account'),
@@ -45,6 +49,12 @@ void main() async {
   );
   final emailRepository = EmailRepositoryImplMock();
   final mailboxesRepository = MailboxRepositoryImplMock();
+  final oidcRepository = OidcRepositoryImpl(
+    httpClient: httpClient,
+    redirectUri: 'http://localhost:3000/auth',
+    customUriScheme: '',
+    defaultClientId: 'leithmail',
+  );
 
   // Usecases
   final getActiveAccountUsecase = GetActiveAccountUsecase(
@@ -67,9 +77,18 @@ void main() async {
   final getMailboxesUsecase = GetMailboxesUsecase(mailboxesRepository);
   final getEmailsUsecase = GetEmailsUsecase(emailRepository);
 
+  final discoverOidcProviderUsecase = DiscoverOidcProviderUsecase(
+    oidcRepository,
+  );
+  final authenticateOidcUsecase = AuthenticateOidcUsecase(oidcRepository);
+
   // Controller factories
   final addAccountControllerFactory = AddAccountControllerFactory(
-    bindings: (addAccountUsecase: addAccountUsecase),
+    bindings: (
+      addAccountUsecase: addAccountUsecase,
+      discoverOidcProviderUsecase: discoverOidcProviderUsecase,
+      authenticateOidcUsecase: authenticateOidcUsecase,
+    ),
   );
 
   final accountSettingsControllerFactory = AccountSettingsControllerFactory(

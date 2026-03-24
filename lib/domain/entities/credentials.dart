@@ -12,11 +12,15 @@ class CredentialsOidc extends Credentials {
   final String accessToken;
   final String refreshToken;
   final DateTime expiry;
+  final Uri tokenEndpoint;
+  final String clientId;
 
   CredentialsOidc({
     required this.accessToken,
     required this.refreshToken,
     required this.expiry,
+    required this.tokenEndpoint,
+    required this.clientId,
   });
 
   @override

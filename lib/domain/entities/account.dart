@@ -52,9 +52,11 @@ class Account {
     credentials:
         credentials ??
         CredentialsOidc(
+          tokenEndpoint: Uri(),
           accessToken: 'token',
           refreshToken: 'refresh',
           expiry: DateTime(2026),
+          clientId: 'leithmail_mock',
         ),
     jmap:
         jmap ??

@@ -8,6 +8,8 @@ void main() {
         accessToken: 'token',
         refreshToken: 'refresh',
         expiry: DateTime.now().add(const Duration(hours: 1)),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       expect(credentials.isExpired, isFalse);
     });
@@ -17,6 +19,8 @@ void main() {
         accessToken: 'token',
         refreshToken: 'refresh',
         expiry: DateTime.now().subtract(const Duration(hours: 1)),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       expect(credentials.isExpired, isTrue);
     });
@@ -27,6 +31,8 @@ void main() {
         accessToken: 'token',
         refreshToken: 'refresh',
         expiry: expiry,
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       expect(credentials.isExpired, isTrue);
     });
@@ -38,6 +44,8 @@ void main() {
         accessToken: 'my_access_token',
         refreshToken: 'refresh',
         expiry: DateTime.now().add(const Duration(hours: 1)),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       expect(credentials.toAuthorizationHeader(), 'Bearer my_access_token');
     });
@@ -47,11 +55,15 @@ void main() {
         accessToken: 'token_a',
         refreshToken: 'refresh',
         expiry: DateTime.now().add(const Duration(hours: 1)),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       final b = CredentialsOidc(
         accessToken: 'token_b',
         refreshToken: 'refresh',
         expiry: DateTime.now().add(const Duration(hours: 1)),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       expect(a.toAuthorizationHeader(), isNot(b.toAuthorizationHeader()));
     });
@@ -63,6 +75,8 @@ void main() {
         accessToken: 'token',
         refreshToken: 'refresh',
         expiry: DateTime(2026),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       final deserialized = CredentialsOidc.fromJson(credentials.toJson());
       expect(deserialized.accessToken, credentials.accessToken);
@@ -76,6 +90,8 @@ void main() {
         accessToken: 'token',
         refreshToken: 'refresh',
         expiry: expiry,
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       final deserialized = CredentialsOidc.fromJson(credentials.toJson());
       expect(deserialized.expiry, expiry);
@@ -86,6 +102,8 @@ void main() {
         accessToken: 'token',
         refreshToken: 'refresh',
         expiry: DateTime.now().subtract(const Duration(hours: 1)),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       final deserialized = CredentialsOidc.fromJson(expired.toJson());
       expect(deserialized.isExpired, isTrue);

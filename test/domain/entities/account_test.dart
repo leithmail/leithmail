@@ -45,6 +45,8 @@ void main() {
         accessToken: 'new_token',
         refreshToken: 'new_refresh',
         expiry: DateTime(2027),
+        tokenEndpoint: Uri(),
+        clientId: 'leithmail_mock',
       );
       final copy = account.copyWith(credentials: newCredentials);
       expect((copy.credentials as CredentialsOidc).accessToken, 'new_token');
