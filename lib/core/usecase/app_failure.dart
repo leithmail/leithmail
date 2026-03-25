@@ -1,3 +1,5 @@
+import 'package:leithmail/domain/entities/account.dart';
+
 sealed class AppFailure {
   const AppFailure();
 }
@@ -8,7 +10,7 @@ class NotFoundFailure extends AppFailure {
   final String? message;
 
   @override
-  String toString() => 'NotFoundFailure(${message ?? ''})';
+  String toString() => '$runtimeType(${message ?? ''})';
 }
 
 /// Authentication failed or credentials have expired.
@@ -17,7 +19,7 @@ class AuthFailure extends AppFailure {
   final String? message;
 
   @override
-  String toString() => 'AuthFailure(${message ?? ''})';
+  String toString() => '$runtimeType(${message ?? ''})';
 }
 
 /// A network error occurred (no connectivity, timeout, etc.).
@@ -26,7 +28,7 @@ class NetworkFailure extends AppFailure {
   final String? message;
 
   @override
-  String toString() => 'NetworkFailure(${message ?? ''})';
+  String toString() => '$runtimeType(${message ?? ''})';
 }
 
 /// A local storage read/write error occurred.
@@ -35,16 +37,35 @@ class StorageFailure extends AppFailure {
   final String? message;
 
   @override
-  String toString() => 'StorageFailure(${message ?? ''})';
+  String toString() => '$runtimeType(${message ?? ''})';
 }
 
 /// The JMAP server returned an error response.
-class ServerFailure extends AppFailure {
-  const ServerFailure([this.message]);
+class JmapFailure extends AppFailure {
+  const JmapFailure([this.message]);
   final String? message;
 
   @override
-  String toString() => 'ServerFailure(${message ?? ''})';
+  String toString() => '$runtimeType(${message ?? ''})';
+}
+
+/// The credentials for the given account have expired and the user must re-authenticate.
+/// The controller should trigger the OIDC refresh or redirect to login.
+class CredentialsExpiredFailure extends AppFailure {
+  const CredentialsExpiredFailure({this.accountId});
+  final AccountId? accountId;
+
+  @override
+  String toString() => '$runtimeType($accountId)';
+}
+
+/// Feature is not implemented
+class NotImplementedFailure extends AppFailure {
+  const NotImplementedFailure([this.message]);
+  final String? message;
+
+  @override
+  String toString() => '$runtimeType(${message ?? ''})';
 }
 
 /// An unexpected exception that escaped the use case.
@@ -55,5 +76,5 @@ class UnexpectedFailure extends AppFailure {
   final StackTrace stackTrace;
 
   @override
-  String toString() => 'UnexpectedFailure($error)';
+  String toString() => '$runtimeType($error)';
 }

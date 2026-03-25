@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/core/usecase/app_failure.dart';
 import 'package:leithmail/core/usecase/usecase_result.dart';
+import 'package:meta/meta.dart';
 
 // ---------------------------------------------------------------------------
 // NoInput
@@ -66,35 +67,33 @@ typedef NoInput = void;
 abstract class UsecaseBase<Input, Output> {
   const UsecaseBase();
 
-  /// Human-readable name used in log messages.
-  String get name => runtimeType.toString();
-
   /// The core logic. Implement this in subclasses.
   ///
   /// Return [right(value)] on success.
   /// Return [left(AppFailure)] for expected, recoverable domain failures.
   /// Unexpected exceptions that escape will be caught by [call] and wrapped
   /// in [UnexpectedFailure].
+  @protected
   Future<Either<AppFailure, Output>> execute(Input input);
 
   /// Invokes the use case, logging start and outcome.
   /// Always returns [UsecaseResult] — never throws.
   Future<UsecaseResult<Output>> call(Input input) async {
-    Log.info('[$name] started');
+    Log.info('[$runtimeType] started');
     try {
       final either = await execute(input);
       return either.fold(
         (failure) {
-          Log.warning('[$name] failure', failure);
+          Log.warning('[$runtimeType] failure', failure);
           return Failure(failure);
         },
         (data) {
-          Log.info('[$name] success');
+          Log.info('[$runtimeType] success');
           return Success(data);
         },
       );
     } catch (e, st) {
-      Log.error('[$name] unexpected error', e, st);
+      Log.error('[$runtimeType] unexpected error', e, st);
       return Failure(UnexpectedFailure(e, st));
     }
   }

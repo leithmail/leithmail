@@ -43,6 +43,7 @@ dependencies:
   signals: ^6.3.0
   oauth2_client: ^4.2.3
   http: ^1.6.0
+  meta: ^1.17.0
 
 dev_dependencies:
   flutter_test:
