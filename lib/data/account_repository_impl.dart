@@ -1,3 +1,4 @@
+import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/core/services/storage_service.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/repositories/account_repository.dart';
@@ -19,31 +20,42 @@ class AccountRepositoryImpl implements AccountRepository {
     if (_cacheHydrated) {
       final cachedAccountsSerialized = await _cache.readAll();
       return cachedAccountsSerialized.entries
-          .map((e) => Account.deserialize(e.value))
+          .map((entry) => _tryDeserializeAccount(entry.value, entry.key))
+          .nonNulls
           .toList();
     }
     final storedAccountsSerialized = await _persistent.readAll();
-    for (final entry in storedAccountsSerialized.entries) {
-      await _cache.write(entry.key, entry.value);
+    final deserializedAccounts = storedAccountsSerialized.entries
+        .map((entry) => _tryDeserializeAccount(entry.value, entry.key))
+        .nonNulls
+        .toList();
+
+    for (final account in deserializedAccounts) {
+      await _cache.write(account.id.value, account.serialize());
     }
     _cacheHydrated = true;
-    return storedAccountsSerialized.entries
-        .map((e) => Account.deserialize(e.value))
-        .toList();
+    return deserializedAccounts;
   }
 
   @override
   Future<Account?> getById(AccountId id) async {
     final cachedAccountSerialized = await _cache.read(id.value);
     if (cachedAccountSerialized != null) {
-      return Account.deserialize(cachedAccountSerialized);
+      return _tryDeserializeAccount(cachedAccountSerialized, id.value);
     }
     final storedAccountSerialized = await _persistent.read(id.value);
-    if (storedAccountSerialized != null) {
-      await _cache.write(id.value, storedAccountSerialized);
-      return Account.deserialize(storedAccountSerialized);
+    if (storedAccountSerialized == null) {
+      return null;
     }
-    return null;
+
+    final deserializedAccount = _tryDeserializeAccount(
+      storedAccountSerialized,
+      id.value,
+    );
+    if (deserializedAccount != null) {
+      await _cache.write(id.value, deserializedAccount.serialize());
+    }
+    return deserializedAccount;
   }
 
   @override
@@ -57,5 +69,14 @@ class AccountRepositoryImpl implements AccountRepository {
   Future<void> delete(AccountId id) async {
     await _cache.delete(id.value);
     await _persistent.delete(id.value);
+  }
+
+  Account? _tryDeserializeAccount(String data, String accountLabel) {
+    try {
+      return Account.deserialize(data);
+    } catch (e) {
+      Log.warning('[$runtimeType] undeserializable account: $accountLabel');
+      return null;
+    }
   }
 }

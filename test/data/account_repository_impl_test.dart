@@ -195,4 +195,54 @@ void main() {
       expect(retrieved?.jmap.apiUrl, account.jmap.apiUrl);
     });
   });
+
+  group('corrupt data resilience', () {
+    test(
+      'getAll skips undeserializable accounts and returns valid ones',
+      () async {
+        final account = Account.mock(email: 'valid@example.com');
+        await persistent.write(account.id.value, account.serialize());
+        await persistent.write('corrupt@example.com', 'not-valid-json');
+        final accounts = await repository.getAll();
+        expect(accounts.length, 1);
+        expect(
+          accounts.first.emailAddress.toString(),
+          account.emailAddress.toString(),
+        );
+      },
+    );
+
+    test('getById returns null for undeserializable account', () async {
+      await persistent.write('corrupt@example.com', 'not-valid-json');
+      final result = await repository.getById(AccountId('corrupt@example.com'));
+      expect(result, isNull);
+    });
+
+    test('getById does not cache corrupt entry', () async {
+      await persistent.write('corrupt@example.com', 'not-valid-json');
+      await repository.getById(AccountId('corrupt@example.com'));
+      expect(await cache.read('corrupt@example.com'), isNull);
+    });
+    test('getAll does not cache corrupt entries', () async {
+      await persistent.write('corrupt@example.com', 'not-valid-json');
+      await repository.getAll(); // hydrates cache
+      expect(await cache.read('corrupt@example.com'), isNull);
+    });
+
+    test('getAll handles corrupt entries already in cache', () async {
+      final account = Account.mock(email: 'valid@example.com');
+      await repository.save(account);
+      await repository.getAll(); // hydrates cache
+      await cache.write(
+        'corrupt@example.com',
+        'not-valid-json',
+      ); // inject corrupt entry directly into cache
+      final accounts = await repository.getAll(); // reads from cache
+      expect(accounts.length, 1);
+      expect(
+        accounts.first.emailAddress.toString(),
+        account.emailAddress.toString(),
+      );
+    });
+  });
 }
