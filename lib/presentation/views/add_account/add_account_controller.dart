@@ -82,7 +82,10 @@ class AddAccountController
 
     // Step 2: Authenticate
     final CredentialsOidc credentials;
-    switch (await bindings.authenticateOidcUsecase(metadata)) {
+    switch (await bindings.authenticateOidcUsecase((
+      oidcProviderMetadata: metadata,
+      email: emailAddress,
+    ))) {
       case Success(:final data):
         credentials = data;
       case Failure(:final failure):

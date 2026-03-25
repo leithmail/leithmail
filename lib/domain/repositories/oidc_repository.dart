@@ -4,7 +4,10 @@ import 'package:leithmail/domain/entities/oidc_provider_metadata.dart';
 
 abstract class OidcRepository {
   Future<OidcProviderMetadata?> discoverProvider(EmailAddress email);
-  Future<CredentialsOidc> authenticate(OidcProviderMetadata metadata);
+  Future<CredentialsOidc> authenticate(
+    OidcProviderMetadata metadata,
+    EmailAddress email,
+  );
   Future<CredentialsOidc> refresh(CredentialsOidc credentials);
 }
 

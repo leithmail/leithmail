@@ -58,7 +58,10 @@ class OidcRepositoryImpl implements OidcRepository {
   }
 
   @override
-  Future<CredentialsOidc> authenticate(OidcProviderMetadata metadata) async {
+  Future<CredentialsOidc> authenticate(
+    OidcProviderMetadata metadata,
+    EmailAddress email,
+  ) async {
     final clientId = metadata.clientId ?? _defaultClientId;
     Log.info(
       '[$_tag] starting PKCE auth flow: issuer=${metadata.issuer}, clientId=$clientId',
@@ -75,6 +78,7 @@ class OidcRepositoryImpl implements OidcRepository {
       clientId: clientId,
       scopes: ['openid', 'email', 'offline_access'],
       httpClient: _httpClient,
+      authCodeParams: {'login_hint': email.value},
     );
     Log.info('[$_tag] auth flow completed, mapping token response');
 

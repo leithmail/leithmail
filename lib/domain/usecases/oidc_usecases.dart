@@ -27,17 +27,24 @@ class DiscoverOidcProviderUsecase
   }
 }
 
+typedef AuthenticateOidcUsecaseInput = ({
+  OidcProviderMetadata oidcProviderMetadata,
+  EmailAddress email,
+});
+
 class AuthenticateOidcUsecase
-    extends UsecaseBase<OidcProviderMetadata, CredentialsOidc> {
+    extends UsecaseBase<AuthenticateOidcUsecaseInput, CredentialsOidc> {
   final OidcRepository _repository;
   AuthenticateOidcUsecase(this._repository);
 
   @override
   Future<Either<AppFailure, CredentialsOidc>> execute(
-    OidcProviderMetadata input,
+    AuthenticateOidcUsecaseInput input,
   ) async {
     try {
-      return right(await _repository.authenticate(input));
+      return right(
+        await _repository.authenticate(input.oidcProviderMetadata, input.email),
+      );
     } catch (e) {
       return left(AuthFailure(e.toString()));
     }
