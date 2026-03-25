@@ -4,6 +4,7 @@ import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/domain/entities/jmap_session.dart';
 import 'package:leithmail/domain/usecases/account_usecases.dart';
+import 'package:leithmail/domain/usecases/fetch_jmap_session_usecase.dart';
 import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
 import 'package:signals/signals.dart';
@@ -14,6 +15,7 @@ typedef AddAccountControllerBindings = ({
   AddAccountUsecase addAccountUsecase,
   DiscoverOidcProviderUsecase discoverOidcProviderUsecase,
   AuthenticateOidcUsecase authenticateOidcUsecase,
+  FetchJmapSessionUsecase fetchJmapSessionUsecase,
 });
 
 typedef AddAccountControllerInputs = ({
@@ -58,6 +60,7 @@ class AddAccountController
     isLoading.value = true;
     errorMessage.value = null;
 
+    // Parse Email
     final EmailAddress emailAddress;
     try {
       emailAddress = EmailAddress.parse(email.trim());
@@ -68,18 +71,19 @@ class AddAccountController
       return;
     }
 
-    // Step 1: OIDC discovery
+    // OIDC discovery
     final OidcCredentials oidcMetadata;
     switch (await bindings.discoverOidcProviderUsecase(emailAddress.domain)) {
       case Success(:final data):
         oidcMetadata = data;
+        break;
       case Failure():
         errorMessage.value = 'Failed to discover OIDC provider.';
         isLoading.value = false;
         return;
     }
 
-    // Step 2: Authenticate
+    // Authenticate
     final OidcCredentials credentials;
     switch (await bindings.authenticateOidcUsecase((
       credentials: oidcMetadata,
@@ -87,17 +91,35 @@ class AddAccountController
     ))) {
       case Success(:final data):
         credentials = data;
+        break;
       case Failure():
         errorMessage.value = 'Authentication failed.';
         isLoading.value = false;
         return;
     }
 
-    // Step 3: Persist account (JMAP metadata mocked for now)
+    // Fetch Jmap Session
+    final JmapSession jmapSession;
+    switch (await bindings.fetchJmapSessionUsecase(
+      FetchJmapSessionInput(
+        jmapSessionUri: Uri.https(emailAddress.domain, '/.well-known/jmap'),
+        credentials: credentials,
+      ),
+    )) {
+      case Success(:final data):
+        jmapSession = data;
+        break;
+      case Failure():
+        errorMessage.value = 'Unable to initiate JMAP session.';
+        isLoading.value = false;
+        return;
+    }
+
+    // Persist account
     final account = Account(
       emailAddress: emailAddress,
       credentials: credentials,
-      jmapSession: JmapSession.mock(),
+      jmapSession: jmapSession,
     );
 
     switch (await bindings.addAccountUsecase(account)) {

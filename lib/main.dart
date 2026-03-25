@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:http/http.dart' as http;
+import 'package:leithmail/data/jmap_repository_impl.dart';
 import 'package:leithmail/data/oidc_repository_impl.dart';
+import 'package:leithmail/domain/usecases/fetch_jmap_session_usecase.dart';
 import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
@@ -56,6 +58,8 @@ void main() async {
     defaultClientId: 'leithmail',
   );
 
+  final jmapRepository = JmapRepositoryImpl(httpClient);
+
   // Usecases
   final getActiveAccountUsecase = GetActiveAccountUsecase(
     accountRepository,
@@ -82,12 +86,15 @@ void main() async {
   );
   final authenticateOidcUsecase = AuthenticateOidcUsecase(oidcRepository);
 
+  final fetchJmapSessionUsecase = FetchJmapSessionUsecase(jmapRepository);
+
   // Controller factories
   final addAccountControllerFactory = AddAccountControllerFactory(
     bindings: (
       addAccountUsecase: addAccountUsecase,
       discoverOidcProviderUsecase: discoverOidcProviderUsecase,
       authenticateOidcUsecase: authenticateOidcUsecase,
+      fetchJmapSessionUsecase: fetchJmapSessionUsecase,
     ),
   );
 

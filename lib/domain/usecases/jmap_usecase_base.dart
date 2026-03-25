@@ -4,6 +4,7 @@ import 'package:leithmail/core/usecase/usecase_base.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/jmap_session.dart';
 import 'package:leithmail/domain/repositories/account_repository.dart';
+import 'package:leithmail/domain/repositories/jmap_repository.dart';
 import 'package:leithmail/domain/repositories/oidc_repository.dart';
 
 abstract class JmapUsecaseBaseInput {
@@ -50,5 +51,3 @@ abstract class JmapUsecaseBase<Input extends JmapUsecaseBaseInput, Output>
     return executeJmap(input, session);
   }
 }
-
-class JmapRepository {}
