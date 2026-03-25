@@ -9,7 +9,7 @@ sealed class Credentials {
 }
 
 @JsonSerializable()
-class CredentialsOidc extends Credentials {
+class OidcCredentials extends Credentials {
   final String? accessToken;
   final String? refreshToken;
   final DateTime? expiry;
@@ -19,7 +19,7 @@ class CredentialsOidc extends Credentials {
   final Uri tokenEndpoint;
   final String clientId;
 
-  CredentialsOidc({
+  OidcCredentials({
     this.accessToken,
     this.refreshToken,
     this.expiry,
@@ -45,11 +45,11 @@ class CredentialsOidc extends Credentials {
   String toAuthorizationHeader() =>
       accessToken != null ? 'Bearer $accessToken' : '';
 
-  CredentialsOidc copyWithTokens({
+  OidcCredentials copyWithTokens({
     required String? accessToken,
     required String? refreshToken,
     required DateTime? expiry,
-  }) => CredentialsOidc(
+  }) => OidcCredentials(
     accessToken: accessToken,
     refreshToken: refreshToken,
     expiry: expiry,
@@ -59,12 +59,12 @@ class CredentialsOidc extends Credentials {
     clientId: clientId,
   );
 
-  factory CredentialsOidc.fromJson(Map<String, dynamic> json) =>
-      _$CredentialsOidcFromJson(json);
+  factory OidcCredentials.fromJson(Map<String, dynamic> json) =>
+      _$OidcCredentialsFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CredentialsOidcToJson(this);
+  Map<String, dynamic> toJson() => _$OidcCredentialsToJson(this);
 
-  factory CredentialsOidc.mock({
+  factory OidcCredentials.mock({
     String? accessToken = 'mock_access_token',
     String? refreshToken = 'mock_refresh_token',
     DateTime? expiry,
@@ -72,7 +72,7 @@ class CredentialsOidc extends Credentials {
     Uri? authorizationEndpoint,
     Uri? tokenEndpoint,
     String clientId = 'mock_client_id',
-  }) => CredentialsOidc(
+  }) => OidcCredentials(
     accessToken: accessToken,
     refreshToken: refreshToken,
     expiry: expiry ?? DateTime.now().add(const Duration(hours: 1)),

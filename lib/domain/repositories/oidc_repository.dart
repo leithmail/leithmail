@@ -1,14 +1,12 @@
 import 'package:leithmail/domain/entities/credentials.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
-import 'package:leithmail/domain/entities/oidc_provider_metadata.dart';
 
 abstract class OidcRepository {
-  Future<OidcProviderMetadata?> discoverProvider(EmailAddress email);
-  Future<CredentialsOidc> authenticate(
-    OidcProviderMetadata metadata,
-    EmailAddress email,
-  );
-  Future<CredentialsOidc> refresh(CredentialsOidc credentials);
+  Future<OidcCredentials> discoverProvider(String domain);
+  Future<OidcCredentials> authenticate(
+    OidcCredentials credentials, {
+    String? loginHint,
+  });
+  Future<OidcCredentials> refresh(OidcCredentials credentials);
 }
 
 class OidcDiscoveryException implements Exception {
@@ -16,7 +14,7 @@ class OidcDiscoveryException implements Exception {
   const OidcDiscoveryException(this.message);
 
   @override
-  String toString() => 'OidcDiscoveryException: $message';
+  String toString() => '$runtimeType($message)';
 }
 
 class OidcAuthException implements Exception {
@@ -24,5 +22,5 @@ class OidcAuthException implements Exception {
   const OidcAuthException(this.message);
 
   @override
-  String toString() => 'OidcAuthException: $message';
+  String toString() => '$runtimeType($message)';
 }

@@ -4,14 +4,14 @@ import 'package:leithmail/domain/entities/credentials.dart';
 void main() {
   group('isExpired', () {
     test('returns false when expiry is in the future', () {
-      final credentials = CredentialsOidc.mock(
+      final credentials = OidcCredentials.mock(
         expiry: DateTime.now().add(const Duration(hours: 1)),
       );
       expect(credentials.isExpired, isFalse);
     });
 
     test('returns true when expiry is in the past', () {
-      final credentials = CredentialsOidc.mock(
+      final credentials = OidcCredentials.mock(
         expiry: DateTime.now().subtract(const Duration(hours: 1)),
       );
       expect(credentials.isExpired, isTrue);
@@ -19,17 +19,17 @@ void main() {
 
     test('returns true when expiry is exactly now', () {
       final expiry = DateTime.now().subtract(const Duration(milliseconds: 1));
-      final credentials = CredentialsOidc.mock(expiry: expiry);
+      final credentials = OidcCredentials.mock(expiry: expiry);
       expect(credentials.isExpired, isTrue);
     });
 
     test('returns false when expiry is null but access token is present', () {
-      final credentials = CredentialsOidc.mock(expiry: null);
+      final credentials = OidcCredentials.mock(expiry: null);
       expect(credentials.isExpired, isFalse);
     });
 
     test('returns true when access token is null regardless of expiry', () {
-      final credentials = CredentialsOidc.mock(
+      final credentials = OidcCredentials.mock(
         accessToken: null,
         expiry: DateTime.now().add(const Duration(hours: 1)),
       );
@@ -37,44 +37,44 @@ void main() {
     });
 
     test('returns true when both access token and expiry are null', () {
-      final credentials = CredentialsOidc.mock(accessToken: null, expiry: null);
+      final credentials = OidcCredentials.mock(accessToken: null, expiry: null);
       expect(credentials.isExpired, isTrue);
     });
   });
 
   group('canBeRefreshed', () {
     test('returns true when refresh token is present', () {
-      final credentials = CredentialsOidc.mock(refreshToken: 'refresh_token');
+      final credentials = OidcCredentials.mock(refreshToken: 'refresh_token');
       expect(credentials.canBeRefreshed, isTrue);
     });
 
     test('returns false when refresh token is null', () {
-      final credentials = CredentialsOidc.mock(refreshToken: null);
+      final credentials = OidcCredentials.mock(refreshToken: null);
       expect(credentials.canBeRefreshed, isFalse);
     });
   });
 
   group('toAuthorizationHeader', () {
     test('returns bearer token', () {
-      final credentials = CredentialsOidc.mock(accessToken: 'my_access_token');
+      final credentials = OidcCredentials.mock(accessToken: 'my_access_token');
       expect(credentials.toAuthorizationHeader(), 'Bearer my_access_token');
     });
 
     test('returns empty string when access token is null', () {
-      final credentials = CredentialsOidc.mock(accessToken: null);
+      final credentials = OidcCredentials.mock(accessToken: null);
       expect(credentials.toAuthorizationHeader(), '');
     });
 
     test('header changes when access token changes', () {
-      final a = CredentialsOidc.mock(accessToken: 'token_a');
-      final b = CredentialsOidc.mock(accessToken: 'token_b');
+      final a = OidcCredentials.mock(accessToken: 'token_a');
+      final b = OidcCredentials.mock(accessToken: 'token_b');
       expect(a.toAuthorizationHeader(), isNot(b.toAuthorizationHeader()));
     });
   });
 
   group('copyWithTokens', () {
     test('updates access token, refresh token and expiry', () {
-      final original = CredentialsOidc.mock().copyWithTokens(
+      final original = OidcCredentials.mock().copyWithTokens(
         accessToken: null,
         refreshToken: null,
         expiry: null,
@@ -92,7 +92,7 @@ void main() {
     });
 
     test('preserves issuer and endpoint fields', () {
-      final original = CredentialsOidc.mock();
+      final original = OidcCredentials.mock();
       final updated = original.copyWithTokens(
         accessToken: 'new_token',
         refreshToken: null,
@@ -106,7 +106,7 @@ void main() {
     });
 
     test('can clear refresh token and expiry', () {
-      final original = CredentialsOidc.mock();
+      final original = OidcCredentials.mock();
       final updated = original.copyWithTokens(
         accessToken: 'new_token',
         refreshToken: null,
@@ -120,8 +120,8 @@ void main() {
 
   group('serialization', () {
     test('toJson and fromJson roundtrip', () {
-      final credentials = CredentialsOidc.mock();
-      final deserialized = CredentialsOidc.fromJson(credentials.toJson());
+      final credentials = OidcCredentials.mock();
+      final deserialized = OidcCredentials.fromJson(credentials.toJson());
       expect(deserialized.accessToken, credentials.accessToken);
       expect(deserialized.refreshToken, credentials.refreshToken);
       expect(deserialized.expiry, credentials.expiry);
@@ -129,34 +129,34 @@ void main() {
 
     test('expiry is preserved after serialization', () {
       final expiry = DateTime(2026, 3, 19, 12, 0, 0);
-      final credentials = CredentialsOidc.mock(expiry: expiry);
-      final deserialized = CredentialsOidc.fromJson(credentials.toJson());
+      final credentials = OidcCredentials.mock(expiry: expiry);
+      final deserialized = OidcCredentials.fromJson(credentials.toJson());
       expect(deserialized.expiry, expiry);
     });
 
     test('isExpired is preserved after serialization', () {
-      final expired = CredentialsOidc.mock(
+      final expired = OidcCredentials.mock(
         expiry: DateTime.now().subtract(const Duration(hours: 1)),
       );
-      final deserialized = CredentialsOidc.fromJson(expired.toJson());
+      final deserialized = OidcCredentials.fromJson(expired.toJson());
       expect(deserialized.isExpired, isTrue);
     });
 
     test('null token fields roundtrip correctly', () {
-      final credentials = CredentialsOidc.mock().copyWithTokens(
+      final credentials = OidcCredentials.mock().copyWithTokens(
         accessToken: null,
         refreshToken: null,
         expiry: null,
       );
-      final deserialized = CredentialsOidc.fromJson(credentials.toJson());
+      final deserialized = OidcCredentials.fromJson(credentials.toJson());
       expect(deserialized.accessToken, isNull);
       expect(deserialized.refreshToken, isNull);
       expect(deserialized.expiry, isNull);
     });
 
     test('uri fields are preserved after serialization', () {
-      final credentials = CredentialsOidc.mock();
-      final deserialized = CredentialsOidc.fromJson(credentials.toJson());
+      final credentials = OidcCredentials.mock();
+      final deserialized = OidcCredentials.fromJson(credentials.toJson());
       expect(deserialized.issuer, credentials.issuer);
       expect(
         deserialized.authorizationEndpoint,

@@ -3,7 +3,6 @@ import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/domain/entities/jmap_session.dart';
-import 'package:leithmail/domain/entities/oidc_provider_metadata.dart';
 import 'package:leithmail/domain/usecases/account_usecases.dart';
 import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
@@ -70,26 +69,26 @@ class AddAccountController
     }
 
     // Step 1: OIDC discovery
-    final OidcProviderMetadata metadata;
-    switch (await bindings.discoverOidcProviderUsecase(emailAddress)) {
+    final OidcCredentials oidcMetadata;
+    switch (await bindings.discoverOidcProviderUsecase(emailAddress.domain)) {
       case Success(:final data):
-        metadata = data;
-      case Failure(:final failure):
-        errorMessage.value = 'Failed to discover OIDC provider: $failure';
+        oidcMetadata = data;
+      case Failure():
+        errorMessage.value = 'Failed to discover OIDC provider.';
         isLoading.value = false;
         return;
     }
 
     // Step 2: Authenticate
-    final CredentialsOidc credentials;
+    final OidcCredentials credentials;
     switch (await bindings.authenticateOidcUsecase((
-      oidcProviderMetadata: metadata,
-      email: emailAddress,
+      credentials: oidcMetadata,
+      loginHint: emailAddress.toString(),
     ))) {
       case Success(:final data):
         credentials = data;
-      case Failure(:final failure):
-        errorMessage.value = 'Authentication failed: $failure';
+      case Failure():
+        errorMessage.value = 'Authentication failed.';
         isLoading.value = false;
         return;
     }

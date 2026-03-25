@@ -6,8 +6,8 @@ part of 'credentials.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CredentialsOidc _$CredentialsOidcFromJson(Map<String, dynamic> json) =>
-    CredentialsOidc(
+OidcCredentials _$OidcCredentialsFromJson(Map<String, dynamic> json) =>
+    OidcCredentials(
       accessToken: json['accessToken'] as String?,
       refreshToken: json['refreshToken'] as String?,
       expiry: json['expiry'] == null
@@ -19,7 +19,7 @@ CredentialsOidc _$CredentialsOidcFromJson(Map<String, dynamic> json) =>
       clientId: json['clientId'] as String,
     );
 
-Map<String, dynamic> _$CredentialsOidcToJson(CredentialsOidc instance) =>
+Map<String, dynamic> _$OidcCredentialsToJson(OidcCredentials instance) =>
     <String, dynamic>{
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,

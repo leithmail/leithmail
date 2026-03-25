@@ -41,9 +41,9 @@ void main() {
 
     test('copyWith replaces credentials', () {
       final account = Account.mock(
-        credentials: CredentialsOidc.mock(accessToken: 'token'),
+        credentials: OidcCredentials.mock(accessToken: 'token'),
       );
-      final newCredentials = CredentialsOidc.mock(accessToken: 'new_token');
+      final newCredentials = OidcCredentials.mock(accessToken: 'new_token');
       final copy = account.copyWith(credentials: newCredentials);
       expect(copy.credentials.toAuthorizationHeader(), 'Bearer new_token');
       expect(account.credentials.toAuthorizationHeader(), 'Bearer token');
@@ -73,15 +73,15 @@ void main() {
         account.emailAddress.toString(),
       );
       expect(deserialized.jmapSession.apiUrl, account.jmapSession.apiUrl);
-      expect(deserialized.credentials, isA<CredentialsOidc>());
+      expect(deserialized.credentials, isA<OidcCredentials>());
     });
 
     test('credentials type is preserved', () {
       final account = Account.mock(
-        credentials: CredentialsOidc.mock(accessToken: 'token'),
+        credentials: OidcCredentials.mock(accessToken: 'token'),
       );
       final deserialized = Account.deserialize(account.serialize());
-      final credentials = deserialized.credentials as CredentialsOidc;
+      final credentials = deserialized.credentials as OidcCredentials;
       expect(credentials.accessToken, 'token');
     });
 

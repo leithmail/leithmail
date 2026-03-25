@@ -51,7 +51,7 @@ void main() async {
   final mailboxesRepository = MailboxRepositoryImplMock();
   final oidcRepository = OidcRepositoryImpl(
     httpClient: httpClient,
-    redirectUri: 'http://localhost:3000/auth.html',
+    redirectUri: '${Uri.base.origin}/auth.html',
     customUriScheme: '',
     defaultClientId: 'leithmail',
   );

@@ -36,15 +36,15 @@ void main() {
     test('save overwrites existing account', () async {
       final account = Account.mock(
         email: 'test@example.com',
-        credentials: CredentialsOidc.mock(accessToken: 'token'),
+        credentials: OidcCredentials.mock(accessToken: 'token'),
       );
       await repository.save(account);
 
       final retrieved1 = await repository.getById(account.id);
-      expect((retrieved1?.credentials as CredentialsOidc).accessToken, 'token');
+      expect((retrieved1?.credentials as OidcCredentials).accessToken, 'token');
 
       final updated = account.copyWith(
-        credentials: CredentialsOidc.mock(
+        credentials: OidcCredentials.mock(
           accessToken: 'new_token',
           refreshToken: 'new_refresh',
           expiry: DateTime(2027),
@@ -54,7 +54,7 @@ void main() {
 
       final retrieved2 = await repository.getById(account.id);
       expect(
-        (retrieved2?.credentials as CredentialsOidc).accessToken,
+        (retrieved2?.credentials as OidcCredentials).accessToken,
         'new_token',
       );
     });
@@ -64,7 +64,7 @@ void main() {
       await repository.save(account);
 
       final updated = account.copyWith(
-        credentials: CredentialsOidc.mock(
+        credentials: OidcCredentials.mock(
           accessToken: 'new_token',
           refreshToken: 'new_refresh',
           expiry: DateTime(2027),
@@ -75,7 +75,7 @@ void main() {
       final all = await repository.getAll();
       expect(all.length, 1);
       expect(
-        (all.first.credentials as CredentialsOidc).accessToken,
+        (all.first.credentials as OidcCredentials).accessToken,
         'new_token',
       );
     });
@@ -190,7 +190,7 @@ void main() {
         retrieved?.emailAddress.toString(),
         account.emailAddress.toString(),
       );
-      expect(retrieved?.credentials, isA<CredentialsOidc>());
+      expect(retrieved?.credentials, isA<OidcCredentials>());
       expect(retrieved?.jmapSession.apiUrl, account.jmapSession.apiUrl);
     });
   });

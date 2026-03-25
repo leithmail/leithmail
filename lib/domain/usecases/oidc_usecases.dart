@@ -2,25 +2,17 @@ import 'package:fpdart/fpdart.dart';
 import 'package:leithmail/core/usecase/app_failure.dart';
 import 'package:leithmail/core/usecase/usecase_base.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
-import 'package:leithmail/domain/entities/oidc_provider_metadata.dart';
 import 'package:leithmail/domain/repositories/oidc_repository.dart';
 
-class DiscoverOidcProviderUsecase
-    extends UsecaseBase<EmailAddress, OidcProviderMetadata> {
+class DiscoverOidcProviderUsecase extends UsecaseBase<String, OidcCredentials> {
   final OidcRepository _repository;
   DiscoverOidcProviderUsecase(this._repository);
 
   @override
-  Future<Either<AppFailure, OidcProviderMetadata>> execute(
-    EmailAddress input,
-  ) async {
+  Future<Either<AppFailure, OidcCredentials>> execute(String domain) async {
     try {
-      final metadata = await _repository.discoverProvider(input);
-      if (metadata == null) {
-        return left(NotFoundFailure());
-      }
-      return right(metadata);
+      final credentials = await _repository.discoverProvider(domain);
+      return right(credentials);
     } catch (e) {
       return left(AuthFailure(e.toString()));
     }
@@ -28,22 +20,25 @@ class DiscoverOidcProviderUsecase
 }
 
 typedef AuthenticateOidcUsecaseInput = ({
-  OidcProviderMetadata oidcProviderMetadata,
-  EmailAddress email,
+  OidcCredentials credentials,
+  String? loginHint,
 });
 
 class AuthenticateOidcUsecase
-    extends UsecaseBase<AuthenticateOidcUsecaseInput, CredentialsOidc> {
+    extends UsecaseBase<AuthenticateOidcUsecaseInput, OidcCredentials> {
   final OidcRepository _repository;
   AuthenticateOidcUsecase(this._repository);
 
   @override
-  Future<Either<AppFailure, CredentialsOidc>> execute(
+  Future<Either<AppFailure, OidcCredentials>> execute(
     AuthenticateOidcUsecaseInput input,
   ) async {
     try {
       return right(
-        await _repository.authenticate(input.oidcProviderMetadata, input.email),
+        await _repository.authenticate(
+          input.credentials,
+          loginHint: input.loginHint,
+        ),
       );
     } catch (e) {
       return left(AuthFailure(e.toString()));
@@ -52,13 +47,13 @@ class AuthenticateOidcUsecase
 }
 
 class RefreshOidcCredentialsUsecase
-    extends UsecaseBase<CredentialsOidc, CredentialsOidc> {
+    extends UsecaseBase<OidcCredentials, OidcCredentials> {
   final OidcRepository _repository;
   RefreshOidcCredentialsUsecase(this._repository);
 
   @override
-  Future<Either<AppFailure, CredentialsOidc>> execute(
-    CredentialsOidc input,
+  Future<Either<AppFailure, OidcCredentials>> execute(
+    OidcCredentials input,
   ) async {
     try {
       return right(await _repository.refresh(input));

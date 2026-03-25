@@ -52,17 +52,17 @@ class Account {
     JmapSession? jmapSession,
   }) => Account(
     emailAddress: EmailAddress.parse(email),
-    credentials: credentials ?? CredentialsOidc.mock(),
+    credentials: credentials ?? OidcCredentials.mock(),
     jmapSession: jmapSession ?? JmapSession.mock(),
   );
 }
 
 Credentials _credentialsFromJson(Map<String, dynamic> map) =>
     switch (map['type'] as String) {
-      'oidc' => CredentialsOidc.fromJson(map),
+      'oidc' => OidcCredentials.fromJson(map),
       _ => throw UnimplementedError('Unknown credentials type: ${map["type"]}'),
     };
 
 Map<String, dynamic> _credentialsToJson(Credentials c) => switch (c) {
-  CredentialsOidc() => {'type': 'oidc', ...c.toJson()},
+  OidcCredentials() => {'type': 'oidc', ...c.toJson()},
 };
