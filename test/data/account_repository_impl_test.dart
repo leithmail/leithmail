@@ -34,19 +34,20 @@ void main() {
     });
 
     test('save overwrites existing account', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(
+        email: 'test@example.com',
+        credentials: CredentialsOidc.mock(accessToken: 'token'),
+      );
       await repository.save(account);
 
       final retrieved1 = await repository.getById(account.id);
       expect((retrieved1?.credentials as CredentialsOidc).accessToken, 'token');
 
       final updated = account.copyWith(
-        credentials: CredentialsOidc(
+        credentials: CredentialsOidc.mock(
           accessToken: 'new_token',
           refreshToken: 'new_refresh',
           expiry: DateTime(2027),
-          clientId: 'leithmail_mock',
-          tokenEndpoint: Uri(),
         ),
       );
       await repository.save(updated);
@@ -63,12 +64,10 @@ void main() {
       await repository.save(account);
 
       final updated = account.copyWith(
-        credentials: CredentialsOidc(
+        credentials: CredentialsOidc.mock(
           accessToken: 'new_token',
           refreshToken: 'new_refresh',
           expiry: DateTime(2027),
-          clientId: 'leithmail_mock',
-          tokenEndpoint: Uri(),
         ),
       );
       await repository.save(updated);
@@ -192,7 +191,7 @@ void main() {
         account.emailAddress.toString(),
       );
       expect(retrieved?.credentials, isA<CredentialsOidc>());
-      expect(retrieved?.jmap.apiUrl, account.jmap.apiUrl);
+      expect(retrieved?.jmapSession.apiUrl, account.jmapSession.apiUrl);
     });
   });
 

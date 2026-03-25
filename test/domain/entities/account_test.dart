@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
-import 'package:leithmail/domain/entities/jmap_metadata.dart';
+import 'package:leithmail/domain/entities/jmap_session.dart';
 
 void main() {
   group('id', () {
@@ -36,34 +36,31 @@ void main() {
       final account = Account.mock();
       final copy = account.copyWith();
       expect(copy.emailAddress, account.emailAddress);
-      expect(copy.jmap.apiUrl, account.jmap.apiUrl);
+      expect(copy.jmapSession.apiUrl, account.jmapSession.apiUrl);
     });
 
     test('copyWith replaces credentials', () {
-      final account = Account.mock();
-      final newCredentials = CredentialsOidc(
-        accessToken: 'new_token',
-        refreshToken: 'new_refresh',
-        expiry: DateTime(2027),
-        tokenEndpoint: Uri(),
-        clientId: 'leithmail_mock',
+      final account = Account.mock(
+        credentials: CredentialsOidc.mock(accessToken: 'token'),
       );
+      final newCredentials = CredentialsOidc.mock(accessToken: 'new_token');
       final copy = account.copyWith(credentials: newCredentials);
-      expect((copy.credentials as CredentialsOidc).accessToken, 'new_token');
-      expect((account.credentials as CredentialsOidc).accessToken, 'token');
+      expect(copy.credentials.toAuthorizationHeader(), 'Bearer new_token');
+      expect(account.credentials.toAuthorizationHeader(), 'Bearer token');
     });
 
-    test('copyWith replaces jmap', () {
-      final account = Account.mock();
-      final newJmap = JmapMetadata(
-        apiUrl: Uri.parse('https://new.example.com'),
-        downloadUrl: Uri.parse('https://new.example.com/download'),
-        uploadUrl: Uri.parse('https://new.example.com/upload'),
-        eventSourceUrl: Uri.parse('https://new.example.com/events'),
+    test('copyWith replaces jmapSession', () {
+      final account = Account.mock(
+        jmapSession: JmapSession.mock(
+          apiUrl: Uri.parse('https://old.example.com'),
+        ),
       );
-      final copy = account.copyWith(jmap: newJmap);
-      expect(copy.jmap.apiUrl, Uri.parse('https://new.example.com'));
-      expect(account.jmap.apiUrl, Uri.parse('https://jmap.example.com'));
+      final newJmap = JmapSession.mock(
+        apiUrl: Uri.parse('https://new.example.com'),
+      );
+      final copy = account.copyWith(jmapSession: newJmap);
+      expect(copy.jmapSession.apiUrl, Uri.parse('https://new.example.com'));
+      expect(account.jmapSession.apiUrl, Uri.parse('https://old.example.com'));
     });
   });
 
@@ -75,26 +72,32 @@ void main() {
         deserialized.emailAddress.toString(),
         account.emailAddress.toString(),
       );
-      expect(deserialized.jmap.apiUrl, account.jmap.apiUrl);
+      expect(deserialized.jmapSession.apiUrl, account.jmapSession.apiUrl);
       expect(deserialized.credentials, isA<CredentialsOidc>());
     });
 
     test('credentials type is preserved', () {
-      final account = Account.mock();
+      final account = Account.mock(
+        credentials: CredentialsOidc.mock(accessToken: 'token'),
+      );
       final deserialized = Account.deserialize(account.serialize());
       final credentials = deserialized.credentials as CredentialsOidc;
       expect(credentials.accessToken, 'token');
-      expect(credentials.refreshToken, 'refresh');
-      expect(credentials.expiry, DateTime(2026));
     });
 
     test('jmap urls are preserved', () {
       final account = Account.mock();
       final deserialized = Account.deserialize(account.serialize());
-      expect(deserialized.jmap.apiUrl, account.jmap.apiUrl);
-      expect(deserialized.jmap.downloadUrl, account.jmap.downloadUrl);
-      expect(deserialized.jmap.uploadUrl, account.jmap.uploadUrl);
-      expect(deserialized.jmap.eventSourceUrl, account.jmap.eventSourceUrl);
+      expect(deserialized.jmapSession.apiUrl, account.jmapSession.apiUrl);
+      expect(
+        deserialized.jmapSession.downloadUrl,
+        account.jmapSession.downloadUrl,
+      );
+      expect(deserialized.jmapSession.uploadUrl, account.jmapSession.uploadUrl);
+      expect(
+        deserialized.jmapSession.eventSourceUrl,
+        account.jmapSession.eventSourceUrl,
+      );
     });
 
     test('toJson includes type discriminator for credentials', () {

@@ -13,11 +13,13 @@ Account _$AccountFromJson(Map<String, dynamic> json) => Account(
   credentials: _credentialsFromJson(
     json['credentials'] as Map<String, dynamic>,
   ),
-  jmap: JmapMetadata.fromJson(json['jmap'] as Map<String, dynamic>),
+  jmapSession: JmapSession.fromJson(
+    json['jmapSession'] as Map<String, dynamic>,
+  ),
 );
 
 Map<String, dynamic> _$AccountToJson(Account instance) => <String, dynamic>{
   'emailAddress': instance.emailAddress,
   'credentials': _credentialsToJson(instance.credentials),
-  'jmap': instance.jmap,
+  'jmapSession': instance.jmapSession,
 };

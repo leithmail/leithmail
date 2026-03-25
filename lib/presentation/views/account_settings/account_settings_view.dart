@@ -101,7 +101,8 @@ class AccountSettingsView
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          controller.inputs.account.jmap.apiUrl.toString(),
+                          controller.inputs.account.jmapSession.apiUrl
+                              .toString(),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),

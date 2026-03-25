@@ -15,8 +15,6 @@ class OidcRepositoryImpl implements OidcRepository {
   final String _customUriScheme;
   final String _defaultClientId;
 
-  String get _tag => runtimeType.toString();
-
   OidcRepositoryImpl({
     required http.Client httpClient,
     required String redirectUri,
@@ -30,13 +28,13 @@ class OidcRepositoryImpl implements OidcRepository {
   @override
   Future<OidcProviderMetadata?> discoverProvider(EmailAddress email) async {
     final url = Uri.https(email.domain, '/.well-known/openid-configuration');
-    Log.info('[$_tag] discovering OIDC provider at $url');
+    Log.info('[$runtimeType] discovering OIDC provider at $url');
 
     final response = await _httpClient.get(url);
-    Log.debug('[$_tag] discovery response: ${response.statusCode}');
+    Log.debug('[$runtimeType] discovery response: ${response.statusCode}');
 
     if (response.statusCode == 404) {
-      Log.info('[$_tag] no OIDC provider found for ${email.domain}');
+      Log.info('[$runtimeType] no OIDC provider found for ${email.domain}');
       return null;
     }
     if (response.statusCode != 200) {
@@ -53,7 +51,7 @@ class OidcRepositoryImpl implements OidcRepository {
       ),
       tokenEndpoint: Uri.parse(json['token_endpoint'] as String),
     );
-    Log.info('[$_tag] discovered provider: issuer=${metadata.issuer}');
+    Log.info('[$runtimeType] discovered provider: issuer=${metadata.issuer}');
     return metadata;
   }
 
@@ -64,7 +62,7 @@ class OidcRepositoryImpl implements OidcRepository {
   ) async {
     final clientId = metadata.clientId ?? _defaultClientId;
     Log.info(
-      '[$_tag] starting PKCE auth flow: issuer=${metadata.issuer}, clientId=$clientId',
+      '[$runtimeType] starting PKCE auth flow: issuer=${metadata.issuer}, clientId=$clientId',
     );
 
     final client = OAuth2Client(
@@ -80,15 +78,19 @@ class OidcRepositoryImpl implements OidcRepository {
       httpClient: _httpClient,
       authCodeParams: {'login_hint': email.value},
     );
-    Log.info('[$_tag] auth flow completed, mapping token response');
+    Log.info('[$runtimeType] auth flow completed, mapping token response');
 
-    final credentials = _credentialsFromResponse(
-      response,
-      metadata.tokenEndpoint,
-      clientId,
+    final credentials = CredentialsOidc(
+      issuer: metadata.issuer,
+      authorizationEndpoint: metadata.authorizationEndpoint,
+      tokenEndpoint: metadata.tokenEndpoint,
+      clientId: clientId,
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      expiry: response.expirationDate,
     );
     Log.info(
-      '[$_tag] authenticated successfully, token expires at ${credentials.expiry}',
+      '[$runtimeType] authenticated successfully, token expires at ${credentials.expiry}',
     );
     return credentials;
   }
@@ -96,7 +98,7 @@ class OidcRepositoryImpl implements OidcRepository {
   @override
   Future<CredentialsOidc> refresh(CredentialsOidc credentials) async {
     Log.info(
-      '[$_tag] refreshing token: clientId=${credentials.clientId}, endpoint=${credentials.tokenEndpoint}',
+      '[$runtimeType] refreshing token: clientId=${credentials.clientId}, endpoint=${credentials.tokenEndpoint}',
     );
 
     final client = OAuth2Client(
@@ -116,42 +118,14 @@ class OidcRepositoryImpl implements OidcRepository {
       clientId: credentials.clientId,
       httpClient: _httpClient,
     );
-    Log.info('[$_tag] token refresh completed');
+    Log.info('[$runtimeType] token refresh completed');
 
-    final fresh = _credentialsFromResponse(
-      response,
-      credentials.tokenEndpoint,
-      credentials.clientId,
+    final fresh = credentials.copyWithTokens(
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      expiry: response.expirationDate,
     );
-    Log.info('[$_tag] new token expires at ${fresh.expiry}');
+    Log.info('[$runtimeType] new token expires at ${fresh.expiry}');
     return fresh;
-  }
-
-  CredentialsOidc _credentialsFromResponse(
-    AccessTokenResponse response,
-    Uri tokenEndpoint,
-    String clientId,
-  ) {
-    final accessToken = response.accessToken;
-    final refreshToken = response.refreshToken;
-    final expiry = response.expirationDate;
-
-    if (accessToken == null || refreshToken == null || expiry == null) {
-      Log.error(
-        '[$_tag] incomplete token response',
-        'accessToken=${accessToken != null}, refreshToken=${refreshToken != null}, expiry=${expiry != null}',
-      );
-      throw OidcAuthException(
-        'Incomplete token response: missing accessToken, refreshToken, or expiry',
-      );
-    }
-
-    return CredentialsOidc(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      expiry: expiry,
-      tokenEndpoint: tokenEndpoint,
-      clientId: clientId,
-    );
   }
 }

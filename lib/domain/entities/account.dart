@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/entities/email_address.dart';
-import 'package:leithmail/domain/entities/jmap_metadata.dart';
+import 'package:leithmail/domain/entities/jmap_session.dart';
 
 part 'account.g.dart';
 
@@ -15,21 +15,21 @@ class Account {
 
   @JsonKey(fromJson: _credentialsFromJson, toJson: _credentialsToJson)
   final Credentials credentials;
-  final JmapMetadata jmap;
+  final JmapSession jmapSession;
 
   const Account({
     required this.emailAddress,
     required this.credentials,
-    required this.jmap,
+    required this.jmapSession,
   });
 
   AccountId get id => AccountId(emailAddress.toString());
 
-  Account copyWith({Credentials? credentials, JmapMetadata? jmap}) {
+  Account copyWith({Credentials? credentials, JmapSession? jmapSession}) {
     return Account(
       emailAddress: emailAddress,
       credentials: credentials ?? this.credentials,
-      jmap: jmap ?? this.jmap,
+      jmapSession: jmapSession ?? this.jmapSession,
     );
   }
 
@@ -46,26 +46,11 @@ class Account {
   factory Account.mock({
     String email = 'test@example.com',
     Credentials? credentials,
-    JmapMetadata? jmap,
+    JmapSession? jmapSession,
   }) => Account(
     emailAddress: EmailAddress.parse(email),
-    credentials:
-        credentials ??
-        CredentialsOidc(
-          tokenEndpoint: Uri(),
-          accessToken: 'token',
-          refreshToken: 'refresh',
-          expiry: DateTime(2026),
-          clientId: 'leithmail_mock',
-        ),
-    jmap:
-        jmap ??
-        JmapMetadata(
-          apiUrl: Uri.parse('https://jmap.example.com'),
-          downloadUrl: Uri.parse('https://jmap.example.com/download'),
-          uploadUrl: Uri.parse('https://jmap.example.com/upload'),
-          eventSourceUrl: Uri.parse('https://jmap.example.com/events'),
-        ),
+    credentials: credentials ?? CredentialsOidc.mock(),
+    jmapSession: jmapSession ?? JmapSession.mock(),
   );
 }
 

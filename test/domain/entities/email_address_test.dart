@@ -37,6 +37,7 @@ void main() {
     test('returns full email address', () {
       final email = EmailAddress(local: 'test', domain: 'example.com');
       expect(email.toString(), 'test@example.com');
+      expect(email.value, 'test@example.com');
     });
 
     test('parse and toString roundtrip', () {
