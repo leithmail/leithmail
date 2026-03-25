@@ -18,4 +18,7 @@ class MockEmail {
   final String body;
   final String date;
   final bool isRead;
+
+  @override
+  String toString() => '$runtimeType($id)';
 }

@@ -15,11 +15,14 @@ class MockMailbox {
   final MailboxRole role;
   final int unreadCount;
 
+  @override
+  String toString() => '$runtimeType($name)';
+
   IconData get icon => switch (role) {
-        MailboxRole.inbox   => Icons.inbox_outlined,
-        MailboxRole.starred => Icons.star_outline,
-        MailboxRole.sent    => Icons.send_outlined,
-        MailboxRole.drafts  => Icons.edit_outlined,
-        MailboxRole.trash   => Icons.delete_outline,
-      };
+    MailboxRole.inbox => Icons.inbox_outlined,
+    MailboxRole.starred => Icons.star_outline,
+    MailboxRole.sent => Icons.send_outlined,
+    MailboxRole.drafts => Icons.edit_outlined,
+    MailboxRole.trash => Icons.delete_outline,
+  };
 }

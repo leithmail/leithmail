@@ -25,6 +25,9 @@ class Account {
 
   AccountId get id => AccountId(emailAddress.toString());
 
+  @override
+  String toString() => '$runtimeType($id)';
+
   Account copyWith({Credentials? credentials, JmapSession? jmapSession}) {
     return Account(
       emailAddress: emailAddress,
