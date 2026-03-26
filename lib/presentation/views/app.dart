@@ -41,7 +41,12 @@ class App
           return AddAccountView(
             factory: controller.bindings.addAccountControllerFactory,
             inputs: AddAccountControllerInputs(
-              onAccountAdded: controller.onAccountSwitched,
+              onAccountAdded: () {
+                controller.isLoading.value = true;
+                controller.isAuthCallbackProcessing.value = false;
+                // redirect to the app root to clear any auth callback query parameters from the URL
+                web.window.location.href = Uri.base.origin;
+              },
               canGoBack: true,
               onBack: () {
                 controller.isLoading.value = true;
