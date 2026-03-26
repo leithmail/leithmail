@@ -135,21 +135,22 @@ void main() async {
     ),
   );
 
-  // auth callback
-  String? authCode;
-  String? authState;
+  // oauth callback
+  FinishAuthFlowOidcUsecaseInput? oidcCallbackData;
   if (kIsWeb) {
     final uri = Uri.parse(web.window.location.href);
     if (uri.path == '/auth') {
-      authCode = uri.queryParameters['code'];
-      authState = uri.queryParameters['state'];
+      oidcCallbackData = FinishAuthFlowOidcUsecaseInput(
+        code: uri.queryParameters['code'] ?? '',
+        state: uri.queryParameters['state'] ?? '',
+      );
     }
   }
 
   runApp(
     App(
       factory: appControllerFactory,
-      inputs: (authCode: authCode, authState: authState),
+      inputs: (oidcCallbackData: oidcCallbackData),
     ),
   );
 }

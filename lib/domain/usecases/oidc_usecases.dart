@@ -92,7 +92,12 @@ class GetAuthUrlOidcUsecase
   }
 }
 
-typedef FinishAuthFlowOidcUsecaseInput = ({String state, String code});
+class FinishAuthFlowOidcUsecaseInput {
+  final String code;
+  final String state;
+
+  FinishAuthFlowOidcUsecaseInput({required this.code, required this.state});
+}
 
 typedef FinishAuthFlowOidcUsecaseOutput = ({
   String id,

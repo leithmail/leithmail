@@ -23,25 +23,19 @@ class AddAccountView
     if (controller.isLoading.value) {
       return;
     }
-    final isSuccess = await controller.addAccount(
-      controller.emailInputController.text,
-    );
-    if (isSuccess) {
-      controller.inputs.onAccountAdded();
-    }
+    await controller.addAccount(controller.emailInputController.text);
   }
 
   @override
   Widget build(BuildContext context, AddAccountController controller) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final onCancel = controller.inputs.onCancel;
 
     return Scaffold(
-      appBar: controller.inputs.canGoBack
+      appBar: onCancel != null
           ? AppBar(
-              leading: BackButton(
-                onPressed: () => controller.inputs.onBack?.call(),
-              ),
+              leading: BackButton(onPressed: () => onCancel.call()),
               backgroundColor: Colors.transparent,
             )
           : null,

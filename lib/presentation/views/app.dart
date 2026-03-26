@@ -41,21 +41,17 @@ class App
           return AddAccountView(
             factory: controller.bindings.addAccountControllerFactory,
             inputs: AddAccountControllerInputs(
-              onAccountAdded: () {
-                controller.isLoading.value = true;
-                controller.isAuthCallbackProcessing.value = false;
+              onSuccess: () {
                 // redirect to the app root to clear any auth callback query parameters from the URL
+                controller.isLoading.value = true;
                 web.window.location.href = Uri.base.origin;
               },
-              canGoBack: true,
-              onBack: () {
-                controller.isLoading.value = true;
-                controller.isAuthCallbackProcessing.value = false;
+              onCancel: () {
                 // redirect to the app root to clear any auth callback query parameters from the URL
+                controller.isLoading.value = true;
                 web.window.location.href = Uri.base.origin;
               },
-              authCode: controller.inputs.authCode,
-              authState: controller.inputs.authState,
+              oidcCallbackData: controller.inputs.oidcCallbackData,
             ),
           );
         }
@@ -64,8 +60,7 @@ class App
           return AddAccountView(
             factory: controller.bindings.addAccountControllerFactory,
             inputs: AddAccountControllerInputs(
-              onAccountAdded: controller.onAccountSwitched,
-              canGoBack: false,
+              onSuccess: controller.onAccountSwitched,
             ),
           );
         }

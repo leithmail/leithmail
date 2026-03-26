@@ -1,4 +1,5 @@
 import 'package:leithmail/core/logging/log.dart';
+import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
@@ -21,7 +22,9 @@ typedef AppControllerBindings = ({
   SetActiveAccountUsecase setActiveAccountUsecase,
 });
 
-typedef AppControllerInputs = ({String? authCode, String? authState});
+typedef AppControllerInputs = ({
+  FinishAuthFlowOidcUsecaseInput? oidcCallbackData,
+});
 
 class AppControllerFactory
     extends
@@ -78,7 +81,7 @@ class AppController
 
   @override
   Future<void> onInit() async {
-    if (inputs.authCode != null && inputs.authState != null) {
+    if (inputs.oidcCallbackData != null) {
       isAuthCallbackProcessing.value = true;
       isLoading.value = false;
     }

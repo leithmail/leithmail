@@ -24,18 +24,14 @@ typedef AddAccountControllerBindings = ({
 });
 
 class AddAccountControllerInputs {
-  final void Function() onAccountAdded;
-  final void Function()? onBack;
-  final bool canGoBack;
-  final String? authCode;
-  final String? authState;
+  final void Function() onSuccess;
+  final void Function()? onCancel;
+  final FinishAuthFlowOidcUsecaseInput? oidcCallbackData;
 
   const AddAccountControllerInputs({
-    required this.onAccountAdded,
-    required this.canGoBack,
-    this.authCode,
-    this.authState,
-    this.onBack,
+    required this.onSuccess,
+    this.onCancel,
+    this.oidcCallbackData,
   });
 }
 
@@ -74,44 +70,41 @@ class AddAccountController
 
   @override
   Future<void> onInit() async {
-    final authCode = inputs.authCode;
-    final authState = inputs.authState;
-    if (authCode != null && authState != null) {
-      isLoading.value = true;
-      final finishAuthFlowResult = await bindings.finishAuthFlowOidcUsecase((
-        code: authCode,
-        state: authState,
-      ));
-      switch (finishAuthFlowResult) {
-        case Success(:final data):
-          final EmailAddress emailAddress;
-          try {
-            emailAddress = EmailAddress.parse(data.id);
-          } catch (e) {
-            Log.warning('[$runtimeType] invalid email address', e);
-            errorMessage.value = 'Invalid email address.';
-            isLoading.value = false;
-            return;
-          }
-          final isSuccess = await finishAuthFlow(
-            emailAddress,
-            data.credentials,
-          );
-          if (isSuccess) {
-            // redirect to the app root to clear any auth callback query parameters from the URL
-            web.window.location.href = Uri.base.origin;
-            return;
-          }
-          break;
-        case Failure():
-          errorMessage.value = 'Authentication failed.';
-          isLoading.value = false;
-          break;
-      }
+    final oidcCallbackData = inputs.oidcCallbackData;
+    if (oidcCallbackData != null) {
+      processOidcCallbackData(oidcCallbackData);
+      return;
     }
   }
 
-  Future<bool> addAccount(String email) async {
+  Future<void> processOidcCallbackData(
+    FinishAuthFlowOidcUsecaseInput oidcCallbackData,
+  ) async {
+    isLoading.value = true;
+    final finishAuthFlowResult = await bindings.finishAuthFlowOidcUsecase(
+      oidcCallbackData,
+    );
+    switch (finishAuthFlowResult) {
+      case Success(:final data):
+        final EmailAddress emailAddress;
+        try {
+          emailAddress = EmailAddress.parse(data.id);
+        } catch (e) {
+          Log.warning('[$runtimeType] invalid email address', e);
+          errorMessage.value = 'Invalid email address.';
+          isLoading.value = false;
+          return;
+        }
+        await finishAuthFlow(emailAddress, data.credentials);
+        break;
+      case Failure():
+        errorMessage.value = 'Authentication failed.';
+        isLoading.value = false;
+        break;
+    }
+  }
+
+  Future<void> addAccount(String email) async {
     isLoading.value = true;
     errorMessage.value = null;
 
@@ -123,7 +116,7 @@ class AddAccountController
       Log.warning('[$runtimeType] invalid email address', e);
       errorMessage.value = 'Invalid email address.';
       isLoading.value = false;
-      return false;
+      return;
     }
 
     // Check if account already exists and credentials are still valid
@@ -149,9 +142,10 @@ class AddAccountController
       case Failure():
         errorMessage.value = 'Failed to discover OIDC provider.';
         isLoading.value = false;
-        return false;
+        return;
     }
 
+    // Authenticate (WEB only)
     if (kIsWeb) {
       final uriResult = await bindings.getAuthUrlOidcUsecase((
         id: email,
@@ -161,15 +155,15 @@ class AddAccountController
       switch (uriResult) {
         case Success(:final data):
           web.window.location.href = data.toString();
-          return false; // flow continues in finishAuthFlow after redirect
+          return; // flow continues in processOidcCallbackData after redirect
         case Failure():
           errorMessage.value = 'Unable to redirect to OIDC provider.';
           isLoading.value = false;
-          return false;
+          return;
       }
     }
 
-    // Authenticate
+    // Authenticate (other platforms)
     final OidcCredentials credentials;
     switch (await bindings.authenticateOidcUsecase((
       credentials: oidcMetadata,
@@ -181,13 +175,13 @@ class AddAccountController
       case Failure():
         errorMessage.value = 'Authentication failed.';
         isLoading.value = false;
-        return false;
+        return;
     }
 
     return finishAuthFlow(emailAddress, credentials);
   }
 
-  Future<bool> finishAuthFlow(
+  Future<void> finishAuthFlow(
     EmailAddress emailAddress,
     Credentials credentials,
   ) async {
@@ -205,7 +199,7 @@ class AddAccountController
       case Failure():
         errorMessage.value = 'Unable to initiate JMAP session.';
         isLoading.value = false;
-        return false;
+        return;
     }
 
     // Persist account
@@ -217,11 +211,12 @@ class AddAccountController
 
     switch (await bindings.addAccountUsecase(account)) {
       case Success():
-        return true;
-      case Failure(:final failure):
-        errorMessage.value = 'Failed to add account: $failure';
+        inputs.onSuccess();
+        return;
+      case Failure():
+        errorMessage.value = 'Failed to add account.';
         isLoading.value = false;
-        return false;
+        return;
     }
   }
 

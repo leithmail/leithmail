@@ -108,13 +108,12 @@ class AccountSelectorPane extends StatelessWidget {
         builder: (_) => AddAccountView(
           factory: controller.bindings.addAccountControllerFactory,
           inputs: AddAccountControllerInputs(
-            onAccountAdded: () {
+            onSuccess: () {
               onClose();
               navigator.popUntil((route) => route.isFirst);
               controller.inputs.onAccountSwitched();
             },
-            onBack: () => navigator.pop(),
-            canGoBack: true,
+            onCancel: () => navigator.pop(),
           ),
         ),
       ),
