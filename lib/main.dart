@@ -93,6 +93,9 @@ void main() async {
 
   final getAuthUrlOidcUsecase = GetAuthUrlOidcUsecase(oidcRepository);
   final finishAuthFlowOidcUsecase = FinishAuthFlowOidcUsecase(oidcRepository);
+  final getAuthenticatedAccountUsecase = GetAuthenticatedAccountUsecase(
+    accountRepository,
+  );
 
   // Controller factories
   final addAccountControllerFactory = AddAccountControllerFactory(
@@ -103,6 +106,7 @@ void main() async {
       fetchJmapSessionUsecase: fetchJmapSessionUsecase,
       getAuthUrlOidcUsecase: getAuthUrlOidcUsecase,
       finishAuthFlowOidcUsecase: finishAuthFlowOidcUsecase,
+      getAuthenticatedAccountUsecase: getAuthenticatedAccountUsecase,
     ),
   );
 

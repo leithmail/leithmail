@@ -40,6 +40,28 @@ class GetAllAccountsUsecase extends UsecaseBase<NoInput, List<Account>> {
   }
 }
 
+class GetAuthenticatedAccountUsecase extends UsecaseBase<AccountId, Account?> {
+  final AccountRepository _repository;
+  GetAuthenticatedAccountUsecase(this._repository);
+
+  @override
+  Future<Either<AppFailure, Account?>> execute(AccountId id) async {
+    final Account? account;
+    try {
+      account = await _repository.getById(id);
+    } catch (e) {
+      return left(StorageFailure(e.toString()));
+    }
+    if (account == null) {
+      return right(null);
+    }
+    if (account.credentials.isExpired) {
+      return right(null);
+    }
+    return right(account);
+  }
+}
+
 class SetActiveAccountUsecase extends UsecaseBase<AccountId, void> {
   SetActiveAccountUsecase(this._activeRepo);
 

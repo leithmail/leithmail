@@ -20,6 +20,7 @@ typedef AddAccountControllerBindings = ({
   FetchJmapSessionUsecase fetchJmapSessionUsecase,
   GetAuthUrlOidcUsecase getAuthUrlOidcUsecase,
   FinishAuthFlowOidcUsecase finishAuthFlowOidcUsecase,
+  GetAuthenticatedAccountUsecase getAuthenticatedAccountUsecase,
 });
 
 class AddAccountControllerInputs {
@@ -123,6 +124,20 @@ class AddAccountController
       errorMessage.value = 'Invalid email address.';
       isLoading.value = false;
       return false;
+    }
+
+    // Check if account already exists and credentials are still valid
+    final getAuthAccountResult = await bindings.getAuthenticatedAccountUsecase(
+      AccountId(emailAddress.value),
+    );
+    switch (getAuthAccountResult) {
+      case Success(:final data):
+        if (data != null) {
+          return finishAuthFlow(emailAddress, data.credentials);
+        }
+        break;
+      case Failure():
+      // nothing to do here, continue with the authentication flow
     }
 
     // OIDC discovery
