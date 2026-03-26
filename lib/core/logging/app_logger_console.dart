@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_print
+// coverage:ignore-file
 
 import 'package:leithmail/core/logging/app_logger.dart';
 

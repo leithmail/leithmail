@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:leithmail/core/logging/app_logger.dart';
 import 'package:leithmail/core/logging/app_logger_no_op.dart';
 

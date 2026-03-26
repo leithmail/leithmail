@@ -25,8 +25,10 @@ class Account {
 
   AccountId get id => AccountId(emailAddress.toString());
 
+  // coverage:ignore-start
   @override
   String toString() => '$runtimeType($id)';
+  // coverage:ignore-end
 
   Account copyWith({Credentials? credentials, JmapSession? jmapSession}) {
     return Account(

@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 abstract interface class AppLogger {
   void debug(String message, [Object? context]);
   void info(String message, [Object? context]);

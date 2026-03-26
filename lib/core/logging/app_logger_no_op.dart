@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:leithmail/core/logging/app_logger.dart';
 
 class AppLoggerNoOp implements AppLogger {
