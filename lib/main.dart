@@ -145,6 +145,9 @@ void main() async {
         state: uri.queryParameters['state'] ?? '',
       );
     }
+
+    // Always rewrite to / so F5 never replays the callback
+    web.window.history.replaceState(null, '', '/');
   }
 
   runApp(
