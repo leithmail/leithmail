@@ -108,6 +108,8 @@ class AddAccountController
     isLoading.value = true;
     errorMessage.value = null;
 
+    await Future.delayed(const Duration(milliseconds: 300));
+
     // Parse Email
     final EmailAddress emailAddress;
     try {

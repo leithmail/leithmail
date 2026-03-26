@@ -6,7 +6,6 @@ import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
 import 'package:leithmail/presentation/views/app_controller.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_view.dart';
 import 'package:leithmail/presentation/theme/app_theme.dart';
-import 'package:web/web.dart' as web;
 
 class App
     extends
@@ -42,14 +41,14 @@ class App
             factory: controller.bindings.addAccountControllerFactory,
             inputs: AddAccountControllerInputs(
               onSuccess: () {
-                // redirect to the app root to clear any auth callback query parameters from the URL
                 controller.isLoading.value = true;
-                web.window.location.href = Uri.base.origin;
+                controller.isAuthCallbackProcessing.value = false;
+                controller.onAccountSwitched();
               },
               onCancel: () {
-                // redirect to the app root to clear any auth callback query parameters from the URL
                 controller.isLoading.value = true;
-                web.window.location.href = Uri.base.origin;
+                controller.isAuthCallbackProcessing.value = false;
+                controller.onAccountSwitched();
               },
               oidcCallbackData: controller.inputs.oidcCallbackData,
             ),

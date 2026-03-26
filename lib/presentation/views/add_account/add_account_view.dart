@@ -32,64 +32,71 @@ class AddAccountView
     final colorScheme = theme.colorScheme;
     final onCancel = controller.inputs.onCancel;
 
-    return Scaffold(
-      appBar: onCancel != null
-          ? AppBar(
-              leading: BackButton(onPressed: () => onCancel.call()),
-              backgroundColor: Colors.transparent,
-            )
-          : null,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Leithmail',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.primary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Add your email account to get started.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
-                TextField(
-                  controller: controller.emailInputController,
-                  keyboardType: TextInputType.emailAddress,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    hintText: 'you@example.com',
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
-                  onSubmitted: (_) => _addAccount(context, controller),
-                ),
-                const SizedBox(height: 12),
-                Watch((context) {
-                  final error = controller.errorMessage.value;
-                  if (error == null) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      error,
-                      style: TextStyle(color: colorScheme.error, fontSize: 13),
+    return Watch((context) {
+      final isLoading = controller.isLoading.value;
+      final error = controller.errorMessage.value;
+
+      if (isLoading) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      return Scaffold(
+        appBar: onCancel != null
+            ? AppBar(
+                leading: BackButton(onPressed: () => onCancel.call()),
+                backgroundColor: Colors.transparent,
+              )
+            : null,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Leithmail',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.primary,
                     ),
-                  );
-                }, debugLabel: 'AddAccountView.errorMessage'),
-                Watch((context) {
-                  final isLoading = controller.isLoading.value;
-                  return FilledButton(
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Add your email account to get started.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  TextField(
+                    controller: controller.emailInputController,
+                    keyboardType: TextInputType.emailAddress,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      hintText: 'you@example.com',
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    onSubmitted: (_) => _addAccount(context, controller),
+                  ),
+                  const SizedBox(height: 12),
+                  error == null
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            error,
+                            style: TextStyle(
+                              color: colorScheme.error,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                  FilledButton(
                     onPressed: () => _addAccount(context, controller),
                     style: FilledButton.styleFrom(
                       alignment: Alignment.center,
@@ -101,20 +108,14 @@ class AddAccountView
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Add account'),
-                  );
-                }, debugLabel: 'AddAccountView.AddAccountButton'),
-              ],
+                    child: const Text('Add account'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
