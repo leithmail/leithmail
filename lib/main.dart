@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -24,6 +25,7 @@ import 'package:leithmail/domain/usecases/account_usecases.dart';
 import 'package:leithmail/domain/usecases/get_emails_usecase.dart';
 import 'package:leithmail/domain/usecases/get_mailboxes_usecase.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:web/web.dart' as web;
 
 void main() async {
   Log.setLogger(AppLoggerConsole());
@@ -53,9 +55,10 @@ void main() async {
   final mailboxesRepository = MailboxRepositoryImplMock();
   final oidcRepository = OidcRepositoryImpl(
     httpClient: httpClient,
-    redirectUri: '${Uri.base.origin}/auth.html',
+    redirectUri: '${Uri.base.origin}/auth',
     customUriScheme: '',
     defaultClientId: 'leithmail',
+    persistent: storageFactory.secure('oidc'),
   );
 
   final jmapRepository = JmapRepositoryImpl(httpClient);
@@ -88,6 +91,9 @@ void main() async {
 
   final fetchJmapSessionUsecase = FetchJmapSessionUsecase(jmapRepository);
 
+  final getAuthUrlOidcUsecase = GetAuthUrlOidcUsecase(oidcRepository);
+  final finishAuthFlowOidcUsecase = FinishAuthFlowOidcUsecase(oidcRepository);
+
   // Controller factories
   final addAccountControllerFactory = AddAccountControllerFactory(
     bindings: (
@@ -95,6 +101,8 @@ void main() async {
       discoverOidcProviderUsecase: discoverOidcProviderUsecase,
       authenticateOidcUsecase: authenticateOidcUsecase,
       fetchJmapSessionUsecase: fetchJmapSessionUsecase,
+      getAuthUrlOidcUsecase: getAuthUrlOidcUsecase,
+      finishAuthFlowOidcUsecase: finishAuthFlowOidcUsecase,
     ),
   );
 
@@ -123,5 +131,21 @@ void main() async {
     ),
   );
 
-  runApp(App(factory: appControllerFactory, inputs: null));
+  // auth callback
+  String? authCode;
+  String? authState;
+  if (kIsWeb) {
+    final uri = Uri.parse(web.window.location.href);
+    if (uri.path == '/auth') {
+      authCode = uri.queryParameters['code'];
+      authState = uri.queryParameters['state'];
+    }
+  }
+
+  runApp(
+    App(
+      factory: appControllerFactory,
+      inputs: (authCode: authCode, authState: authState),
+    ),
+  );
 }

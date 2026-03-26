@@ -23,7 +23,12 @@ class AddAccountView
     if (controller.isLoading.value) {
       return;
     }
-    await controller.addAccount(controller.emailInputController.text);
+    final isSuccess = await controller.addAccount(
+      controller.emailInputController.text,
+    );
+    if (isSuccess) {
+      controller.inputs.onAccountAdded();
+    }
   }
 
   @override
@@ -34,7 +39,9 @@ class AddAccountView
     return Scaffold(
       appBar: controller.inputs.canGoBack
           ? AppBar(
-              leading: const BackButton(),
+              leading: BackButton(
+                onPressed: () => controller.inputs.onBack?.call(),
+              ),
               backgroundColor: Colors.transparent,
             )
           : null,

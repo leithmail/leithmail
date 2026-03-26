@@ -62,3 +62,64 @@ class RefreshOidcCredentialsUsecase
     }
   }
 }
+
+typedef GetAuthUrlOidcUsecaseInput = ({
+  String id,
+  OidcCredentials credentials,
+  String? loginHint,
+});
+
+class GetAuthUrlOidcUsecase
+    extends UsecaseBase<GetAuthUrlOidcUsecaseInput, Uri> {
+  final OidcRepository _repository;
+  GetAuthUrlOidcUsecase(this._repository);
+
+  @override
+  Future<Either<AppFailure, Uri>> execute(
+    GetAuthUrlOidcUsecaseInput input,
+  ) async {
+    try {
+      return right(
+        await _repository.getAuthUrl(
+          input.id,
+          input.credentials,
+          loginHint: input.loginHint,
+        ),
+      );
+    } catch (e) {
+      return left(AuthFailure(e.toString()));
+    }
+  }
+}
+
+typedef FinishAuthFlowOidcUsecaseInput = ({String state, String code});
+
+typedef FinishAuthFlowOidcUsecaseOutput = ({
+  String id,
+  OidcCredentials credentials,
+});
+
+class FinishAuthFlowOidcUsecase
+    extends
+        UsecaseBase<
+          FinishAuthFlowOidcUsecaseInput,
+          FinishAuthFlowOidcUsecaseOutput
+        > {
+  final OidcRepository _repository;
+  FinishAuthFlowOidcUsecase(this._repository);
+
+  @override
+  Future<Either<AppFailure, FinishAuthFlowOidcUsecaseOutput>> execute(
+    FinishAuthFlowOidcUsecaseInput input,
+  ) async {
+    try {
+      final result = await _repository.finishAuthFlow(
+        state: input.state,
+        code: input.code,
+      );
+      return right((id: result.id, credentials: result.credentials));
+    } catch (e) {
+      return left(AuthFailure(e.toString()));
+    }
+  }
+}

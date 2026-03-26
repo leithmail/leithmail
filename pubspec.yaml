@@ -44,6 +44,9 @@ dependencies:
   oauth2_client: ^4.2.3
   http: ^1.6.0
   meta: ^1.17.0
+  pkce: ^1.1.0+1
+  uuid: ^4.5.3
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

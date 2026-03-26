@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/models/account_summary.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_view.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
 
@@ -106,12 +107,13 @@ class AccountSelectorPane extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => AddAccountView(
           factory: controller.bindings.addAccountControllerFactory,
-          inputs: (
+          inputs: AddAccountControllerInputs(
             onAccountAdded: () {
               onClose();
               navigator.popUntil((route) => route.isFirst);
               controller.inputs.onAccountSwitched();
             },
+            onBack: () => navigator.pop(),
             canGoBack: true,
           ),
         ),

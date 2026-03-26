@@ -21,7 +21,7 @@ typedef AppControllerBindings = ({
   SetActiveAccountUsecase setActiveAccountUsecase,
 });
 
-typedef AppControllerInputs = void;
+typedef AppControllerInputs = ({String? authCode, String? authState});
 
 class AppControllerFactory
     extends
@@ -33,7 +33,7 @@ class AppControllerFactory
   AppControllerFactory({required super.bindings});
 
   @override
-  AppController create(void inputs) =>
+  AppController create(AppControllerInputs inputs) =>
       AppController(bindings: bindings, inputs: inputs);
 }
 
@@ -44,6 +44,11 @@ class AppController
   final Signal<bool> isLoading = signal(
     true,
     debugLabel: 'AppController.isLoading',
+  );
+
+  final Signal<bool> isAuthCallbackProcessing = signal(
+    false,
+    debugLabel: 'AppController.isAuthCallbackProcessing',
   );
 
   Signal<Account>? lastActiveAccount;
@@ -72,7 +77,13 @@ class AppController
   );
 
   @override
-  Future<void> onInit() => reloadAccounts();
+  Future<void> onInit() async {
+    if (inputs.authCode != null && inputs.authState != null) {
+      isAuthCallbackProcessing.value = true;
+      isLoading.value = false;
+    }
+    reloadAccounts();
+  }
 
   void _initAndSetLastActiveAccountSignal(Account account) {
     if (lastActiveAccount != null) {
@@ -134,5 +145,6 @@ class AppController
     accountSummariesList.dispose();
     _accountsList.dispose();
     lastActiveAccount?.dispose();
+    isAuthCallbackProcessing.dispose();
   }
 }

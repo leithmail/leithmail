@@ -2,23 +2,29 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:leithmail/core/logging/log.dart';
+import 'package:leithmail/core/services/storage_service.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/repositories/oidc_repository.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
+import 'package:pkce/pkce.dart';
+import 'package:uuid/uuid.dart';
 
 class OidcRepositoryImpl implements OidcRepository {
   final http.Client _httpClient;
   final String _redirectUri;
   final String _customUriScheme;
   final String _defaultClientId;
+  final StorageService _persistent;
 
   OidcRepositoryImpl({
     required http.Client httpClient,
     required String redirectUri,
     required String customUriScheme,
     required String defaultClientId,
-  }) : _httpClient = httpClient,
+    required StorageService persistent,
+  }) : _persistent = persistent,
+       _httpClient = httpClient,
        _redirectUri = redirectUri,
        _customUriScheme = customUriScheme,
        _defaultClientId = defaultClientId;
@@ -126,7 +132,6 @@ class OidcRepositoryImpl implements OidcRepository {
       throw OidcAuthException('Unable to refresh token');
     }
     Log.info('[$runtimeType] token refresh completed');
-
     final fresh = credentials.copyWithTokens(
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
@@ -134,5 +139,96 @@ class OidcRepositoryImpl implements OidcRepository {
     );
     Log.info('[$runtimeType] new token expires at ${fresh.expiry}');
     return fresh;
+  }
+
+  @override
+  Future<Uri> getAuthUrl(
+    String id,
+    OidcCredentials credentials, {
+    String? loginHint,
+  }) async {
+    final client = OAuth2Client(
+      authorizeUrl: credentials.authorizationEndpoint.toString(),
+      tokenUrl: credentials.tokenEndpoint.toString(),
+      redirectUri: _redirectUri,
+      customUriScheme: _customUriScheme,
+    );
+
+    final pkcePair = PkcePair.generate();
+    final codeVerifier = pkcePair.codeVerifier;
+    final codeChallenge = pkcePair.codeChallenge;
+    final state = const Uuid().v4();
+
+    final uri = client.getAuthorizeUrl(
+      redirectUri: _redirectUri,
+      clientId: credentials.clientId,
+      scopes: ['openid', 'email', 'offline_access'],
+      codeChallenge: codeChallenge,
+      state: state,
+      customParams: loginHint != null ? {'login_hint': loginHint} : null,
+    );
+
+    await _persistent.write(
+      state,
+      jsonEncode({
+        'id': id,
+        'code_verifier': codeVerifier,
+        'credentials': credentials.toJson(),
+      }),
+    );
+
+    Log.info('[$runtimeType] generated auth URL: id=$id, state=$state');
+    return Uri.parse(uri);
+  }
+
+  @override
+  Future<({String id, OidcCredentials credentials})> finishAuthFlow({
+    required String state,
+    required String code,
+  }) async {
+    final raw = await _persistent.read(state);
+    if (raw == null) {
+      throw OidcAuthException('No pending auth flow found for state=$state');
+    }
+
+    final pending = jsonDecode(raw) as Map<String, dynamic>;
+    await _persistent.delete(state);
+
+    final id = pending['id'] as String;
+    final codeVerifier = pending['code_verifier'] as String;
+    final credentials = OidcCredentials.fromJson(
+      pending['credentials'] as Map<String, dynamic>,
+    );
+
+    final client = OAuth2Client(
+      authorizeUrl: credentials.authorizationEndpoint.toString(),
+      tokenUrl: credentials.tokenEndpoint.toString(),
+      redirectUri: _redirectUri,
+      customUriScheme: _customUriScheme,
+    );
+
+    final AccessTokenResponse response;
+    try {
+      response = await client.requestAccessToken(
+        code: code,
+        clientId: credentials.clientId,
+        codeVerifier: codeVerifier,
+        httpClient: _httpClient,
+      );
+    } catch (err) {
+      Log.error('[$runtimeType] token exchange failed: $err');
+      throw OidcAuthException('Token exchange failed: $err');
+    }
+
+    Log.info('[$runtimeType] token exchange completed: id=$id, state=$state');
+
+    return (
+      id: id,
+      credentials: credentials.copyWithTokens(
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+        expiry: response.expirationDate,
+      ),
+    );
   }
 }

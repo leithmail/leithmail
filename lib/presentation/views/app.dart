@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
+import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_view.dart';
 import 'package:leithmail/presentation/views/app_controller.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_view.dart';
 import 'package:leithmail/presentation/theme/app_theme.dart';
+import 'package:web/web.dart' as web;
 
 class App
     extends
@@ -26,6 +28,8 @@ class App
       home: Watch((context) {
         final isLoading = controller.isLoading.value;
         final hasAccounts = controller.hasAccounts.value;
+        final isAuthCallbackProcessing =
+            controller.isAuthCallbackProcessing.value;
 
         if (isLoading) {
           return const Scaffold(
@@ -33,10 +37,28 @@ class App
           );
         }
 
+        if (isAuthCallbackProcessing) {
+          return AddAccountView(
+            factory: controller.bindings.addAccountControllerFactory,
+            inputs: AddAccountControllerInputs(
+              onAccountAdded: controller.onAccountSwitched,
+              canGoBack: true,
+              onBack: () {
+                controller.isLoading.value = true;
+                controller.isAuthCallbackProcessing.value = false;
+                // redirect to the app root to clear any auth callback query parameters from the URL
+                web.window.location.href = Uri.base.origin;
+              },
+              authCode: controller.inputs.authCode,
+              authState: controller.inputs.authState,
+            ),
+          );
+        }
+
         if (!hasAccounts || controller.lastActiveAccount == null) {
           return AddAccountView(
             factory: controller.bindings.addAccountControllerFactory,
-            inputs: (
+            inputs: AddAccountControllerInputs(
               onAccountAdded: controller.onAccountSwitched,
               canGoBack: false,
             ),
