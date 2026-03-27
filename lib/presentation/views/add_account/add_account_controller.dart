@@ -3,9 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/entities/email_address.dart';
-import 'package:leithmail/domain/entities/jmap_session.dart';
 import 'package:leithmail/domain/usecases/account_usecases.dart';
-import 'package:leithmail/domain/usecases/fetch_jmap_session_usecase.dart';
 import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/base/controller_base.dart';
 import 'package:signals/signals.dart';
@@ -17,10 +15,9 @@ typedef AddAccountControllerBindings = ({
   AddAccountUsecase addAccountUsecase,
   DiscoverOidcProviderUsecase discoverOidcProviderUsecase,
   AuthenticateOidcUsecase authenticateOidcUsecase,
-  FetchJmapSessionUsecase fetchJmapSessionUsecase,
   GetAuthUrlOidcUsecase getAuthUrlOidcUsecase,
   FinishAuthFlowOidcUsecase finishAuthFlowOidcUsecase,
-  GetAuthenticatedAccountUsecase getAuthenticatedAccountUsecase,
+  RefreshAndGetAccountUsecase refreshAndGetAccountUsecase,
 });
 
 class AddAccountControllerInputs {
@@ -86,16 +83,11 @@ class AddAccountController
     );
     switch (finishAuthFlowResult) {
       case Success(:final data):
-        final EmailAddress emailAddress;
-        try {
-          emailAddress = EmailAddress.parse(data.id);
-        } catch (e) {
-          Log.warning('[$runtimeType] invalid email address', e);
-          errorMessage.value = 'Invalid email address.';
-          isLoading.value = false;
-          return;
-        }
-        await finishAuthFlow(emailAddress, data.credentials);
+        await finishAuthFlow(
+          accountId: data.accountId,
+          credentials: data.credentials,
+          jmapSessionEndpoint: data.jmapSessionEndpoint,
+        );
         break;
       case Failure():
         errorMessage.value = 'Authentication failed.';
@@ -120,15 +112,25 @@ class AddAccountController
       isLoading.value = false;
       return;
     }
+    final jmapSessionEndpoint = Uri.https(
+      emailAddress.domain,
+      '/.well-known/jmap',
+    );
+    final accountId = AccountId(emailAddress.value);
 
     // Check if account already exists and credentials are still valid
-    final getAuthAccountResult = await bindings.getAuthenticatedAccountUsecase(
-      AccountId(emailAddress.value),
+    final getAccountResult = await bindings.refreshAndGetAccountUsecase(
+      accountId,
     );
-    switch (getAuthAccountResult) {
+    switch (getAccountResult) {
       case Success(:final data):
         if (data != null) {
-          return finishAuthFlow(emailAddress, data.credentials);
+          await finishAuthFlow(
+            accountId: accountId,
+            credentials: data.credentials,
+            jmapSessionEndpoint: jmapSessionEndpoint,
+          );
+          return;
         }
         break;
       case Failure():
@@ -150,8 +152,9 @@ class AddAccountController
     // Authenticate (WEB only)
     if (kIsWeb) {
       final uriResult = await bindings.getAuthUrlOidcUsecase((
-        id: email,
+        accountId: accountId,
         credentials: oidcMetadata,
+        jmapSessionEndpoint: jmapSessionEndpoint,
         loginHint: email,
       ));
       switch (uriResult) {
@@ -180,38 +183,23 @@ class AddAccountController
         return;
     }
 
-    return finishAuthFlow(emailAddress, credentials);
+    await finishAuthFlow(
+      accountId: AccountId(emailAddress.value),
+      credentials: credentials,
+      jmapSessionEndpoint: jmapSessionEndpoint,
+    );
   }
 
-  Future<void> finishAuthFlow(
-    EmailAddress emailAddress,
-    Credentials credentials,
-  ) async {
-    // Fetch Jmap Session
-    final JmapSession jmapSession;
-    switch (await bindings.fetchJmapSessionUsecase(
-      FetchJmapSessionInput(
-        jmapSessionUri: Uri.https(emailAddress.domain, '/.well-known/jmap'),
-        credentials: credentials,
-      ),
-    )) {
-      case Success(:final data):
-        jmapSession = data;
-        break;
-      case Failure():
-        errorMessage.value = 'Unable to initiate JMAP session.';
-        isLoading.value = false;
-        return;
-    }
-
-    // Persist account
-    final account = Account(
-      emailAddress: emailAddress,
+  Future<void> finishAuthFlow({
+    required AccountId accountId,
+    required Credentials credentials,
+    required Uri jmapSessionEndpoint,
+  }) async {
+    switch (await bindings.addAccountUsecase((
+      jmapSessionEndpoint: jmapSessionEndpoint,
+      accountId: accountId,
       credentials: credentials,
-      jmapSession: jmapSession,
-    );
-
-    switch (await bindings.addAccountUsecase(account)) {
+    ))) {
       case Success():
         inputs.onSuccess();
         return;

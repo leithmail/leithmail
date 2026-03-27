@@ -12,14 +12,14 @@ class JmapRepositoryImpl implements JmapRepository {
 
   @override
   Future<JmapSession> fetchSession({
-    required Uri jmapSessionUri,
+    required Uri jmapSessionEndpoint,
     required Credentials credentials,
   }) async {
     final http.Response response;
 
     try {
       response = await _httpClient.get(
-        jmapSessionUri,
+        jmapSessionEndpoint,
         headers: {
           'Authorization': credentials.toAuthorizationHeader(),
           'Accept': 'application/json',
@@ -55,6 +55,7 @@ class JmapRepositoryImpl implements JmapRepository {
         downloadUrl: Uri.parse(json['downloadUrl'] as String),
         uploadUrl: Uri.parse(json['uploadUrl'] as String),
         eventSourceUrl: Uri.parse(json['eventSourceUrl'] as String),
+        sessionUrl: jmapSessionEndpoint,
       );
     } on FormatException catch (e) {
       throw JmapRepositoryException(

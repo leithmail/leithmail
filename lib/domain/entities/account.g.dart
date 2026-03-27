@@ -7,9 +7,7 @@ part of 'account.dart';
 // **************************************************************************
 
 Account _$AccountFromJson(Map<String, dynamic> json) => Account(
-  emailAddress: EmailAddress.fromJson(
-    json['emailAddress'] as Map<String, dynamic>,
-  ),
+  id: _accountIdFromJson(json['id'] as String),
   credentials: _credentialsFromJson(
     json['credentials'] as Map<String, dynamic>,
   ),
@@ -19,7 +17,7 @@ Account _$AccountFromJson(Map<String, dynamic> json) => Account(
 );
 
 Map<String, dynamic> _$AccountToJson(Account instance) => <String, dynamic>{
-  'emailAddress': instance.emailAddress,
+  'id': _accountIdToJson(instance.id),
   'credentials': _credentialsToJson(instance.credentials),
   'jmapSession': instance.jmapSession,
 };

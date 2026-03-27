@@ -11,6 +11,7 @@ JmapSession _$JmapSessionFromJson(Map<String, dynamic> json) => JmapSession(
   downloadUrl: Uri.parse(json['downloadUrl'] as String),
   uploadUrl: Uri.parse(json['uploadUrl'] as String),
   eventSourceUrl: Uri.parse(json['eventSourceUrl'] as String),
+  sessionUrl: Uri.parse(json['sessionUrl'] as String),
 );
 
 Map<String, dynamic> _$JmapSessionToJson(JmapSession instance) =>
@@ -19,4 +20,5 @@ Map<String, dynamic> _$JmapSessionToJson(JmapSession instance) =>
       'downloadUrl': instance.downloadUrl.toString(),
       'uploadUrl': instance.uploadUrl.toString(),
       'eventSourceUrl': instance.eventSourceUrl.toString(),
+      'sessionUrl': instance.sessionUrl.toString(),
     };

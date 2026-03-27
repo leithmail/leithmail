@@ -17,25 +17,22 @@ void main() {
 
   group('save', () {
     test('saves to both persistent and cache', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       expect(await persistent.read(account.id.value), isNotNull);
       expect(await cache.read(account.id.value), isNotNull);
     });
 
     test('saved account can be retrieved', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       final retrieved = await repository.getById(account.id);
-      expect(
-        retrieved?.emailAddress.toString(),
-        account.emailAddress.toString(),
-      );
+      expect(retrieved?.id.toString(), account.id.toString());
     });
 
     test('save overwrites existing account', () async {
       final account = Account.mock(
-        email: 'test@example.com',
+        id: AccountId('test@example.com'),
         credentials: OidcCredentials.mock(accessToken: 'token'),
       );
       await repository.save(account);
@@ -60,7 +57,7 @@ void main() {
     });
 
     test('overwrite is reflected in getAll', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
 
       final updated = account.copyWith(
@@ -90,7 +87,7 @@ void main() {
     });
 
     test('returns account from cache if available', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       await persistent.deleteAll(); // wipe persistent
       final retrieved = await repository.getById(account.id);
@@ -98,17 +95,14 @@ void main() {
     });
 
     test('falls back to persistent if not in cache', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await persistent.write(account.id.value, account.serialize());
       final retrieved = await repository.getById(account.id);
-      expect(
-        retrieved?.emailAddress.toString(),
-        account.emailAddress.toString(),
-      );
+      expect(retrieved?.id.toString(), account.id.toString());
     });
 
     test('caches account after reading from persistent', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await persistent.write(account.id.value, account.serialize());
       await repository.getById(
         account.id,
@@ -127,21 +121,21 @@ void main() {
     });
 
     test('returns all saved accounts', () async {
-      await repository.save(Account.mock(email: 'first@example.com'));
-      await repository.save(Account.mock(email: 'second@example.com'));
+      await repository.save(Account.mock(id: AccountId('first@example.com')));
+      await repository.save(Account.mock(id: AccountId('second@example.com')));
       final accounts = await repository.getAll();
       expect(accounts.length, 2);
     });
 
     test('reads from persistent on first call', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await persistent.write(account.id.value, account.serialize());
       final accounts = await repository.getAll();
       expect(accounts.length, 1);
     });
 
     test('reads from cache on subsequent calls', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       await repository.getAll(); // hydrates cache
       await persistent.deleteAll(); // wipe persistent
@@ -150,7 +144,7 @@ void main() {
     });
 
     test('cache is hydrated after first getAll', () async {
-      await repository.save(Account.mock(email: 'test@example.com'));
+      await repository.save(Account.mock(id: AccountId('test@example.com')));
       await repository.getAll(); // hydrates cache
       await persistent.deleteAll();
       expect(await repository.getAll(), isNotEmpty);
@@ -159,7 +153,7 @@ void main() {
 
   group('delete', () {
     test('removes from both persistent and cache', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       await repository.delete(account.id);
       expect(await persistent.read(account.id.value), isNull);
@@ -167,7 +161,7 @@ void main() {
     });
 
     test('returns null after delete', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       await repository.delete(account.id);
       expect(await repository.getById(account.id), isNull);
@@ -183,13 +177,10 @@ void main() {
 
   group('serialization roundtrip', () {
     test('account survives serialize/deserialize', () async {
-      final account = Account.mock(email: 'test@example.com');
+      final account = Account.mock(id: AccountId('test@example.com'));
       await repository.save(account);
       final retrieved = await repository.getById(account.id);
-      expect(
-        retrieved?.emailAddress.toString(),
-        account.emailAddress.toString(),
-      );
+      expect(retrieved?.id.toString(), account.id.toString());
       expect(retrieved?.credentials, isA<OidcCredentials>());
       expect(retrieved?.jmapSession.apiUrl, account.jmapSession.apiUrl);
     });
@@ -199,15 +190,12 @@ void main() {
     test(
       'getAll skips undeserializable accounts and returns valid ones',
       () async {
-        final account = Account.mock(email: 'valid@example.com');
+        final account = Account.mock(id: AccountId('valid@example.com'));
         await persistent.write(account.id.value, account.serialize());
         await persistent.write('corrupt@example.com', 'not-valid-json');
         final accounts = await repository.getAll();
         expect(accounts.length, 1);
-        expect(
-          accounts.first.emailAddress.toString(),
-          account.emailAddress.toString(),
-        );
+        expect(accounts.first.id.toString(), account.id.toString());
       },
     );
 
@@ -229,7 +217,7 @@ void main() {
     });
 
     test('getAll handles corrupt entries already in cache', () async {
-      final account = Account.mock(email: 'valid@example.com');
+      final account = Account.mock(id: AccountId('valid@example.com'));
       await repository.save(account);
       await repository.getAll(); // hydrates cache
       await cache.write(
@@ -238,10 +226,7 @@ void main() {
       ); // inject corrupt entry directly into cache
       final accounts = await repository.getAll(); // reads from cache
       expect(accounts.length, 1);
-      expect(
-        accounts.first.emailAddress.toString(),
-        account.emailAddress.toString(),
-      );
+      expect(accounts.first.id.toString(), account.id.toString());
     });
   });
 }

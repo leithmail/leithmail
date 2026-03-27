@@ -1,3 +1,4 @@
+import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 
 abstract class OidcRepository {
@@ -7,15 +8,20 @@ abstract class OidcRepository {
     OidcCredentials credentials, {
     String? loginHint,
   });
-  Future<Uri> getAuthUrl(
-    String id,
-    OidcCredentials credentials, {
+  Future<Uri> getAuthUrl({
+    required AccountId accountId,
+    required OidcCredentials credentials,
+    required Uri jmapSessionEndpoint,
     String? loginHint,
   });
-  Future<({String id, OidcCredentials credentials})> finishAuthFlow({
-    required String state,
-    required String code,
-  });
+  Future<
+    ({
+      AccountId accountId,
+      Uri jmapSessionEndpoint,
+      OidcCredentials credentials,
+    })
+  >
+  finishAuthFlow({required String state, required String code});
 }
 
 class OidcDiscoveryException implements Exception {

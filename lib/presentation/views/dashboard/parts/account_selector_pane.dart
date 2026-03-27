@@ -121,6 +121,7 @@ class AccountSelectorPane extends StatelessWidget {
   }
 
   Future<void> _onSelectAccount(AccountId id) async {
+    // any errors will be handled by the AppController when it tries to load the account after switching
     await controller.setActiveAccount(id);
     onClose();
     controller.inputs.onAccountSwitched();
@@ -160,7 +161,7 @@ class _AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final initials = account.emailAddress.value.substring(0, 2).toUpperCase();
+    final initials = account.id.value.substring(0, 2).toUpperCase();
 
     return ListTile(
       dense: true,
@@ -183,7 +184,7 @@ class _AccountTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        account.emailAddress.value,
+        account.id.value,
         style: TextStyle(
           fontSize: 12,
           fontWeight: isActive ? FontWeight.w500 : FontWeight.normal,

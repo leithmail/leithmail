@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
+import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
@@ -19,14 +19,14 @@ class AccountSettingsView
 
   Future<bool> _confirmAccountRemovalDialog(
     BuildContext context,
-    EmailAddress email,
+    AccountId accountId,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove account'),
         content: Text(
-          'Remove ${email.value}? '
+          'Remove $accountId? '
           'This will delete all local data for this account.',
         ),
         actions: [
@@ -55,7 +55,7 @@ class AccountSettingsView
   Widget build(BuildContext context, AccountSettingsController controller) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final initials = controller.inputs.account.emailAddress.value
+    final initials = controller.inputs.account.id.value
         .substring(0, 2)
         .toUpperCase();
 
@@ -94,7 +94,7 @@ class AccountSettingsView
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          controller.inputs.account.emailAddress.value,
+                          controller.inputs.account.id.value,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
@@ -142,7 +142,7 @@ class AccountSettingsView
                       : () async {
                           final confirm = await _confirmAccountRemovalDialog(
                             context,
-                            controller.inputs.account.emailAddress,
+                            controller.inputs.account.id,
                           );
                           if (confirm) {
                             await controller.removeAccount();

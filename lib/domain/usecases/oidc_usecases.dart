@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:leithmail/core/usecase/app_failure.dart';
 import 'package:leithmail/core/usecase/usecase_base.dart';
+import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/repositories/oidc_repository.dart';
 
@@ -64,8 +65,9 @@ class RefreshOidcCredentialsUsecase
 }
 
 typedef GetAuthUrlOidcUsecaseInput = ({
-  String id,
+  AccountId accountId,
   OidcCredentials credentials,
+  Uri jmapSessionEndpoint,
   String? loginHint,
 });
 
@@ -81,8 +83,9 @@ class GetAuthUrlOidcUsecase
     try {
       return right(
         await _repository.getAuthUrl(
-          input.id,
-          input.credentials,
+          accountId: input.accountId,
+          credentials: input.credentials,
+          jmapSessionEndpoint: input.jmapSessionEndpoint,
           loginHint: input.loginHint,
         ),
       );
@@ -100,8 +103,9 @@ class FinishAuthFlowOidcUsecaseInput {
 }
 
 typedef FinishAuthFlowOidcUsecaseOutput = ({
-  String id,
+  AccountId accountId,
   OidcCredentials credentials,
+  Uri jmapSessionEndpoint,
 });
 
 class FinishAuthFlowOidcUsecase
@@ -122,7 +126,11 @@ class FinishAuthFlowOidcUsecase
         state: input.state,
         code: input.code,
       );
-      return right((id: result.id, credentials: result.credentials));
+      return right((
+        accountId: result.accountId,
+        credentials: result.credentials,
+        jmapSessionEndpoint: result.jmapSessionEndpoint,
+      ));
     } catch (e) {
       return left(AuthFailure(e.toString()));
     }

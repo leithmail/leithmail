@@ -26,9 +26,9 @@ class App
       debugShowCheckedModeBanner: false,
       home: Watch((context) {
         final isLoading = controller.isLoading.value;
-        final hasAccounts = controller.hasAccounts.value;
         final isAuthCallbackProcessing =
             controller.isAuthCallbackProcessing.value;
+        final isAuthenticated = controller.isAuthenticated.value;
 
         if (isLoading) {
           return const Scaffold(
@@ -55,7 +55,7 @@ class App
           );
         }
 
-        if (!hasAccounts || controller.lastActiveAccount == null) {
+        if (!isAuthenticated) {
           return AddAccountView(
             factory: controller.bindings.addAccountControllerFactory,
             inputs: AddAccountControllerInputs(
@@ -65,10 +65,12 @@ class App
         }
 
         return DashboardView(
-          key: Key(controller.lastActiveAccount!.value.id.value),
+          key: Key(
+            controller.activeAccount.value.id.value,
+          ), // force rebuild when active account changes
           factory: controller.bindings.dashboardControllerFactory,
           inputs: (
-            activeAccount: controller.lastActiveAccount!,
+            activeAccount: controller.activeAccount,
             accountSummariesList: controller.accountSummariesList,
             onAccountSwitched: controller.onAccountSwitched,
           ),

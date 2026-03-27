@@ -15,9 +15,9 @@ import 'package:leithmail/domain/usecases/get_mailboxes_usecase.dart';
 typedef DashboardControllerBindings = ({
   GetMailboxesUsecase getMailboxesUsecase,
   GetEmailsUsecase getEmailsUsecase,
-  SetActiveAccountUsecase setActiveAccountUsecase,
   AddAccountControllerFactory addAccountControllerFactory,
   AccountSettingsControllerFactory accountSettingsControllerFactory,
+  RefreshAndSetActiveAccountUsecase refreshAndSetActiveAccountUsecase,
 });
 
 typedef DashboardControllerInputs = ({
@@ -61,7 +61,7 @@ class DashboardController
     debugLabel: 'DashboardController.selectedEmail',
   );
   final Signal<bool> isAccountSelectorPaneOpen = signal(
-    false,
+    true,
     debugLabel: 'DashboardController.isAccountSelectorPaneOpen',
   );
   final Signal<bool> isLoadingMailboxes = signal(
@@ -102,7 +102,8 @@ class DashboardController
   }
 
   Future<void> setActiveAccount(AccountId id) async {
-    await bindings.setActiveAccountUsecase(id);
+    // any errors will be handled by the AppController when it tries to load the account after switching
+    await bindings.refreshAndSetActiveAccountUsecase(id);
   }
 
   void selectEmail(MockEmail email) {

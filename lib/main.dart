@@ -5,7 +5,6 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:http/http.dart' as http;
 import 'package:leithmail/data/jmap_repository_impl.dart';
 import 'package:leithmail/data/oidc_repository_impl.dart';
-import 'package:leithmail/domain/usecases/fetch_jmap_session_usecase.dart';
 import 'package:leithmail/domain/usecases/oidc_usecases.dart';
 import 'package:leithmail/presentation/views/account_settings/account_settings_controller.dart';
 import 'package:leithmail/presentation/views/add_account/add_account_controller.dart';
@@ -64,21 +63,31 @@ void main() async {
   final jmapRepository = JmapRepositoryImpl(httpClient);
 
   // Usecases
-  final getActiveAccountUsecase = GetActiveAccountUsecase(
-    accountRepository,
-    activeAccountRepository,
+
+  final getAllAccountsUsecase = GetAllAccountsUsecase(
+    accountRepository: accountRepository,
   );
-  final getAllAccountsUsecase = GetAllAccountsUsecase(accountRepository);
-  final setActiveAccountUsecase = SetActiveAccountUsecase(
-    activeAccountRepository,
-  );
+
   final addAccountUsecase = AddAccountUsecase(
-    accountRepository,
-    activeAccountRepository,
+    accountRepository: accountRepository,
+    activeAccountRepository: activeAccountRepository,
+    jmapRepository: jmapRepository,
   );
   final removeAccountUsecase = RemoveAccountUsecase(
-    accountRepository,
-    activeAccountRepository,
+    accountRepository: accountRepository,
+    activeAccountRepository: activeAccountRepository,
+  );
+
+  final refreshAndGetAccountUsecase = RefreshAndGetAccountUsecase(
+    accountRepository: accountRepository,
+    jmapRepository: jmapRepository,
+  );
+  final refreshAndSetActiveAccountUsecase = RefreshAndSetActiveAccountUsecase(
+    activeAccountRepository: activeAccountRepository,
+    refreshAndGetAccountUsecase: refreshAndGetAccountUsecase,
+  );
+  final getActiveAccountIdUsecase = GetActiveAccountIdUsecase(
+    activeAccountRepository: activeAccountRepository,
   );
 
   final getMailboxesUsecase = GetMailboxesUsecase(mailboxesRepository);
@@ -89,13 +98,8 @@ void main() async {
   );
   final authenticateOidcUsecase = AuthenticateOidcUsecase(oidcRepository);
 
-  final fetchJmapSessionUsecase = FetchJmapSessionUsecase(jmapRepository);
-
   final getAuthUrlOidcUsecase = GetAuthUrlOidcUsecase(oidcRepository);
   final finishAuthFlowOidcUsecase = FinishAuthFlowOidcUsecase(oidcRepository);
-  final getAuthenticatedAccountUsecase = GetAuthenticatedAccountUsecase(
-    accountRepository,
-  );
 
   // Controller factories
   final addAccountControllerFactory = AddAccountControllerFactory(
@@ -103,10 +107,9 @@ void main() async {
       addAccountUsecase: addAccountUsecase,
       discoverOidcProviderUsecase: discoverOidcProviderUsecase,
       authenticateOidcUsecase: authenticateOidcUsecase,
-      fetchJmapSessionUsecase: fetchJmapSessionUsecase,
       getAuthUrlOidcUsecase: getAuthUrlOidcUsecase,
       finishAuthFlowOidcUsecase: finishAuthFlowOidcUsecase,
-      getAuthenticatedAccountUsecase: getAuthenticatedAccountUsecase,
+      refreshAndGetAccountUsecase: refreshAndGetAccountUsecase,
     ),
   );
 
@@ -120,7 +123,7 @@ void main() async {
       getEmailsUsecase: getEmailsUsecase,
       addAccountControllerFactory: addAccountControllerFactory,
       accountSettingsControllerFactory: accountSettingsControllerFactory,
-      setActiveAccountUsecase: setActiveAccountUsecase,
+      refreshAndSetActiveAccountUsecase: refreshAndSetActiveAccountUsecase,
     ),
   );
 
@@ -129,9 +132,9 @@ void main() async {
       dashboardControllerFactory: dashboardControllerFactory,
       addAccountControllerFactory: addAccountControllerFactory,
       accountSettingsControllerFactory: accountSettingsControllerFactory,
-      getActiveAccountUsecase: getActiveAccountUsecase,
       getAllAccountsUsecase: getAllAccountsUsecase,
-      setActiveAccountUsecase: setActiveAccountUsecase,
+      getActiveAccountIdUsecase: getActiveAccountIdUsecase,
+      refreshAndGetAccountUsecase: refreshAndGetAccountUsecase,
     ),
   );
 

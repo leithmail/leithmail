@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/domain/entities/jmap_session.dart';
 
 part 'account.g.dart';
@@ -11,19 +10,17 @@ extension type AccountId(String value) {}
 
 @JsonSerializable()
 class Account {
-  final EmailAddress emailAddress;
-
+  @JsonKey(fromJson: _accountIdFromJson, toJson: _accountIdToJson)
+  final AccountId id;
   @JsonKey(fromJson: _credentialsFromJson, toJson: _credentialsToJson)
   final Credentials credentials;
   final JmapSession jmapSession;
 
   const Account({
-    required this.emailAddress,
+    required this.id,
     required this.credentials,
     required this.jmapSession,
   });
-
-  AccountId get id => AccountId(emailAddress.toString());
 
   // coverage:ignore-start
   @override
@@ -32,7 +29,7 @@ class Account {
 
   Account copyWith({Credentials? credentials, JmapSession? jmapSession}) {
     return Account(
-      emailAddress: emailAddress,
+      id: id,
       credentials: credentials ?? this.credentials,
       jmapSession: jmapSession ?? this.jmapSession,
     );
@@ -49,11 +46,11 @@ class Account {
   String serialize() => jsonEncode(toJson());
 
   factory Account.mock({
-    String email = 'test@example.com',
+    AccountId? id,
     Credentials? credentials,
     JmapSession? jmapSession,
   }) => Account(
-    emailAddress: EmailAddress.parse(email),
+    id: id ?? AccountId('test@example.com'),
     credentials: credentials ?? OidcCredentials.mock(),
     jmapSession: jmapSession ?? JmapSession.mock(),
   );
@@ -68,3 +65,6 @@ Credentials _credentialsFromJson(Map<String, dynamic> map) =>
 Map<String, dynamic> _credentialsToJson(Credentials c) => switch (c) {
   OidcCredentials() => {'type': 'oidc', ...c.toJson()},
 };
+
+AccountId _accountIdFromJson(String v) => AccountId(v);
+String _accountIdToJson(AccountId id) => id.value;

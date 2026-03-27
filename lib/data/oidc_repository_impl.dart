@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:leithmail/core/logging/log.dart';
 import 'package:leithmail/core/services/storage_service.dart';
+import 'package:leithmail/domain/entities/account.dart';
 import 'package:leithmail/domain/entities/credentials.dart';
 import 'package:leithmail/domain/repositories/oidc_repository.dart';
 import 'package:oauth2_client/access_token_response.dart';
@@ -142,9 +143,10 @@ class OidcRepositoryImpl implements OidcRepository {
   }
 
   @override
-  Future<Uri> getAuthUrl(
-    String id,
-    OidcCredentials credentials, {
+  Future<Uri> getAuthUrl({
+    required AccountId accountId,
+    required OidcCredentials credentials,
+    required Uri jmapSessionEndpoint,
     String? loginHint,
   }) async {
     final client = OAuth2Client(
@@ -171,21 +173,26 @@ class OidcRepositoryImpl implements OidcRepository {
     await _persistent.write(
       state,
       jsonEncode({
-        'id': id,
+        'account_id': accountId.value,
         'code_verifier': codeVerifier,
         'credentials': credentials.toJson(),
+        'jmap_session_endpoint': jmapSessionEndpoint.toString(),
       }),
     );
 
-    Log.info('[$runtimeType] generated auth URL: id=$id, state=$state');
+    Log.info('[$runtimeType] generated auth URL: id=$accountId, state=$state');
     return Uri.parse(uri);
   }
 
   @override
-  Future<({String id, OidcCredentials credentials})> finishAuthFlow({
-    required String state,
-    required String code,
-  }) async {
+  Future<
+    ({
+      AccountId accountId,
+      OidcCredentials credentials,
+      Uri jmapSessionEndpoint,
+    })
+  >
+  finishAuthFlow({required String state, required String code}) async {
     final raw = await _persistent.read(state);
     if (raw == null) {
       throw OidcAuthException('No pending auth flow found for state=$state');
@@ -194,10 +201,13 @@ class OidcRepositoryImpl implements OidcRepository {
     final pending = jsonDecode(raw) as Map<String, dynamic>;
     await _persistent.delete(state);
 
-    final id = pending['id'] as String;
+    final id = pending['account_id'] as String;
     final codeVerifier = pending['code_verifier'] as String;
     final credentials = OidcCredentials.fromJson(
       pending['credentials'] as Map<String, dynamic>,
+    );
+    final jmapSessionEndpoint = Uri.parse(
+      pending['jmap_session_endpoint'] as String,
     );
 
     final client = OAuth2Client(
@@ -223,7 +233,8 @@ class OidcRepositoryImpl implements OidcRepository {
     Log.info('[$runtimeType] token exchange completed: id=$id, state=$state');
 
     return (
-      id: id,
+      accountId: AccountId(id),
+      jmapSessionEndpoint: jmapSessionEndpoint,
       credentials: credentials.copyWithTokens(
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,

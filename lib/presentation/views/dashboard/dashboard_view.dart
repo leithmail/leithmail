@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:leithmail/domain/entities/email_address.dart';
 import 'package:leithmail/presentation/base/controller_widget.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:leithmail/presentation/views/dashboard/dashboard_controller.dart';
@@ -102,7 +101,7 @@ class _DesktopLayout extends StatelessWidget {
                             final account =
                                 controller.inputs.activeAccount.value;
                             return _AccountChip(
-                              email: account.emailAddress,
+                              displayName: account.id.value,
                               isOpen:
                                   controller.isAccountSelectorPaneOpen.value,
                               onTap: controller.toggleAccountSelectorPane,
@@ -226,7 +225,7 @@ class _MobileLayout extends StatelessWidget {
                     radius: 14,
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     child: Text(
-                      account.emailAddress.value.substring(0, 2).toUpperCase(),
+                      account.id.value.substring(0, 2).toUpperCase(),
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
@@ -251,19 +250,19 @@ class _MobileLayout extends StatelessWidget {
 
 class _AccountChip extends StatelessWidget {
   const _AccountChip({
-    required this.email,
+    required this.displayName,
     required this.isOpen,
     required this.onTap,
   });
 
-  final EmailAddress email;
+  final String displayName;
   final bool isOpen;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final initials = email.value.substring(0, 2).toUpperCase();
+    final initials = displayName.substring(0, 2).toUpperCase();
 
     return InkWell(
       onTap: onTap,
@@ -273,7 +272,7 @@ class _AccountChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(email.value),
+            Text(displayName),
             const SizedBox(width: 16),
             CircleAvatar(
               radius: 20,

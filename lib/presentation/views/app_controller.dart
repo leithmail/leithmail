@@ -17,9 +17,9 @@ typedef AppControllerBindings = ({
   AddAccountControllerFactory addAccountControllerFactory,
   AccountSettingsControllerFactory accountSettingsControllerFactory,
 
-  GetActiveAccountUsecase getActiveAccountUsecase,
   GetAllAccountsUsecase getAllAccountsUsecase,
-  SetActiveAccountUsecase setActiveAccountUsecase,
+  GetActiveAccountIdUsecase getActiveAccountIdUsecase,
+  RefreshAndGetAccountUsecase refreshAndGetAccountUsecase,
 });
 
 typedef AppControllerInputs = ({
@@ -54,27 +54,24 @@ class AppController
     debugLabel: 'AppController.isAuthCallbackProcessing',
   );
 
-  Signal<Account>? lastActiveAccount;
+  Signal<Account> activeAccount = signal(
+    Account.mock(),
+    debugLabel: 'AppController.activeAccount',
+  );
+
+  final Signal<bool> isAuthenticated = signal(
+    false,
+    debugLabel: 'AppController.isAuthenticated',
+  );
 
   final Signal<List<Account>> _accountsList = signal(
     [],
     debugLabel: 'AppController.accountsList',
   );
 
-  late final Computed<bool> hasAccounts = computed(
-    () => _accountsList.value.isNotEmpty,
-    debugLabel: 'AppController.hasAccounts',
-  );
-
   late final Computed<List<AccountSummary>> accountSummariesList = computed(
     () => _accountsList.value
-        .map(
-          (a) => AccountSummary(
-            id: a.id,
-            emailAddress: a.emailAddress,
-            unreadCount: 0,
-          ),
-        )
+        .map((a) => AccountSummary(id: a.id, unreadCount: 0))
         .toList(),
     debugLabel: 'AppController.accountSummariesList',
   );
@@ -88,38 +85,50 @@ class AppController
     reloadAccounts();
   }
 
-  void _initAndSetLastActiveAccountSignal(Account account) {
-    if (lastActiveAccount != null) {
-      lastActiveAccount!.value = account;
-    } else {
-      lastActiveAccount = Signal(
-        account,
-        debugLabel: 'AppController.lastActiveAccount',
-      );
-    }
-  }
+  Future<void> updateActiveAccount() async {
+    final AccountId activeAccountId;
+    final activeAccountIdResult = await bindings.getActiveAccountIdUsecase(
+      NoInput,
+    );
 
-  Future<void> updateLastActiveAccountSignal() async {
-    final activeAccountResult = await bindings.getActiveAccountUsecase(NoInput);
-    switch (activeAccountResult) {
-      case Success(data: final activeAccount):
-        Log.info('[AppController] activeAccount: ${activeAccount?.id.value}');
-        if (activeAccount != null) {
-          _initAndSetLastActiveAccountSignal(activeAccount);
-        }
-        if (activeAccount == null && hasAccounts.value) {
-          _initAndSetLastActiveAccountSignal(_accountsList.value.first);
+    switch (activeAccountIdResult) {
+      case Failure():
+        activeAccount.value = Account.mock();
+        isAuthenticated.value = false;
+        return;
+      case Success(data: final accountId):
+        if (accountId == null) {
+          activeAccount.value = Account.mock();
+          isAuthenticated.value = false;
           return;
+        }
+        activeAccountId = accountId;
+    }
+
+    final activeAccountResult = await bindings.refreshAndGetAccountUsecase(
+      activeAccountId,
+    );
+    switch (activeAccountResult) {
+      case Success(data: final account):
+        if (account != null) {
+          activeAccount.value = account;
+          isAuthenticated.value = true;
+        } else {
+          isAuthenticated.value = false;
+          activeAccount.value = Account.mock();
         }
         return;
       case Failure():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        // Account exists but the authentication expired and couldn't be refreshed, or JMAP session couldn't be refreshed
+        // TODO: implement some login_hint or error message to explain the situation to the user
+        isAuthenticated.value = false;
+        activeAccount.value = Account.mock();
+        return;
     }
   }
 
   Future<void> reloadAccounts() async {
-    Log.info('[AppController] reloadAccounts');
+    Log.info('[$runtimeType] reloadAccounts');
     isLoading.value = true;
 
     await Future.delayed(const Duration(seconds: 1));
@@ -127,12 +136,11 @@ class AppController
     final accountsResult = await bindings.getAllAccountsUsecase(NoInput);
     switch (accountsResult) {
       case Failure():
-        // TODO: Handle accounts loading failure.
         isLoading.value = false;
         return;
       case Success(data: final accounts):
         _accountsList.value = accounts;
-        await updateLastActiveAccountSignal();
+        await updateActiveAccount();
         isLoading.value = false;
     }
   }
@@ -144,10 +152,10 @@ class AppController
   @override
   void onDispose() {
     isLoading.dispose();
-    hasAccounts.dispose();
     accountSummariesList.dispose();
     _accountsList.dispose();
-    lastActiveAccount?.dispose();
+    activeAccount.dispose();
+    isAuthenticated.dispose();
     isAuthCallbackProcessing.dispose();
   }
 }
