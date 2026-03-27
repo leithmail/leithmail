@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:http/http.dart' as http;
+import 'package:leithmail/core/services/http_client.dart';
 import 'package:leithmail/data/jmap_repository_impl.dart';
 import 'package:leithmail/data/oidc_repository_impl.dart';
 import 'package:leithmail/domain/usecases/oidc_usecases.dart';
@@ -42,7 +42,7 @@ void main() async {
   );
 
   // Repositories
-  final httpClient = http.Client();
+  final httpClient = HttpClient();
   final accountRepository = AccountRepositoryImpl(
     persistent: storageFactory.secure('account'),
     cache: storageFactory.memory('account'),
