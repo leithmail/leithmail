@@ -85,6 +85,16 @@ class AppController
     reloadAccounts();
   }
 
+  void _setActiveAccount(Account? account) {
+    // The activeAccount signal is always not null, so the UI widgets does not have to handle null cases.
+    // This controller is responsible for ensuring widgets with mock Account are never shown to the user by cheking isAuthenticated signal.
+    // This helper tries to minimaze the possibility of accidentally having isAuthenticated = true while activeAccount is a mock.
+    batch(() {
+      activeAccount.value = account ?? Account.mock();
+      isAuthenticated.value = account != null;
+    });
+  }
+
   Future<void> updateActiveAccount() async {
     final AccountId activeAccountId;
     final activeAccountIdResult = await bindings.getActiveAccountIdUsecase(
@@ -93,13 +103,11 @@ class AppController
 
     switch (activeAccountIdResult) {
       case Failure():
-        activeAccount.value = Account.mock();
-        isAuthenticated.value = false;
+        _setActiveAccount(null);
         return;
       case Success(data: final accountId):
         if (accountId == null) {
-          activeAccount.value = Account.mock();
-          isAuthenticated.value = false;
+          _setActiveAccount(null);
           return;
         }
         activeAccountId = accountId;
@@ -110,39 +118,31 @@ class AppController
     );
     switch (activeAccountResult) {
       case Success(data: final account):
-        if (account != null) {
-          activeAccount.value = account;
-          isAuthenticated.value = true;
-        } else {
-          isAuthenticated.value = false;
-          activeAccount.value = Account.mock();
-        }
-        return;
+        _setActiveAccount(account);
+        break;
       case Failure():
         // Account exists but the authentication expired and couldn't be refreshed, or JMAP session couldn't be refreshed
         // TODO: implement some login_hint or error message to explain the situation to the user
-        isAuthenticated.value = false;
-        activeAccount.value = Account.mock();
-        return;
+        _setActiveAccount(null);
+        break;
     }
   }
 
   Future<void> reloadAccounts() async {
     Log.info('[$runtimeType] reloadAccounts');
     isLoading.value = true;
-
     await Future.delayed(const Duration(seconds: 1));
-
     final accountsResult = await bindings.getAllAccountsUsecase(NoInput);
     switch (accountsResult) {
       case Failure():
-        isLoading.value = false;
-        return;
+        _setActiveAccount(null);
+        break;
       case Success(data: final accounts):
         _accountsList.value = accounts;
         await updateActiveAccount();
-        isLoading.value = false;
+        break;
     }
+    isLoading.value = false;
   }
 
   void onAccountSwitched() {
